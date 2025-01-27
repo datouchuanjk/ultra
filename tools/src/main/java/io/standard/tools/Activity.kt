@@ -10,18 +10,15 @@ internal val WeakReferenceActivities = LinkedHashMap<Int, WeakReference<Activity
 val Activities
     get() = WeakReferenceActivities
         .map { it.value }
-        .map { it.get() }
+        .mapNotNull { it.get() }
 
 val PeekActivity
     get() = Activities.lastOrNull()
 
 fun killAllActivities() {
-    Activities
-        .mapNotNull {
-            it
-        }.forEach {
-            it.finish()
-        }
+    Activities.forEach {
+        it.finish()
+    }
 }
 
 internal fun registerActivitiesObserver() {

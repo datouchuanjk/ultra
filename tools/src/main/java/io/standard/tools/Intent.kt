@@ -31,5 +31,3 @@ val Intent.isActivityExists get() = resolveActivity(App.packageManager) != null
 inline fun <reified T : Activity> intentOf(block: Intent.() -> Unit = {}) =
     Intent(App, T::class.java).apply(block)
 
-inline fun intentOf(block: Intent.() -> Unit) = Intent().apply(block)
-
