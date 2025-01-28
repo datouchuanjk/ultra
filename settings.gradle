@@ -21,6 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "demo_lib"
 include ':app'
-include ':composable'
-include ':paging3'
-include ':tools'
+include ':banner'
+include ':swipe'
+include ':picker'
+include ':paging'
+include ':develop'

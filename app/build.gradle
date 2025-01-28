@@ -71,7 +71,9 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
     implementation libs.androidx.lifecycle.process
-    implementation project(':paging3')
-    implementation project(':tools')
-    implementation project(':composable')
+    implementation project(':develop')
+    implementation project(':banner')
+    implementation project(':paging')
+    implementation project(':swipe')
+    implementation project(':picker')
 }
