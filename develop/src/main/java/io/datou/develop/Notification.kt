@@ -1,14 +1,13 @@
 package io.datou.develop
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.Notification
-import android.app.NotificationManager
-import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
-@SuppressLint("MissingPermission")
+@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun Notification.show(
     id: Int = System.currentTimeMillis().toInt(),
 ) {
@@ -47,22 +46,6 @@ fun createNotificationChannel(
             .apply(buildAction)
             .build()
     )
-}
-
-fun areNotificationsEnabled(): Boolean {
-    val manager = NotificationManagerCompat.from(App)
-    return manager.areNotificationsEnabled()
-}
-
-fun areNotificationChannelEnabled(channelId: String): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val manager = NotificationManagerCompat.from(App)
-        val channel = manager.getNotificationChannel(channelId) ?: return false
-        return channel.importance > NotificationManager.IMPORTANCE_NONE
-                && areNotificationsEnabled()
-    } else {
-        return areNotificationsEnabled()
-    }
 }
 
 val NotificationChannels: List<NotificationChannelCompat>

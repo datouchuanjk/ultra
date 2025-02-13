@@ -32,6 +32,18 @@ var Calendar.dayOfWeek: Int
         set(Calendar.DAY_OF_WEEK, value)
     }
 
+val Calendar.dayOfWeekFormat: String
+    get() = when (dayOfWeek) {
+        Calendar.SUNDAY -> "周日"
+        Calendar.MONDAY -> "周一"
+        Calendar.TUESDAY -> "周二"
+        Calendar.WEDNESDAY -> "周三"
+        Calendar.THURSDAY -> "周四"
+        Calendar.FRIDAY -> "周五"
+        Calendar.SATURDAY -> "周六"
+        else -> error("")
+    }
+
 val Calendar.weekOfMonthByCN: Int
     get() {
         weekOfMonth.run {
@@ -123,3 +135,14 @@ fun Calendar.isSomeYeah(calendar: Calendar): Boolean {
     return year == calendar.year
 }
 
+fun Calendar.simpleFormat(): String {
+    val now = Calendar.getInstance()
+    return when {
+        isSomeDay(now) -> "${hourOfDay}:${minute}"
+        isYesterday(now) -> "昨天 ${hourOfDay}:${minute}"
+        isSomeWeekByCN(now) -> "$dayOfWeekFormat ${hourOfDay}:${minute}"
+        isSomeMonth(now) -> "${weekOfMonth}日 ${hourOfDay}:${minute}"
+        isSomeYeah(now) -> "${month + 1}月${weekOfMonth}日 ${hourOfDay}:${minute}"
+        else -> "${year}年${month + 1}月${weekOfMonth}日 ${hourOfDay}:${minute}"
+    }
+}

@@ -19,10 +19,11 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "demo_lib"
+rootProject.name = "Devil"
 include ':app'
-include ':banner'
-include ':swipe'
-include ':picker'
-include ':paging'
+//include ':banner'
+//include ':swipe'
+//include ':picker'
+include ':paging3'
 include ':develop'
+//include ':chat'

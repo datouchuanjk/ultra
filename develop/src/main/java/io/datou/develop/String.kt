@@ -10,11 +10,11 @@ fun String.filterDigit() = filter {
     it.isDigit()
 }
 
-fun String.filterEN() = filter {
+fun String.filterEnglish() = filter {
     it in 'a'..'z' || it in 'A'..'Z'
 }
 
-fun String.filterCN() = filter {
+fun String.filterChinese() = filter {
     it in '\u4e00'..'\u9fa5'
 }
 

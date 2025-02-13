@@ -2,9 +2,10 @@ package io.datou.develop
 
 import java.text.DecimalFormat
 
-fun Number.format2f(): String {
-    val decimalFormat = DecimalFormat("#.##")
-    return decimalFormat.format(this)
+internal val InternalDecimalFormat = DecimalFormat("#.##")
+
+fun Number.format2f(): Float {
+    return InternalDecimalFormat.format(this).toFloat()
 }
 
 fun Number.formatFileSize(): String {

@@ -1,13 +1,14 @@
 package io.datou.develop
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.annotation.RequiresPermission
 import androidx.core.content.getSystemService
 
-@SuppressLint("MissingPermission")
+@RequiresPermission(Manifest.permission.VIBRATE)
 fun vibrate(duration: Long = 50) {
     val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         App.getSystemService<VibratorManager>()?.defaultVibrator

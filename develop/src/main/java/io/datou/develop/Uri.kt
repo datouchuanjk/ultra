@@ -11,9 +11,5 @@ fun File.toProviderUri(
 
 fun <R> Uri.useStream(
     block: (InputStream) -> R
-) = try {
-    App.contentResolver.openInputStream(this)?.use(block)
-} catch (e: Exception) {
-    null
-}
+) = App.contentResolver.openInputStream(this)?.use(block)
 

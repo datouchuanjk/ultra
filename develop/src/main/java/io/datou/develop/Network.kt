@@ -1,46 +1,54 @@
 package io.datou.develop
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import androidx.annotation.RequiresPermission
 import androidx.core.content.getSystemService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-private val InternalNetworkObserver = MutableStateFlow(
-    App.getSystemService<ConnectivityManager>().getNetworkStatus()
-)
+internal val InternalConnectivityManager by lazy {
+    App.getSystemService<ConnectivityManager>()
+}
+
+internal val InternalNetworkObserver = MutableStateFlow(networkStatus)
 
 val NetworkObserver = InternalNetworkObserver.asStateFlow()
 
-@SuppressLint("MissingPermission")
+@RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
 internal fun registerNetworkObserver() {
-    val connectivityManager = App.getSystemService<ConnectivityManager>()
     val callback = object : ConnectivityManager.NetworkCallback() {
+        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
         override fun onAvailable(network: Network) {
-            InternalNetworkObserver.value = connectivityManager.getNetworkStatus()
+            InternalNetworkObserver.value = networkStatus
         }
 
         override fun onLost(network: Network) {
             InternalNetworkObserver.value = NetworkStatus.Unknown
         }
     }
-    connectivityManager?.registerDefaultNetworkCallback(callback)
+    InternalConnectivityManager?.registerDefaultNetworkCallback(callback)
 }
 
-@SuppressLint("MissingPermission")
-private fun ConnectivityManager?.getNetworkStatus(network: Network? = this?.activeNetwork) =
-    this?.getNetworkCapabilities(network)?.let {
-        when {
-            it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkStatus.Wifi
-            it.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                NetworkStatus.Mobile(it.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
-            }
 
-            else -> NetworkStatus.Other
-        }
-    } ?: NetworkStatus.Unknown
+internal val networkStatus: NetworkStatus
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() {
+        return InternalConnectivityManager?.getNetworkCapabilities(InternalConnectivityManager?.activeNetwork)
+            ?.let {
+                when {
+                    it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkStatus.Wifi
+                    it.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                        NetworkStatus.Mobile(it.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
+                    }
+
+                    else -> NetworkStatus.Other
+                }
+            } ?: NetworkStatus.Unknown
+    }
 
 
 sealed class NetworkStatus {

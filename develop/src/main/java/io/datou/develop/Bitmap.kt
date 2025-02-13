@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
+fun Bitmap.compressToBytes(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
     var quality = 100
     compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
@@ -25,7 +25,7 @@ fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     return outputStream.toByteArray()
 }
 
-inline fun decodeToSampleBitmap(
+inline fun decodeToScaledBitmap(
     reqWidth: Int,
     reqHeight: Int,
     block: (BitmapFactory.Options) -> Bitmap?
@@ -77,19 +77,18 @@ private fun Bitmap.saveToGalleryAboveQ(
     val contentResolver = App.contentResolver
     val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
     return try {
-        uri?.let {
+        uri?.also {
             contentResolver.openOutputStream(it)?.use { outputStream ->
                 compress(format, quality, outputStream)
                 outputStream.flush()
             }
             values.put(MediaStore.Images.Media.IS_PENDING, 0)
             contentResolver.update(it, values, null, null)
-            it
         }
     } catch (e: Exception) {
         e.printStackTrace()
         uri?.let { contentResolver.delete(it, null, null) }
-        null
+        throw e
     }
 }
 
@@ -97,26 +96,25 @@ private fun Bitmap.saveToGalleryBelowQ(
     fileName: String,
     format: Bitmap.CompressFormat,
     quality: Int
-): Uri? {
-    val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-    val file = File(directory, "$fileName.${format.name.lowercase()}")
-    if (file.exists()) {
-        file.deleteRecursively()
-    }
-    return try {
+): Uri {
+    val file = createFileInExternalStoragePublicDirectory(
+        Environment.DIRECTORY_PICTURES,
+        "$fileName.${format.name.lowercase()}"
+    )
+    try {
         FileOutputStream(file).use {
             compress(format, quality, it)
             it.flush()
         }
-        MediaScannerConnection.scanFile(
-            App,
-            arrayOf(file.absolutePath),
-            arrayOf("image/${format.name.lowercase()}"),
-            null
-        )
-        file.toUri()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
+    }catch (e:Exception){
+        file.deleteRecursively()
+        throw e
     }
+    MediaScannerConnection.scanFile(
+        App,
+        arrayOf(file.absolutePath),
+        arrayOf("image/${format.name.lowercase()}"),
+        null
+    )
+    return file.toUri()
 }

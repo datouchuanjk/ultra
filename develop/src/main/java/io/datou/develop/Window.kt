@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.Window
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
@@ -23,5 +24,9 @@ fun Window.updateAttributes(block: WindowManager.LayoutParams.() -> Unit) {
     val attributes = this.attributes
     attributes.block()
     this.attributes = attributes
+}
+
+fun Activity.addSecureFlag() {
+    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 }
 

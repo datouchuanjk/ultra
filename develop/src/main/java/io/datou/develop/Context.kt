@@ -3,6 +3,7 @@ package io.datou.develop
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -11,9 +12,8 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-
-@Composable
-fun findActivity() = LocalContext.current.findActivity()
+import java.io.File
+import java.io.FileNotFoundException
 
 fun Context.findActivity(): Activity? {
     var context = this
@@ -56,30 +56,6 @@ val VersionName: String by lazy {
     packageInfo.versionName.orEmpty()
 }
 
-val AppLabel: String by lazy {
-    val applicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getApplicationInfo(
-            App.packageName,
-            PackageManager.ApplicationInfoFlags.of(0)
-        )
-    } else {
-        App.packageManager.getApplicationInfo(App.packageName, 0)
-    }
-    App.packageManager.getApplicationLabel(applicationInfo).toString()
-}
-
-val AppIcon: Drawable by lazy {
-    val applicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getApplicationInfo(
-            App.packageName,
-            PackageManager.ApplicationInfoFlags.of(0)
-        )
-    } else {
-        App.packageManager.getApplicationInfo(App.packageName, 0)
-    }
-    App.packageManager.getApplicationIcon(applicationInfo)
-}
-
 val InstalledPackages: List<PackageInfo>
     get() {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -101,7 +77,7 @@ val MetaData: Bundle by lazy {
     applicationInfo.metaData
 }
 
-fun Context.applyDensityContext(designWidth: Float): Context {
+fun Context.createDensityContext(designWidth: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(designWidth)
         .times(DisplayMetrics.DENSITY_DEFAULT)
@@ -109,4 +85,22 @@ fun Context.applyDensityContext(designWidth: Float): Context {
     configuration.fontScale = 1f
     configuration.densityDpi = newDensityDpi.toInt()
     return createConfigurationContext(configuration)
+}
+
+fun Context.installApk(
+    apkFile: File,
+    authority: String = App.packageName + ".fileProvider"
+) {
+    if (!apkFile.exists()) {
+        throw FileNotFoundException(apkFile.absolutePath)
+    }
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        setDataAndType(
+            apkFile.toProviderUri(authority = authority),
+            "application/vnd.android.package-archive"
+        )
+    }
+    startActivity(intent)
 }

@@ -1,14 +1,35 @@
 package io.datou.develop
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationManagerCompat
 
 object CustomActivityResultContracts {
-
     class OpenNotificationSettings : ActivityResultContract<String?, Boolean>() {
+        companion object {
+            fun areNotificationsEnabled(): Boolean {
+                val manager = NotificationManagerCompat.from(App)
+                return manager.areNotificationsEnabled()
+            }
+
+            fun areNotificationChannelEnabled(channelId: String): Boolean {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val manager = NotificationManagerCompat.from(App)
+                    val channel = manager.getNotificationChannel(channelId) ?: return false
+                    return channel.importance > NotificationManager.IMPORTANCE_NONE
+                            && areNotificationsEnabled()
+                } else {
+                    return areNotificationsEnabled()
+                }
+            }
+        }
+
         private var _channelId: String? = null
         override fun createIntent(context: Context, input: String?): Intent {
             _channelId = input
@@ -31,11 +52,35 @@ object CustomActivityResultContracts {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return if (_channelId.isNullOrEmpty()) {
-                areNotificationsEnabled()
-            } else {
-                areNotificationChannelEnabled(_channelId!!)
+            return _channelId?.let {
+                areNotificationChannelEnabled(it)
+            } ?: areNotificationsEnabled()
+        }
+    }
+
+    class RequestPackageInstalls : ActivityResultContract<Unit, Boolean>() {
+        companion object {
+            fun canRequestPackageInstalls(): Boolean {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    App.packageManager.canRequestPackageInstalls()
+                } else {
+                    true
+                }
             }
+        }
+
+        override fun createIntent(context: Context, input: Unit): Intent {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                }
+            } else {
+                Intent(Intent.ACTION_VIEW)
+            }
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
+            return canRequestPackageInstalls()
         }
     }
 }

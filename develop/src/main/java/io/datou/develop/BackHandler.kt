@@ -9,7 +9,7 @@ fun ComponentActivity.confirmExit(
     doubleClickInterval: Long = 1500,
     action: (Int) -> Unit = {
         if (it == 1) {
-            toast("Click again to exit application")
+            toast("Click again to exit App")
         } else {
             finish()
         }

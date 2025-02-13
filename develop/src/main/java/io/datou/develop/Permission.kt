@@ -1,19 +1,19 @@
 package io.datou.develop
 
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale as S
-import androidx.core.content.ContextCompat.checkSelfPermission as C
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 fun isPermissionGranted(vararg name: String): Boolean {
     return name.all {
-        C(App, it) == PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(App, it) == PERMISSION_GRANTED
     }
 }
 
 fun isPermissionPermanentlyDenied(vararg name: String): Boolean {
     return name.all {
         !isPermissionGranted(it) && PeekActivity?.let { activity ->
-            !S(activity, it)
+            !ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
         } ?: false
     }
 }

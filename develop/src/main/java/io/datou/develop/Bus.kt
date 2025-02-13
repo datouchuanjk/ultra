@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 
 @PublishedApi
-internal val BusEvents = MutableSharedFlow<Any>()
+internal val InternalBusEvents = MutableSharedFlow<Any>()
 
 fun postEvent(event: Any) {
     AppScope.launch {
-        BusEvents.emit(event)
+        InternalBusEvents.emit(event)
     }
 }
 
 inline fun <reified T> subscribeEvent(): Flow<T> {
-    return BusEvents.filterIsInstance<T>()
+    return InternalBusEvents.filterIsInstance<T>()
 }
