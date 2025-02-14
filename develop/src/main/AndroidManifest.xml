@@ -4,7 +4,7 @@
     <application>
         <provider
             android:name="io.datou.develop.AppProvider"
-            android:authorities="${applicationId}.AppProvider"
+            android:authorities="${applicationId}.io.datou.develop.AppProvider"
             android:exported="false" />
     </application>
 </manifest>

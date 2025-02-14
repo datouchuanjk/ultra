@@ -36,7 +36,6 @@ fun Modifier.imePaddingCompat() = composed {
         var keyboardHeight by remember {
             mutableIntStateOf(0)
         }
-        val density = LocalDensity.current
         val activity = LocalContext.current.findActivity()
         var listener: KeyboardHeightObserver? = remember { null }
         DisposableEffect(Unit) {
@@ -51,7 +50,7 @@ fun Modifier.imePaddingCompat() = composed {
         }
         then(
             Modifier.padding(
-                bottom = density.run {
+                bottom =  LocalDensity.current.run {
                     keyboardHeight.toDp()
                 })
         )

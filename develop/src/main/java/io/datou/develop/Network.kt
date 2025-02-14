@@ -2,17 +2,15 @@ package io.datou.develop
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-internal val InternalConnectivityManager by lazy {
-    App.getSystemService<ConnectivityManager>()
-}
 
 internal val InternalNetworkObserver = MutableStateFlow(networkStatus)
 
@@ -21,7 +19,6 @@ val NetworkObserver = InternalNetworkObserver.asStateFlow()
 @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
 internal fun registerNetworkObserver() {
     val callback = object : ConnectivityManager.NetworkCallback() {
-        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
         override fun onAvailable(network: Network) {
             InternalNetworkObserver.value = networkStatus
         }
@@ -30,14 +27,14 @@ internal fun registerNetworkObserver() {
             InternalNetworkObserver.value = NetworkStatus.Unknown
         }
     }
-    InternalConnectivityManager?.registerDefaultNetworkCallback(callback)
+    App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
 }
-
 
 internal val networkStatus: NetworkStatus
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     get() {
-        return InternalConnectivityManager?.getNetworkCapabilities(InternalConnectivityManager?.activeNetwork)
+        val manager = App.getSystemService<ConnectivityManager>()
+        return manager?.getNetworkCapabilities(manager.activeNetwork)
             ?.let {
                 when {
                     it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkStatus.Wifi

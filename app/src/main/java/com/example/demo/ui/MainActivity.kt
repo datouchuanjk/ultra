@@ -1,7 +1,6 @@
 package com.example.demo.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,43 +12,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import io.datou.develop.addSecureFlag
-import io.datou.develop.intentOf
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
-val flow = MutableSharedFlow<String>()
-
-class LauncherActivity : ComponentActivity() {
-
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         addSecureFlag()
-        lifecycleScope.launch {
-            flow
-                .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
-                .collectLatest {
-                    Log.e("1234", it)
-                }
-        }
-
         setContent {
             val scope = rememberCoroutineScope()
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Button(onClick = {
-                    scope.launch {
-                        flow.emit("12")
-                    }
-                    startActivity(intentOf<MainActivity>())
+                    finish()
                 }) {
-                    Text(text = "to MainActivity", fontSize = 30.sp)
+                    Text(text = "back to LauncherActivity", fontSize = 30.sp)
                 }
             }
         }

@@ -3,12 +3,16 @@ package io.datou.develop
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 
 object CustomActivityResultContracts {
     class OpenNotificationSettings : ActivityResultContract<String?, Boolean>() {
@@ -81,6 +85,36 @@ object CustomActivityResultContracts {
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
             return canRequestPackageInstalls()
+        }
+    }
+
+    class OpenPermissionSettings : ActivityResultContract<Array<String>, Boolean>() {
+        companion object {
+            internal fun isPermissionGranted(vararg name: String): Boolean {
+                return name.all {
+                    ContextCompat.checkSelfPermission(App, it) == PERMISSION_GRANTED
+                }
+            }
+
+            fun isPermissionPermanentlyDenied(vararg name: String): Boolean {
+                return name.all {
+                    !isPermissionGranted(it) && PeekActivity?.let { activity ->
+                        !ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
+                    } ?: false
+                }
+            }
+        }
+
+        private var _permissions: Array<String> = arrayOf()
+        override fun createIntent(context: Context, input: Array<String>): Intent {
+            _permissions = input
+            return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
+            return isPermissionGranted(*_permissions)
         }
     }
 }

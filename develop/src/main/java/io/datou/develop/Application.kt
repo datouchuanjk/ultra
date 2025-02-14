@@ -1,11 +1,15 @@
 package io.datou.develop
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import io.datou.develop.CustomActivityResultContracts.OpenPermissionSettings.Companion.isPermissionGranted
 
 internal var InternalApp: Application? = null
+
+    @SuppressLint("MissingPermission")
     set(value) {
         if (field == null && value != null) {
             field = value

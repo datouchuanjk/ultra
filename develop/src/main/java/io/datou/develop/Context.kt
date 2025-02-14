@@ -86,21 +86,3 @@ fun Context.createDensityContext(designWidth: Float): Context {
     configuration.densityDpi = newDensityDpi.toInt()
     return createConfigurationContext(configuration)
 }
-
-fun Context.installApk(
-    apkFile: File,
-    authority: String = App.packageName + ".fileProvider"
-) {
-    if (!apkFile.exists()) {
-        throw FileNotFoundException(apkFile.absolutePath)
-    }
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        setDataAndType(
-            apkFile.toProviderUri(authority = authority),
-            "application/vnd.android.package-archive"
-        )
-    }
-    startActivity(intent)
-}

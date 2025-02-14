@@ -6,10 +6,10 @@ import java.io.File
 import java.io.InputStream
 
 fun File.toProviderUri(
-    authority: String = App.packageName + ".fileProvider"
+    authority: String = "${App.packageName}.fileProvider"
 ): Uri = FileProvider.getUriForFile(App, authority, this)
 
-fun <R> Uri.useStream(
+fun <R> Uri.use(
     block: (InputStream) -> R
 ) = App.contentResolver.openInputStream(this)?.use(block)
 
