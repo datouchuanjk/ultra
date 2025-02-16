@@ -5,11 +5,11 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.io.InputStream
 
-fun File.toProviderUri(
+fun File.toProvideUri(
     authority: String = "${App.packageName}.fileProvider"
-): Uri = FileProvider.getUriForFile(App, authority, this)
+): Uri? = FileProvider.getUriForFile(App, authority, this)
 
-fun <R> Uri.use(
-    block: (InputStream) -> R
-) = App.contentResolver.openInputStream(this)?.use(block)
+fun Uri.inputStream() = App.contentResolver.openInputStream(this)
+
+fun Uri.outputStream() = App.contentResolver.openOutputStream(this)
 

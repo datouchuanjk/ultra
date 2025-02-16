@@ -4,55 +4,59 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
 }
-val default = SigningConfigs.Default()
+val defaultSigningConfig = SigningConfigs.Default()
 android {
     namespace = NAMESPACE
     compileSdk = COMPILE_SDK
     defaultConfig {
-        applicationId = APPLICATION_ID
-        minSdk = MIN_SDK
         targetSdk = TARGET_SDK
+        minSdk = MIN_SDK
     }
+
     signingConfigs {
-        create(default.name) {
-            storeFile = file(default.storeFile)
-            storePassword = default.storePassword
-            keyAlias = default.keyAlias
-            keyPassword = default.keyPassword
+        create(defaultSigningConfig.name) {
+            storeFile = file(defaultSigningConfig.storeFile)
+            storePassword = defaultSigningConfig.storePassword
+            keyAlias = defaultSigningConfig.keyAlias
+            keyPassword = defaultSigningConfig.keyPassword
         }
     }
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName(default.name)
+            signingConfig = signingConfigs.getByName(defaultSigningConfig.name)
         }
         debug {
-            signingConfig = signingConfigs.getByName(default.name)
+            signingConfig = signingConfigs.getByName(defaultSigningConfig.name)
         }
     }
     flavorDimensions += listOf("default")
     productFlavors {
         create("dev") {
-            buildConfigField("String", "BASE_URL", Business.Dev().baseUrl.quoted)
-            buildConfigField("Boolean", "IS_DEV", Business.Dev().isDev.toString())
-            versionCode = VERSION_CODE
-            versionName = VERSION_NAME
-            setProperty("archivesBaseName", "VIDI_${versionName}")
+            val dev = Flavors.Dev()
+            buildConfigField("String", "BASE_URL", dev.baseUrl.quoted)
+            buildConfigField("Boolean", "IS_DEV", dev.isDev.toString())
+            applicationId = dev.applicationId
+            versionCode = dev.versionCode
+            versionName = dev.versionName
+            setProperty("archivesBaseName", dev.archivesBaseName)
         }
         create("prod") {
-            buildConfigField("String", "BASE_URL", Business.Dev().baseUrl.quoted)
-            buildConfigField("Boolean", "IS_DEV", Business.Dev().isDev.toString())
-            versionCode = VERSION_CODE
-            versionName = VERSION_NAME
-            setProperty("archivesBaseName", "VIDI_${versionName}")
+            val prod = Flavors.Prod()
+            buildConfigField("String", "BASE_URL", prod.baseUrl.quoted)
+            buildConfigField("Boolean", "IS_DEV", prod.isDev.toString())
+            applicationId = prod.applicationId
+            versionCode = prod.versionCode
+            versionName = prod.versionName
+            setProperty("archivesBaseName", prod.archivesBaseName)
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = SOURCE_COMPATIBILITY
+        targetCompatibility = TARGET_COMPATIBILITY
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JVM_TARGET
     }
     buildFeatures {
         compose = true

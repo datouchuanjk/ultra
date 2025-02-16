@@ -8,9 +8,9 @@ import android.net.Uri
 
 internal class AppProvider : ContentProvider() {
     override fun onCreate(): Boolean {
-        val current = context ?: return false
-        if (current is Application) {
-            InternalApp = current
+        val currentContext = context ?: return false
+        if (currentContext is Application) {
+            InternalApp = currentContext
         }
         return true
     }

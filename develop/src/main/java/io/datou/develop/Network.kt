@@ -27,7 +27,7 @@ internal fun registerNetworkObserver() {
             InternalNetworkObserver.value = NetworkStatus.Unknown
         }
     }
-    App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
+        App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
 }
 
 internal val networkStatus: NetworkStatus

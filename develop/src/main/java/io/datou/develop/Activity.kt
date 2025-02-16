@@ -3,21 +3,31 @@ package io.datou.develop
 import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.Lifecycle
 import java.lang.ref.WeakReference
 
 internal val InternalActivities = LinkedHashMap<Int, WeakReference<Activity>>()
 
-val Activities
+val Activities: List<ComponentActivity>
     get() = InternalActivities
         .map { it.value }
-        .mapNotNull { it.get() }
+        .map { it.get() }
+        .filterIsInstance<ComponentActivity>()
 
-val PeekActivity
+val CurrentResumeActivity: ComponentActivity?
+    get() = Activities
+        .reversed()
+        .find {
+            it.lifecycle.currentState == Lifecycle.State.RESUMED
+        }
+
+val StackTopActivity: ComponentActivity?
     get() = Activities.lastOrNull()
 
 fun finishActivities() {
-    Activities.forEach {
-        it.finish()
+    InternalActivities.forEach {
+        it.value.get()?.finish()
     }
 }
 

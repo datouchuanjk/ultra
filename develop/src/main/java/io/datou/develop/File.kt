@@ -43,16 +43,17 @@ internal fun File.createAbsolutely(): File {
     return this
 }
 
-fun File.totalSize(): Long {
-    if (isFile) {
-        return length()
+val File.totalSize: Long
+    get() {
+        if (isFile) {
+            return length()
+        }
+        var size = 0L
+        walkTopDown().forEach { file ->
+            size += if (file.isFile) file.length() else 0
+        }
+        return size
     }
-    var size = 0L
-    walkTopDown().forEach { file ->
-        size += if (file.isFile) file.length() else 0
-    }
-    return size
-}
 
 fun File.deleteRecursively(): Boolean {
     if (!exists()) {

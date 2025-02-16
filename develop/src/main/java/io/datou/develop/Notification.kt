@@ -48,9 +48,3 @@ fun createNotificationChannel(
     )
 }
 
-val NotificationChannels: List<NotificationChannelCompat>
-    get() {
-        val manager = NotificationManagerCompat.from(App)
-        return manager.notificationChannelsCompat
-    }
-

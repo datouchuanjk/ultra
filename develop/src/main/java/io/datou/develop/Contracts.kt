@@ -98,7 +98,7 @@ object CustomActivityResultContracts {
 
             fun isPermissionPermanentlyDenied(vararg name: String): Boolean {
                 return name.all {
-                    !isPermissionGranted(it) && PeekActivity?.let { activity ->
+                    !isPermissionGranted(it) && StackTopActivity?.let { activity ->
                         !ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
                     } ?: false
                 }

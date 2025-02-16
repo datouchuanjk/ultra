@@ -15,7 +15,9 @@ private val InternalProcessObserver = MutableStateFlow(
 val ProcessObserver = InternalProcessObserver.asStateFlow()
 
 internal fun registerProcessObserver() {
-    ProcessLifecycleOwner.get().lifecycle.addObserver(LifecycleEventObserver { _, event ->
-        InternalProcessObserver.value = event.targetState
-    })
+    ProcessLifecycleOwner.get().lifecycle.addObserver(
+        LifecycleEventObserver { _, event ->
+            InternalProcessObserver.value = event.targetState
+        }
+    )
 }

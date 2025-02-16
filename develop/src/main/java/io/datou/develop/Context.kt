@@ -26,26 +26,8 @@ fun Context.findActivity(): Activity? {
     return null
 }
 
-val VersionCode: Long
-        by lazy {
-            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                App.packageManager.getPackageInfo(
-                    App.packageName,
-                    PackageManager.PackageInfoFlags.of(0)
-                )
-            } else {
-                App.packageManager.getPackageInfo(App.packageName, 0)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                @Suppress("DEPRECATION")
-                packageInfo.versionCode.toLong()
-            }
-        }
-
-val VersionName: String by lazy {
-    val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+internal val InternalPackageInfo by lazy {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         App.packageManager.getPackageInfo(
             App.packageName,
             PackageManager.PackageInfoFlags.of(0)
@@ -53,7 +35,31 @@ val VersionName: String by lazy {
     } else {
         App.packageManager.getPackageInfo(App.packageName, 0)
     }
-    packageInfo.versionName.orEmpty()
+}
+
+internal val InternalApplicationInfo by lazy {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        App.packageManager.getApplicationInfo(
+            App.packageName,
+            PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+        )
+    } else {
+        App.packageManager.getApplicationInfo(App.packageName, PackageManager.GET_META_DATA)
+    }
+}
+
+val VersionCode: Long
+        by lazy {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                InternalPackageInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                InternalPackageInfo.versionCode.toLong()
+            }
+        }
+
+val VersionName: String by lazy {
+    InternalPackageInfo.versionName.orEmpty()
 }
 
 val InstalledPackages: List<PackageInfo>
@@ -66,15 +72,7 @@ val InstalledPackages: List<PackageInfo>
     }
 
 val MetaData: Bundle by lazy {
-    val applicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getApplicationInfo(
-            App.packageName,
-            PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-        )
-    } else {
-        App.packageManager.getApplicationInfo(App.packageName, PackageManager.GET_META_DATA)
-    }
-    applicationInfo.metaData
+    InternalApplicationInfo.metaData
 }
 
 fun Context.createDensityContext(designWidth: Float): Context {

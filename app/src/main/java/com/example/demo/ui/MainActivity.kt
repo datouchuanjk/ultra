@@ -1,7 +1,10 @@
 package com.example.demo.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -22,9 +25,10 @@ class MainActivity : ComponentActivity() {
         addSecureFlag()
         setContent {
             val scope = rememberCoroutineScope()
+            val localOnBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Button(onClick = {
-                    finish()
+                    localOnBackPressedDispatcherOwner?.onBackPressedDispatcher?.onBackPressed()
                 }) {
                     Text(text = "back to LauncherActivity", fontSize = 30.sp)
                 }
