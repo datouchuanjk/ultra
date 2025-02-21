@@ -2,6 +2,7 @@ package io.datou.develop
 
 import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
@@ -30,6 +31,7 @@ fun finishActivities() {
         it.value.get()?.finish()
     }
 }
+
 
 internal fun registerActivitiesObserver() {
     App.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks by noOpDelegate() {

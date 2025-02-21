@@ -3,9 +3,8 @@ package io.datou.develop
 import android.net.Uri
 import androidx.core.content.FileProvider
 import java.io.File
-import java.io.InputStream
 
-fun File.toProvideUri(
+fun File.toSharedUri(
     authority: String = "${App.packageName}.fileProvider"
 ): Uri? = FileProvider.getUriForFile(App, authority, this)
 

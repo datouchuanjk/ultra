@@ -3,43 +3,89 @@ package io.datou.chat.helper
 import com.hyphenate.EMValueCallBack
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
-import io.datou.chat.exception.IMException
+import com.hyphenate.chat.EMCursorResult
+import io.datou.chat.util.IMException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * 会话帮助类
  */
-object ConversationHelper {
+class ConversationHelper {
 
-    /**
-     * 获取会话总未读数
-     */
-    fun getUnreadMessageCount(): Int {
-        return EMClient.getInstance().chatManager().unreadMessageCount
+    private val _limit = 20
+    private var _cursor: String? = null
+    private var _isNoMore: Boolean = false
+    val isNoMore get() = _isNoMore
+
+    suspend fun refresh(): List<EMConversation> {
+        _isNoMore = false
+        return if (IMHelper.isFirstLogin()) {
+            fromService()
+        } else {
+            fromDB()
+        }
     }
 
-    /**
-     * 同步获取会话
-     */
-    suspend fun getConversationsFromDB(filter: (String) -> Boolean = { true }) =
-        suspendCoroutine { continuation ->
+    suspend fun loadMore(): List<EMConversation> {
+        if (_isNoMore) {
+            return emptyList()
+        }
+        return refresh()
+    }
+
+    private suspend fun fromDB(): List<EMConversation> {
+        return suspendCancellableCoroutine { cancellableContinuation ->
             EMClient.getInstance().chatManager()
-                .asyncFilterConversationsFromDB({
-                    filter(it.conversationId())
-                }, false,
+                .asyncFilterConversationsFromDB(
+                    { true },
+                    false,
                     object : EMValueCallBack<List<EMConversation?>?> {
-                        override fun onSuccess(filterConversations: List<EMConversation?>?) {
-                            val list = filterConversations
+                        override fun onSuccess(result: List<EMConversation?>?) {
+                            val list = result
                                 ?.filterNotNull()
                                 ?: emptyList()
-                            continuation.resume(list)
+                            _isNoMore = true
+                            cancellableContinuation.resume(list)
                         }
 
                         override fun onError(error: Int, errorMsg: String) {
-                            continuation.resumeWithException(IMException(error, errorMsg))
+                            cancellableContinuation.resumeWithException(
+                                IMException(
+                                    error,
+                                    errorMsg
+                                )
+                            )
                         }
                     })
         }
+    }
+
+    private suspend fun fromService(): List<EMConversation> {
+        return suspendCancellableCoroutine { cancellableContinuation ->
+            EMClient.getInstance().chatManager().asyncFetchConversationsFromServer(
+                _limit,
+                _cursor,
+                object : EMValueCallBack<EMCursorResult<EMConversation>> {
+                    override fun onSuccess(result: EMCursorResult<EMConversation>?) {
+                        _cursor = result?.cursor
+                        _isNoMore = (result?.data?.size ?: 0) < _limit
+                        val list = result?.data
+                            ?.filterNotNull()
+                            ?: emptyList()
+                        cancellableContinuation.resume(list)
+                    }
+
+                    override fun onError(code: Int, message: String?) {
+                        cancellableContinuation.resumeWithException(
+                            IMException(
+                                code,
+                                message
+                            )
+                        )
+                    }
+                })
+        }
+    }
 }

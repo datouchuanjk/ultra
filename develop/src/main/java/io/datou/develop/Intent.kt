@@ -35,14 +35,26 @@ inline fun <reified T : Activity> intentOf(
     block: Intent.() -> Unit = {}
 ) = Intent(App, T::class.java).apply(block)
 
-fun installApkIntent(
+fun installApk(
     apkFile: File,
     authority: String = App.packageName + ".fileProvider"
-) = Intent(Intent.ACTION_VIEW).apply {
-    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    setDataAndType(
-        apkFile.toProviderUri(authority = authority),
-        "application/vnd.android.package-archive"
-    )
+) = App.startActivity(
+    Intent(Intent.ACTION_VIEW).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        setDataAndType(
+            apkFile.toSharedUri(authority = authority),
+            "application/vnd.android.package-archive"
+        )
+    }
+)
+
+fun wakeApp(block: ((Intent) -> Unit)? = null) {
+    StackTopActivity?.let {
+        App.startActivity(Intent(App, it::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            block?.invoke(this)
+        })
+    }
 }
+

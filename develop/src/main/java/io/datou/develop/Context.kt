@@ -75,7 +75,7 @@ val MetaData: Bundle by lazy {
     InternalApplicationInfo.metaData
 }
 
-fun Context.createDensityContext(designWidth: Float): Context {
+fun Context.densityContext(designWidth: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(designWidth)
         .times(DisplayMetrics.DENSITY_DEFAULT)

@@ -4,11 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import io.datou.develop.CustomActivityResultContracts.OpenPermissionSettings.Companion.isPermissionGranted
 
 internal var InternalApp: Application? = null
-
     @SuppressLint("MissingPermission")
     set(value) {
         if (field == null && value != null) {
@@ -23,7 +21,8 @@ internal var InternalApp: Application? = null
 
 val App get() = checkNotNull(InternalApp)
 
-val AppScope get() = ProcessLifecycleOwner.get().lifecycleScope
+val AppLifecycleOwner get() = ProcessLifecycleOwner.get()
+
 
 
 
