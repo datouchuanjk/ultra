@@ -1,13 +1,11 @@
-package com.example.demo.ui
+package com.example.demo.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.content.MediaType.Companion.Text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,16 +19,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hyphenate.chat.EMTextMessageBody
-import io.datou.chat.helper.ConversationHelper
-import io.datou.chat.helper.IMHelper
 import io.datou.develop.addSecureFlag
 import io.datou.develop.intentOf
 import io.datou.develop.launchSilently
@@ -44,21 +38,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             Scaffold(
                 topBar = {
-                   Column {
-                       TopAppBar(
-                           title = {
-                               Text(
-                                   text = "MainActivity",
-                                   fontWeight = FontWeight.Bold,
-                                   color = Color.Black,
-                                   fontSize = 18.sp
-                               )
-                           }
-                       )
-                       HorizontalDivider()
-                   }
+                    Column {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "MainActivity",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    fontSize = 18.sp
+                                )
+                            }
+                        )
+                        HorizontalDivider()
+                    }
                 }
             ) { innerPadding ->
+                val scope = rememberCoroutineScope()
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -76,7 +71,9 @@ class MainActivity : ComponentActivity() {
                                 .height(50.dp)
                                 .background(color = Color.White, shape = RoundedCornerShape(8.dp))
                                 .clickable {
-                                    startActivity(intentOf<ConversationActivity>())
+                                    scope.launchSilently {
+                                        startActivity(intentOf<ConversationActivity>())
+                                    }
                                 }
                                 .wrapContentSize()
                         )

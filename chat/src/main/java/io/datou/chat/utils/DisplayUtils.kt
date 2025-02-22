@@ -1,6 +1,5 @@
-package io.datou.chat.util
+package io.datou.chat.utils
 
-import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMCustomMessageBody
 import com.hyphenate.chat.EMFileMessageBody
@@ -12,7 +11,6 @@ import com.hyphenate.chat.EMVideoMessageBody
 import com.hyphenate.chat.EMVoiceMessageBody
 import io.datou.develop.simpleFormat
 import java.util.Calendar
-
 
 val EMMessage.displayStatus
     get() = when (status()) {
@@ -32,7 +30,7 @@ val EMMessage.displayStatus
         else -> 0
     }
 
-val EMMessage.displayMessage: String
+val EMMessage.displayText: String
     get() = when (val currentBody = body) {
         is EMTextMessageBody -> currentBody.message
         is EMImageMessageBody -> "[图片]"
@@ -50,48 +48,5 @@ val EMMessage.displayTime: String
     }.run {
         simpleFormat()
     }
-
-val EMMessage.isSendBySelf get() = direct() == EMMessage.Direct.SEND
-
 val EMConversation.displayUnreadMsgCount
     get() = if (unreadMsgCount > 99) "99+" else unreadMsgCount.toString()
-
-
-fun EMMessage.setLocalMsgId() {
-    if (displayStatus >= 1) {
-        throw IMException(Exception())
-    }
-    setAttribute("localMsgId", msgId)
-}
-
-fun EMMessage.setPushMessage() {
-
-    setAttribute("localMsgId", msgId)
-}
-
-val EMMessage.localMsgId: String
-    get() {
-        return try {
-            getStringAttribute("localMsgId")
-        } catch (e: Exception) {
-            msgId
-        }
-    }
-
-val EMMessage.isLastMessageInConversation: Boolean
-    get() {
-        return findConversation()
-            ?.let { conversation ->
-                conversation.lastMessage.msgId == msgId
-            } ?: false
-    }
-
-fun EMMessage.findConversation(): EMConversation? {
-    return findConversationById(conversationId())
-}
-
-internal fun findConversationById(id: String): EMConversation? {
-    return EMClient.getInstance()
-        .chatManager()
-        .getConversation(id)
-}

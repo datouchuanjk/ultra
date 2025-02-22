@@ -1,13 +1,13 @@
-package com.example.demo.ui
+package com.example.demo.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
+import io.datou.chat.helper.ChatHelper
 import io.datou.develop.addSecureFlag
 import io.datou.develop.enableFullScreen
 import io.datou.develop.intentOf
-import kotlinx.coroutines.delay
 
 class LauncherActivity : ComponentActivity() {
 
@@ -17,8 +17,10 @@ class LauncherActivity : ComponentActivity() {
         addSecureFlag()
         setContent {
             LaunchedEffect(Unit) {
-                delay(500)
+                ChatHelper.init("1199221128116146#demo")
+                ChatHelper.login("user1", "123456")
                 startActivity(intentOf<MainActivity>())
+                finish()
             }
         }
     }

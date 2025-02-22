@@ -7,10 +7,6 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -36,7 +32,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <activity
-            android:name="com.example.demo.ui.LauncherActivity"
+            android:name="com.example.demo.activity.LauncherActivity"
             android:windowSoftInputMode="adjustNothing"
             android:exported="true"
             android:launchMode="singleTop"
@@ -48,8 +44,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.demo.ui.MainActivity" />
-        <activity android:name="com.example.demo.ui.ConversationActivity" />
+        <activity android:name="com.example.demo.activity.MainActivity" />
+        <activity android:name="com.example.demo.activity.ConversationActivity" />
     </application>
 
 </manifest>

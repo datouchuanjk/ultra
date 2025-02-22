@@ -1,30 +1,25 @@
-package com.example.demo.ui
+package com.example.demo.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -34,8 +29,11 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.datou.chat.util.displayMessage
-import io.datou.chat.util.displayUnreadMsgCount
+import com.example.demo.activity.ui.HandleViewModel
+import com.example.demo.viewmodel.ConversationViewModel
+import io.datou.chat.utils.displayStatus
+import io.datou.chat.utils.displayText
+import io.datou.chat.utils.displayUnreadMsgCount
 import io.datou.develop.addSecureFlag
 
 /**
@@ -64,8 +62,8 @@ class ConversationActivity : ComponentActivity() {
                 }
             ) { innerPadding ->
                 val viewmodel: ConversationViewModel = viewModel()
+                HandleViewModel(viewmodel)
                 val list = viewmodel.list
-                val isNoMore = viewmodel.isNoMore
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -73,13 +71,24 @@ class ConversationActivity : ComponentActivity() {
                         .background(color = Color(0xff202020)),
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                 ) {
-                    items(items = list, key = { it.conversationId() }) {
+                    item {
+                        Button(onClick = {
+                         viewmodel.send()
+                        }) {
+                            Text("发给老2")
+                        }
+                    }
+
+                    items(items = list, key = {
+                        it.conversationId()
+                    }) {
                         val lastMessage = it.lastMessage
                         ConstraintLayout(
                             modifier = Modifier
                                 .fillParentMaxWidth()
                                 .padding(horizontal = 13.dp)
                                 .height(70.dp)
+                                .animateItem()
                         ) {
                             val (image, title, content, time, unreadCount) = createRefs()
                             Box(
@@ -91,10 +100,10 @@ class ConversationActivity : ComponentActivity() {
                                     }
                                     .size(50.dp)
                                     .clip(CircleShape)
-                                    .background(color = Color.Black)
+                                    .background(color = Color.White)
                             )
                             Text(
-                                text = it.conversationId(),
+                                text = it.conversationId() +it.lastMessage.displayStatus,
                                 color = Color.White,
                                 fontSize = 15.sp,
                                 modifier = Modifier.constrainAs(title) {
@@ -103,7 +112,7 @@ class ConversationActivity : ComponentActivity() {
                                 }
                             )
                             Text(
-                                text = lastMessage.displayMessage,
+                                text = lastMessage.displayText,
                                 color = Color(0xff999999),
                                 fontSize = 13.sp,
                                 modifier = Modifier.constrainAs(content) {
