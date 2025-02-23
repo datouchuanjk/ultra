@@ -3,7 +3,7 @@ package io.datou.chat.utils
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
-import io.datou.chat.listener.INSTANCE
+import io.datou.chat.listener.HANDLER
 
 fun EMMessage.findConversation(): EMConversation? {
     return EMClient.getInstance()
@@ -34,17 +34,17 @@ val EMMessage.localMsgId: String
 
 val EMMessage.fromSelf get() = conversationId() == to
 
-fun EMMessage.readAndAck() {
+fun EMMessage.markReadAndAck() {
     findConversation()?.markMessageAsRead(msgId)
     EMClient.getInstance().chatManager().ackMessageRead(
         conversationId(),
         msgId
     )
-    INSTANCE.onMessageMarkRead(this)
+    HANDLER.onMessageMarkRead(this)
 }
 
 fun EMMessage.delete() {
     findConversation()?.removeMessage(msgId)
-    INSTANCE.onMessageDelete(this)
+    HANDLER.onMessageDelete(this)
 }
 

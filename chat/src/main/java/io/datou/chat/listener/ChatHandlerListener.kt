@@ -4,11 +4,11 @@ import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
 
-internal val INSTANCE by lazy {
-    DefaultChatListener()
+internal val HANDLER by lazy {
+    ChatHandlerListener()
 }
 
-internal class DefaultChatListener : ChatListener() {
+internal class ChatHandlerListener : ChatListener {
     private val _listeners = mutableSetOf<ChatListener>()
     internal fun add(listener: ChatListener) {
         _listeners.add(listener)
@@ -23,18 +23,18 @@ internal class DefaultChatListener : ChatListener() {
     }
 
     internal fun refreshUnreadMessageCount() {
-        unreadMessageCount(
+        onUnreadMessageCount(
             EMClient.getInstance().chatManager().unreadMessageCount
         )
     }
 
     override fun onMessageReceived(message: EMMessage) {
-        refreshUnreadMessageCount()
         dispatch { it.onMessageReceived(message) }
+        refreshUnreadMessageCount()
     }
 
-    override fun unreadMessageCount(count: Int) {
-        dispatch { it.unreadMessageCount(count) }
+    override fun onUnreadMessageCount(count: Int) {
+        dispatch { it.onUnreadMessageCount(count) }
     }
 
     override fun onMessageSend(message: EMMessage) {

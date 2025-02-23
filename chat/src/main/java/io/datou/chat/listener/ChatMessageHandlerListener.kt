@@ -1,23 +1,18 @@
 package io.datou.chat.listener
 
-import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
-import io.datou.chat.utils.findConversation
 import io.datou.chat.utils.localMsgId
-import io.datou.develop.findIndex
-import io.datou.develop.removeIf
+import io.datou.develop.noOpDelegate
+import io.datou.develop.newIf
 
-open class HandlerMessageChatListener(
+open class ChatMessageHandlerListener(
     private val list: MutableList<EMMessage>,
-    private val onFinish:()->Unit ={}
-) : ChatListener() {
+    private val onFinish: () -> Unit = {}
+) : ChatListener by noOpDelegate() {
 
     override fun onMessageReceived(message: EMMessage) {
         list.add(0, message)
         onFinish()
-    }
-
-    override fun unreadMessageCount(count: Int) {
     }
 
     override fun onMessageSend(message: EMMessage) {
@@ -26,41 +21,29 @@ open class HandlerMessageChatListener(
     }
 
     override fun onMessageSendSuccess(message: EMMessage) {
-        list.findIndex {
+        list.newIf(message) {
             it.localMsgId == message.localMsgId
-        }?.let {
-            list.removeAt(it)
-            list.add(it, message)
         }
         onFinish()
     }
 
     override fun onMessageSendFailed(message: EMMessage) {
-        list.findIndex {
+        list.newIf(message) {
             it.localMsgId == message.localMsgId
-        }?.let {
-            list.removeAt(it)
-            list.add(it, message)
         }
         onFinish()
     }
 
     override fun onMessageDeliveredAck(message: EMMessage) {
-        list.findIndex {
+        list.newIf(message) {
             it.msgId == message.msgId
-        }?.let {
-            list.removeAt(it)
-            list.add(it, message)
         }
         onFinish()
     }
 
     override fun onMessageReadAck(message: EMMessage) {
-        list.findIndex {
+        list.newIf(message) {
             it.msgId == message.msgId
-        }?.let {
-            list.removeAt(it)
-            list.add(it, message)
         }
         onFinish()
     }
@@ -73,25 +56,9 @@ open class HandlerMessageChatListener(
     }
 
     override fun onMessageMarkRead(message: EMMessage) {
-        list.findIndex {
+        list.newIf(message) {
             it.msgId == message.msgId
-        }?.let {
-            list.removeAt(it)
-            list.add(it, message)
         }
         onFinish()
-    }
-
-
-    override fun onConversationDelete(conversation: EMConversation) {
-
-    }
-
-    override fun onConversationReadAck(conversation: EMConversation) {
-
-    }
-
-    override fun onConversationMarkRead(conversation: EMConversation) {
-
     }
 }

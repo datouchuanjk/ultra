@@ -5,29 +5,22 @@ import androidx.lifecycle.viewModelScope
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
 import io.datou.chat.helper.ChatHelper
-import io.datou.chat.listener.HandlerConversationChatListener
-import io.datou.chat.utils.readAndAck
+import io.datou.chat.listener.ChatConversationHandlerListener
+import io.datou.chat.listener.ChatListener
 import io.datou.chat.utils.send
 import io.datou.develop.launchSilently
+import io.datou.develop.noOpDelegate
 import io.datou.develop.toast
 
 class ConversationViewModel : BaseViewModel() {
 
     private val _list = mutableStateListOf<EMConversation>()
-    private val _listener = HandlerConversationChatListener(_list)
+    private val _listener = ChatConversationHandlerListener(_list)
     val list: List<EMConversation> get() = _list
 
     init {
         ChatHelper.addListener(_listener)
-        viewModelScope.launchSilently {
-            showLoading()
-            refresh()
-        }.invokeOnCompletion {
-            dismissLoading()
-            it?.let {
-                toast(it.message)
-            }
-        }
+        refresh()
     }
 
     override fun onCleared() {
@@ -41,15 +34,11 @@ class ConversationViewModel : BaseViewModel() {
             .send()
     }
 
-    fun read() {
-        list[0].readAndAck()
-    }
-
     private fun refresh() {
         showLoading()
         viewModelScope.launchSilently {
             _list.clear()
-            _list.addAll(ChatHelper.conversationsByDB().data)
+            _list.addAll(ChatHelper.getConversationsFromDB().data)
         }.invokeOnCompletion {
             dismissLoading()
             it?.let {

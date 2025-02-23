@@ -1,13 +1,12 @@
 package io.datou.chat.helper
 
 import com.hyphenate.EMCallBack
-import com.hyphenate.EMConnectionListener
 import com.hyphenate.EMValueCallBack
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMCursorResult
 import com.hyphenate.chat.EMOptions
-import io.datou.chat.listener.INSTANCE
+import io.datou.chat.listener.HANDLER
 import io.datou.chat.data.ChatResponse
 import io.datou.chat.exception.ChatException
 import io.datou.chat.listener.ChatListener
@@ -43,9 +42,9 @@ object ChatHelper {
                     override fun onSuccess() {
                         EMClient.getInstance().chatManager().apply {
                             loadAllConversations()
-                            addConversationListener(INSTANCE)
-                            addMessageListener(INSTANCE)
-                            INSTANCE.refreshUnreadMessageCount()
+                            addConversationListener(HANDLER)
+                            addMessageListener(HANDLER)
+                            HANDLER.refreshUnreadMessageCount()
                         }
                         cancellableContinuation.resume(Unit)
                     }
@@ -73,9 +72,9 @@ object ChatHelper {
                     override fun onSuccess() {
                         EMClient.getInstance().chatManager().apply {
                             loadAllConversations()
-                            addConversationListener(INSTANCE)
-                            addMessageListener(INSTANCE)
-                            INSTANCE.refreshUnreadMessageCount()
+                            addConversationListener(HANDLER)
+                            addMessageListener(HANDLER)
+                            HANDLER.refreshUnreadMessageCount()
                         }
                         cancellableContinuation.resume(Unit)
                     }
@@ -100,14 +99,14 @@ object ChatHelper {
         } finally {
             EMClient.getInstance().chatManager().apply {
                 cleanConversationsMemoryCache()
-                INSTANCE.refreshUnreadMessageCount()
-                removeConversationListener(INSTANCE)
-                removeMessageListener(INSTANCE)
+                HANDLER.refreshUnreadMessageCount()
+                removeConversationListener(HANDLER)
+                removeMessageListener(HANDLER)
             }
         }
     }
 
-    suspend fun conversationsByDB() = suspendCancellableCoroutine { cancellableContinuation ->
+    suspend fun getConversationsFromDB() = suspendCancellableCoroutine { cancellableContinuation ->
         EMClient.getInstance().chatManager()
             .asyncFilterConversationsFromDB(
                 { true },
@@ -134,7 +133,7 @@ object ChatHelper {
                 })
     }
 
-    suspend fun conversationsByService(
+    suspend fun getConversationsFromService(
         cursor: String? = null,
         limit: Int = 20
     ) = suspendCancellableCoroutine { cancellableContinuation ->
@@ -164,10 +163,10 @@ object ChatHelper {
     }
 
     fun addListener(listener: ChatListener) {
-        INSTANCE.add(listener)
+        HANDLER.add(listener)
     }
 
     fun removeListener(listener: ChatListener) {
-        INSTANCE.remove(listener)
+        HANDLER.remove(listener)
     }
 }
