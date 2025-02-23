@@ -19,12 +19,11 @@ dependencyResolutionManagement {
     }
 }
 
+
 rootProject.name = "Devil"
 include ':app'
-//include ':banner'
-//include ':swipe'
-//include ':picker'
-//include ':paging3'
 include ':develop'
+project(":develop").projectDir = file("foundation/develop")
 include ':chat'
-//include ':work'
+project(":chat").projectDir = file("foundation/chat")
+

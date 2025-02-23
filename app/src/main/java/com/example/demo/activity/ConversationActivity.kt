@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.demo.activity.ui.HandleViewModel
+import com.example.demo.ui.HandleViewModel
 import com.example.demo.viewmodel.ConversationViewModel
 import io.datou.chat.utils.displayStatus
 import io.datou.chat.utils.displayText
