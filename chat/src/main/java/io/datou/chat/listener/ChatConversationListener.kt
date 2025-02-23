@@ -6,7 +6,7 @@ import io.datou.chat.utils.findConversation
 import io.datou.develop.findIndex
 import io.datou.develop.noOpDelegate
 
-open class ChatConversationHandlerListener(
+open class ChatConversationListener(
     private val list: MutableList<EMConversation>,
     private val onFinish: () -> Unit = {}
 ) : ChatListener by noOpDelegate() {

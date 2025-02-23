@@ -5,10 +5,10 @@ import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
 
 internal val HANDLER by lazy {
-    ChatHandlerListener()
+    ChatHanlder()
 }
 
-internal class ChatHandlerListener : ChatListener {
+internal class ChatHanlder : ChatListener {
     private val _listeners = mutableSetOf<ChatListener>()
     internal fun add(listener: ChatListener) {
         _listeners.add(listener)

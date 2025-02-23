@@ -5,7 +5,7 @@ import io.datou.chat.utils.localMsgId
 import io.datou.develop.noOpDelegate
 import io.datou.develop.newIf
 
-open class ChatMessageHandlerListener(
+open class ChatMessageListener(
     private val list: MutableList<EMMessage>,
     private val onFinish: () -> Unit = {}
 ) : ChatListener by noOpDelegate() {
