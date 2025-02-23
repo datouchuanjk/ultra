@@ -3,7 +3,7 @@ package io.datou.chat.utils
 import com.hyphenate.EMCallBack
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMMessage
-import io.datou.chat.listener.INSTANCE
+import io.datou.chat.listener.HANDLER
 import io.datou.develop.noOpDelegate
 
 fun EMMessage.send() {
@@ -12,13 +12,13 @@ fun EMMessage.send() {
     message.setLocalMsgId()
     message.setMessageStatusCallback(object : EMCallBack by noOpDelegate() {
         override fun onSuccess() {
-            INSTANCE.onMessageSendSuccess(message)
+            HANDLER.onMessageSendSuccess(message)
         }
 
         override fun onError(code: Int, error: String) {
-            INSTANCE.onMessageSendFailed(message)
+            HANDLER.onMessageSendFailed(message)
         }
     })
     EMClient.getInstance().chatManager().sendMessage(message)
-    INSTANCE.onMessageSend(message)
+    HANDLER.onMessageSend(message)
 }

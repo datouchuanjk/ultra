@@ -5,11 +5,10 @@ import com.hyphenate.EMMessageListener
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
 import com.hyphenate.chat.EMMessage
-import io.datou.chat.utils.findConversation
 
-abstract class ChatListener : EMMessageListener, EMConversationListener {
-    final override fun onConversationUpdate() {}
-    final override fun onConversationRead(from: String?, to: String?) {
+interface ChatListener : EMMessageListener, EMConversationListener {
+    override fun onConversationUpdate() {}
+    override fun onConversationRead(from: String?, to: String?) {
         from ?: return
         to ?: return
         EMClient.getInstance().chatManager().getConversation(from)?.let {
@@ -17,37 +16,37 @@ abstract class ChatListener : EMMessageListener, EMConversationListener {
         }
     }
 
-    final override fun onMessageRead(messages: MutableList<EMMessage>?) {
+    override fun onMessageRead(messages: MutableList<EMMessage>?) {
         messages ?: return
         messages.forEach {
             onMessageReadAck(it)
         }
     }
 
-    final override fun onMessageDelivered(messages: MutableList<EMMessage>?) {
+    override fun onMessageDelivered(messages: MutableList<EMMessage>?) {
         messages ?: return
         messages.forEach {
             onMessageDeliveredAck(it)
         }
     }
 
-    final override fun onMessageReceived(messages: MutableList<EMMessage>?) {
+    override fun onMessageReceived(messages: MutableList<EMMessage>?) {
         messages ?: return
         messages.forEach {
             onMessageReceived(it)
         }
     }
 
-    abstract fun unreadMessageCount(count: Int)
-    abstract fun onMessageReceived(message: EMMessage)
-    abstract fun onMessageSend(message: EMMessage)
-    abstract fun onMessageSendSuccess(message: EMMessage)
-    abstract fun onMessageSendFailed(message: EMMessage)
-    abstract fun onMessageDeliveredAck(message: EMMessage)
-    abstract fun onMessageReadAck(message: EMMessage)
-    abstract fun onMessageDelete(message: EMMessage)
-    abstract fun onMessageMarkRead(message: EMMessage)
-    abstract fun onConversationDelete(conversation: EMConversation)
-    abstract fun onConversationReadAck(conversation: EMConversation)
-    abstract fun onConversationMarkRead(conversation: EMConversation)
+    fun onUnreadMessageCount(count: Int)
+    fun onMessageReceived(message: EMMessage)
+    fun onMessageSend(message: EMMessage)
+    fun onMessageSendSuccess(message: EMMessage)
+    fun onMessageSendFailed(message: EMMessage)
+    fun onMessageDeliveredAck(message: EMMessage)
+    fun onMessageReadAck(message: EMMessage)
+    fun onMessageDelete(message: EMMessage)
+    fun onMessageMarkRead(message: EMMessage)
+    fun onConversationDelete(conversation: EMConversation)
+    fun onConversationReadAck(conversation: EMConversation)
+    fun onConversationMarkRead(conversation: EMConversation)
 }

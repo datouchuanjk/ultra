@@ -1,6 +1,5 @@
 package io.datou.chat.utils
 
-import android.util.Log
 import com.hyphenate.EMValueCallBack
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
@@ -10,15 +9,15 @@ import com.hyphenate.chat.EMFetchMessageOption
 import com.hyphenate.chat.EMMessage
 import io.datou.chat.data.ChatResponse
 import io.datou.chat.exception.ChatException
-import io.datou.chat.listener.INSTANCE
+import io.datou.chat.listener.HANDLER
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-fun EMConversation.readAndAck() {
+fun EMConversation.markReadAndAck() {
     markAllMessagesAsRead()
     EMClient.getInstance().chatManager().ackConversationRead(conversationId())
-    INSTANCE.onConversationMarkRead(this)
+    HANDLER.onConversationMarkRead(this)
 }
 
 fun EMConversation.delete(isDeleteMessage: Boolean = true) {
@@ -26,7 +25,7 @@ fun EMConversation.delete(isDeleteMessage: Boolean = true) {
         conversationId(),
         isDeleteMessage
     )
-    INSTANCE.onConversationDelete(this)
+    HANDLER.onConversationDelete(this)
 }
 
 suspend fun EMConversation.messagesByDB(
