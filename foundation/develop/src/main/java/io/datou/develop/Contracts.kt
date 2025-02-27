@@ -3,33 +3,26 @@ package io.datou.develop
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 object CustomActivityResultContracts {
-    class OpenNotificationSettings : ActivityResultContract<String?, Boolean>() {
+    class AppNotificationSettings : ActivityResultContract<String?, Boolean>() {
         companion object {
-            fun areNotificationsEnabled(): Boolean {
+            fun areNotificationsEnabled(channelId: String? = null): Boolean {
                 val manager = NotificationManagerCompat.from(App)
-                return manager.areNotificationsEnabled()
-            }
-
-            fun areNotificationChannelEnabled(channelId: String): Boolean {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val manager = NotificationManagerCompat.from(App)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && channelId != null) {
                     val channel = manager.getNotificationChannel(channelId) ?: return false
                     return channel.importance > NotificationManager.IMPORTANCE_NONE
-                            && areNotificationsEnabled()
+                            && manager.areNotificationsEnabled()
                 } else {
-                    return areNotificationsEnabled()
+                    return manager.areNotificationsEnabled()
                 }
             }
         }
@@ -55,14 +48,22 @@ object CustomActivityResultContracts {
             }
         }
 
+        override fun getSynchronousResult(
+            context: Context,
+            input: String?
+        ): SynchronousResult<Boolean>? {
+            if (areNotificationsEnabled(_channelId)) {
+                return SynchronousResult(true)
+            }
+            return null
+        }
+
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return _channelId?.let {
-                areNotificationChannelEnabled(it)
-            } ?: areNotificationsEnabled()
+            return areNotificationsEnabled(_channelId)
         }
     }
 
-    class RequestPackageInstalls : ActivityResultContract<Unit, Boolean>() {
+    class ManageUnknownAppSource : ActivityResultContract<Unit, Boolean>() {
         companion object {
             fun canRequestPackageInstalls(): Boolean {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -83,38 +84,44 @@ object CustomActivityResultContracts {
             }
         }
 
+        override fun getSynchronousResult(
+            context: Context,
+            input: Unit
+        ): SynchronousResult<Boolean>? {
+            if (canRequestPackageInstalls()) {
+                return SynchronousResult(true)
+            }
+            return null
+        }
+
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
             return canRequestPackageInstalls()
         }
     }
 
-    class OpenPermissionSettings : ActivityResultContract<Array<String>, Boolean>() {
+    class ManageOverlayPermissions : ActivityResultContract<Unit, Boolean>() {
         companion object {
-            internal fun isPermissionGranted(vararg name: String): Boolean {
-                return name.all {
-                    ContextCompat.checkSelfPermission(App, it) == PERMISSION_GRANTED
-                }
-            }
-
-            fun isPermissionPermanentlyDenied(vararg name: String): Boolean {
-                return name.all {
-                    !isPermissionGranted(it) && StackTopActivity?.let { activity ->
-                        !ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
-                    } ?: false
-                }
+            fun canDrawOverlays(): Boolean {
+                return Settings.canDrawOverlays(App)
             }
         }
 
-        private var _permissions: Array<String> = arrayOf()
-        override fun createIntent(context: Context, input: Array<String>): Intent {
-            _permissions = input
-            return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
+        override fun createIntent(context: Context, input: Unit): Intent {
+            return Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+        }
+
+        override fun getSynchronousResult(
+            context: Context,
+            input: Unit
+        ): SynchronousResult<Boolean>? {
+            if (canDrawOverlays()) {
+                return SynchronousResult(true)
             }
+            return null
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return isPermissionGranted(*_permissions)
+            return canDrawOverlays()
         }
     }
 }
