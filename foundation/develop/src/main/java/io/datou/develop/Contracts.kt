@@ -3,14 +3,11 @@ package io.datou.develop
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 
 object CustomActivityResultContracts {
     class AppNotificationSettings : ActivityResultContract<String?, Boolean>() {
@@ -26,7 +23,6 @@ object CustomActivityResultContracts {
                 }
             }
         }
-
         private var _channelId: String? = null
         override fun createIntent(context: Context, input: String?): Intent {
             _channelId = input
@@ -52,7 +48,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: String?
         ): SynchronousResult<Boolean>? {
-            if (areNotificationsEnabled(_channelId)) {
+            if (areNotificationsEnabled(input)) {
                 return SynchronousResult(true)
             }
             return null
@@ -122,6 +118,31 @@ object CustomActivityResultContracts {
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
             return canDrawOverlays()
+        }
+    }
+
+    class ApplicationDetailsSettings : ActivityResultContract<() -> Boolean, Boolean>() {
+        private var _input: (() -> Boolean)? = null
+        override fun createIntent(context: Context, input: () -> Boolean): Intent {
+            _input = input
+            return Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + context.packageName)
+            )
+        }
+
+        override fun getSynchronousResult(
+            context: Context,
+            input: () -> Boolean
+        ): SynchronousResult<Boolean>? {
+            if (input()) {
+                return SynchronousResult(true)
+            }
+            return null
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?):Boolean {
+            return _input?.invoke() ?: false
         }
     }
 }

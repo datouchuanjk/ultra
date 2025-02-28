@@ -1,6 +1,7 @@
 package com.example.demo.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,39 +34,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.datou.develop.CustomActivityResultContracts
 import io.datou.develop.addSecureFlag
+import io.datou.develop.addViewToWindow
 import io.datou.develop.intentOf
 import io.datou.develop.toast
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         addSecureFlag()
         setContent {
             Scaffold(
-                topBar = {
-                    Column {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    text = "MainActivity",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    fontSize = 18.sp
-                                )
-                            }
-                        )
-                        HorizontalDivider()
-                    }
-                }
             ) { innerPadding ->
-                val scope = rememberCoroutineScope()
+                Log.e("1234","innerPadding=$innerPadding")
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(vertical = 15.dp, horizontal = 15.dp),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                 ) {
                     item {
@@ -83,7 +70,7 @@ class MainActivity : ComponentActivity() {
                     }
                     item {
                         val launcher = rememberLauncherForActivityResult(
-                            CustomActivityResultContracts.ManageOverlayPermissions()
+                            CustomActivityResultContracts.ApplicationDetailsSettings()
                         ) {
                            toast("fuck")
                         }
@@ -97,7 +84,9 @@ class MainActivity : ComponentActivity() {
                                 .height(50.dp)
                                 .background(color = Color.White, shape = RoundedCornerShape(8.dp))
                                 .clickable {
-                                    launcher.launch()
+                                    addViewToWindow {
+                                        Text(modifier = Modifier.fillMaxWidth().height(200.dp).background(color = Color.Blue), text = "我日你吗吗")
+                                    }
                                 }
                                 .wrapContentSize()
                         )

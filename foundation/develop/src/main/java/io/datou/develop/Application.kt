@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
-import io.datou.develop.CustomActivityResultContracts.OpenPermissionSettings.Companion.isPermissionGranted
 
 internal var InternalApp: Application? = null
     @SuppressLint("MissingPermission")
