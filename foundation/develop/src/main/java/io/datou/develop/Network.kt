@@ -1,18 +1,15 @@
 package io.datou.develop
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.annotation.RequiresPermission
-import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-internal val InternalNetworkObserver = MutableStateFlow(networkStatus)
+internal val InternalNetworkObserver = MutableStateFlow(CurrentNetworkStatus)
 
 val NetworkObserver = InternalNetworkObserver.asStateFlow()
 
@@ -20,37 +17,41 @@ val NetworkObserver = InternalNetworkObserver.asStateFlow()
 internal fun registerNetworkObserver() {
     val callback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            InternalNetworkObserver.value = networkStatus
+            InternalNetworkObserver.value = CurrentNetworkStatus
         }
 
         override fun onLost(network: Network) {
-            InternalNetworkObserver.value = NetworkStatus.Unknown
+            InternalNetworkObserver.value = NetworkStatus.Unknown(false)
         }
     }
-        App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
+    App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
 }
 
-internal val networkStatus: NetworkStatus
+internal val CurrentNetworkStatus: NetworkStatus
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     get() {
         val manager = App.getSystemService<ConnectivityManager>()
         return manager?.getNetworkCapabilities(manager.activeNetwork)
             ?.let {
+                val isVpn = it.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
                 when {
-                    it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkStatus.Wifi
+                    it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkStatus.Wifi(isVpn = isVpn)
                     it.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                        NetworkStatus.Mobile(it.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED))
+                        NetworkStatus.Mobile(
+                            isUnlimited = it.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED),
+                            isVpn = isVpn
+                        )
                     }
 
-                    else -> NetworkStatus.Other
+                    else -> NetworkStatus.Other(isVpn = isVpn)
                 }
-            } ?: NetworkStatus.Unknown
+            } ?: NetworkStatus.Unknown(false)
     }
 
 
-sealed class NetworkStatus {
-    data object Unknown : NetworkStatus()
-    data object Wifi : NetworkStatus()
-    data class Mobile(val isUnlimited: Boolean) : NetworkStatus()
-    data object Other : NetworkStatus()
+sealed class NetworkStatus(val isVpn: Boolean) {
+    class Unknown(isVpn: Boolean) : NetworkStatus(isVpn)
+    class Wifi(isVpn: Boolean) : NetworkStatus(isVpn)
+    class Mobile(isUnlimited: Boolean, isVpn: Boolean) : NetworkStatus(isVpn)
+    class Other(isVpn: Boolean) : NetworkStatus(isVpn)
 }

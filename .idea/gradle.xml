@@ -25,6 +25,7 @@
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/foundation/chat" />
             <option value="$PROJECT_DIR$/foundation/develop" />
+            <option value="$PROJECT_DIR$/foundation/paging3" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
