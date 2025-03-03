@@ -34,7 +34,6 @@ import com.example.demo.viewmodel.ConversationViewModel
 import io.datou.chat.utils.displayStatus
 import io.datou.chat.utils.displayText
 import io.datou.chat.utils.displayUnreadMsgCount
-import io.datou.develop.addSecureFlag
 
 /**
  * 会话列表
@@ -45,7 +44,6 @@ class ConversationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        addSecureFlag()
         setContent {
             Scaffold(
                 topBar = {

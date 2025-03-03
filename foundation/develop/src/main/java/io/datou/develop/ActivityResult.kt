@@ -2,9 +2,11 @@ package io.datou.develop
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.core.app.ActivityOptionsCompat
 
@@ -63,5 +65,13 @@ inline fun <I, O, T> ActivityResultContract<I, O>.map(
             }
         }
     }
+}
+
+inline fun <reified T> ActivityResultLauncher<Array<T>>.launch(vararg input: T) {
+    launch(input.toList().toTypedArray())
+}
+
+inline fun <reified T> ActivityResultLauncher<List<T>>.launch(vararg input: T) {
+    launch(input.toList())
 }
 

@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -10,7 +11,7 @@ import kotlinx.coroutines.launch
 internal val InternalBusEvents = MutableSharedFlow<Any>()
 
 fun postEvent(event: Any) {
-    AppLifecycleOwner.lifecycleScope.launch {
+    ProcessLifecycleOwner.get().lifecycleScope.launch {
         InternalBusEvents.emit(event)
     }
 }

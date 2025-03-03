@@ -10,28 +10,27 @@ import java.lang.ref.WeakReference
 
 internal val InternalActivities = LinkedHashMap<Int, WeakReference<Activity>>()
 
-val Activities: List<ComponentActivity>
+val  ComponentActivities: List<ComponentActivity>
     get() = InternalActivities
         .map { it.value }
         .map { it.get() }
         .filterIsInstance<ComponentActivity>()
 
 val CurrentResumeActivity: ComponentActivity?
-    get() = Activities
+    get() = ComponentActivities
         .reversed()
         .find {
             it.lifecycle.currentState == Lifecycle.State.RESUMED
         }
 
 val StackTopActivity: ComponentActivity?
-    get() = Activities.lastOrNull()
+    get() = ComponentActivities.lastOrNull()
 
 fun finishActivities() {
     InternalActivities.forEach {
         it.value.get()?.finish()
     }
 }
-
 
 internal fun registerActivitiesObserver() {
     App.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks by noOpDelegate() {

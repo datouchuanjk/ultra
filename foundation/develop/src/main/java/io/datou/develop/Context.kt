@@ -37,23 +37,11 @@ internal val InternalPackageInfo by lazy {
     }
 }
 
-internal val InternalApplicationInfo by lazy {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getApplicationInfo(
-            App.packageName,
-            PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-        )
-    } else {
-        App.packageManager.getApplicationInfo(App.packageName, PackageManager.GET_META_DATA)
-    }
-}
-
 val VersionCode: Long
         by lazy {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 InternalPackageInfo.longVersionCode
             } else {
-                @Suppress("DEPRECATION")
                 InternalPackageInfo.versionCode.toLong()
             }
         }
@@ -72,10 +60,17 @@ val InstalledPackages: List<PackageInfo>
     }
 
 val MetaData: Bundle by lazy {
-    InternalApplicationInfo.metaData
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        App.packageManager.getApplicationInfo(
+            App.packageName,
+            PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+        )
+    } else {
+        App.packageManager.getApplicationInfo(App.packageName, PackageManager.GET_META_DATA)
+    }.metaData
 }
 
-fun Context.densityContext(designWidth: Float): Context {
+fun Context.newContextByDensity(designWidth: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(designWidth)
         .times(DisplayMetrics.DENSITY_DEFAULT)
