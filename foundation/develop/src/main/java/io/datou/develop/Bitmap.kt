@@ -25,7 +25,7 @@ fun Bitmap.compressToBytes(maxSize: Int): ByteArray {
     return outputStream.toByteArray()
 }
 
-inline fun decodeToScaledBitmap(
+inline fun decodeToBitmap(
     reqWidth: Int,
     reqHeight: Int,
     block: (BitmapFactory.Options) -> Bitmap?
@@ -77,13 +77,13 @@ private fun Bitmap.saveToGalleryAboveQ(
     val contentResolver = App.contentResolver
     val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
     return try {
-        uri?.also {
-            contentResolver.openOutputStream(it)?.use { outputStream ->
-                compress(format, quality, outputStream)
-                outputStream.flush()
+        uri?.apply {
+            outputStream()?.use {
+                compress(format, quality, it)
+                it.flush()
             }
             values.put(MediaStore.Images.Media.IS_PENDING, 0)
-            contentResolver.update(it, values, null, null)
+            contentResolver.update(this, values, null, null)
         }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -102,11 +102,11 @@ private fun Bitmap.saveToGalleryBelowQ(
         "$fileName.${format.name.lowercase()}"
     )
     try {
-        FileOutputStream(file).use {
+        file.outputStream().use {
             compress(format, quality, it)
             it.flush()
         }
-    }catch (e:Exception){
+    } catch (e: Exception) {
         file.deleteRecursively()
         throw e
     }

@@ -1,33 +1,19 @@
 package io.datou.develop
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 
-internal var InternalApp: Application? = null
-    @SuppressLint("MissingPermission")
-    set(value) {
-        if (field == null && value != null) {
-            field = value
-            registerApplicationLifecycleStateObserver()
-            if (isPermissionGranted(Manifest.permission.ACCESS_NETWORK_STATE)) {
-                registerNetworkObserver()
-            }
-            registerActivitiesObserver()
-        }
-    }
+lateinit var App: Application
+    private set
 
-val App get() = checkNotNull(InternalApp)
-
-internal class AppProvider : ContentProvider() {
+internal class ApplicationProvider : ContentProvider() {
     override fun onCreate(): Boolean {
         val currentContext = context ?: return false
         if (currentContext is Application) {
-            InternalApp = currentContext
+            App = currentContext
         }
         return true
     }

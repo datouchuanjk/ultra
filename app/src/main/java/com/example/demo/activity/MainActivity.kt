@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import io.datou.develop.CustomActivityResultContracts
+import io.datou.develop.SPHelper
 import io.datou.develop.launchWhenApplicationResumed
 import io.datou.develop.intentOf
 import io.datou.develop.toast
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
                         val launcher = rememberLauncherForActivityResult(
                             CustomActivityResultContracts.ApplicationDetailsSettings()
                         ) {
+                            SPHelper.put( "" to 2)
                             toast("fuck")
                         }
                         val localContext = LocalContext.current

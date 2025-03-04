@@ -16,11 +16,6 @@ fun ComponentActivity.confirmExit(
     }
 ) {
     var lastClickTime = 0L
-    lifecycle.addObserver(LifecycleEventObserver { _, event ->
-        if (event == Lifecycle.Event.ON_RESUME) {
-            lastClickTime = 0L
-        }
-    })
     onBackPressedDispatcher.addCallback(this) {
         val currentTime = System.currentTimeMillis()
         when {

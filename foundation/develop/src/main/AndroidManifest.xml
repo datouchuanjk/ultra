@@ -3,8 +3,8 @@
 
     <application>
         <provider
-            android:name="io.datou.develop.AppProvider"
-            android:authorities="${applicationId}.io.datou.develop.AppProvider"
+            android:name="io.datou.develop.ApplicationProvider"
+            android:authorities="${applicationId}.io.datou.develop.ApplicationProvider"
             android:exported="false" />
     </application>
 </manifest>
