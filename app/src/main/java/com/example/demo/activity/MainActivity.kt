@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import io.datou.develop.ActivityHelper
 import io.datou.develop.CustomActivityResultContracts
 import io.datou.develop.SPHelper
 import io.datou.develop.launchWhenApplicationResumed
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     item {
+                        ActivityHelper.topActivity
                         val launcher = rememberLauncherForActivityResult(
                             CustomActivityResultContracts.ApplicationDetailsSettings()
                         ) {
