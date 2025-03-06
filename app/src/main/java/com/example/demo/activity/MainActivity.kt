@@ -23,12 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import io.datou.develop.ActivityHelper
 import io.datou.develop.CustomActivityResultContracts
 import io.datou.develop.SPHelper
-import io.datou.develop.launchWhenApplicationResumed
 import io.datou.develop.intentOf
 import io.datou.develop.toast
 
@@ -63,7 +59,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     item {
-                        ActivityHelper.topActivity
                         val launcher = rememberLauncherForActivityResult(
                             CustomActivityResultContracts.ApplicationDetailsSettings()
                         ) {
@@ -80,9 +75,7 @@ class MainActivity : ComponentActivity() {
                                 .height(50.dp)
                                 .background(color = Color.White, shape = RoundedCornerShape(8.dp))
                                 .clickable {
-                                    launchWhenApplicationResumed {
 
-                                    }
                                 }
                                 .wrapContentSize()
                         )
