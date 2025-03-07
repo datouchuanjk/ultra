@@ -1,37 +1,29 @@
 package io.datou.develop
 
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
 fun ComponentActivity.confirmExit(
     doubleClickInterval: Long = 1500,
-    action: (Int) -> Unit = {
-        if (it == 1) {
-            toast("Click again to exit App")
-        } else {
+    action: OnBackPressedCallback.(Boolean) -> Unit = {
+        if (it) {
             finish()
+        } else {
+            toast("Click again to exit App")
         }
     }
 ) {
     var lastClickTime = 0L
     onBackPressedDispatcher.addCallback(this) {
         val currentTime = System.currentTimeMillis()
-        when {
-            lastClickTime == 0L -> {
-                action(1)
-                lastClickTime = currentTime
-            }
-
-            currentTime - lastClickTime < doubleClickInterval -> {
-                action(2)
-            }
-
-            else -> {
-                action(1)
-                lastClickTime = currentTime
-            }
+        if (currentTime - lastClickTime < doubleClickInterval) {
+            action(true)
+        } else {
+            action(false)
+            lastClickTime = currentTime
         }
     }
 }

@@ -5,7 +5,7 @@ import android.content.ClipboardManager
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 
-fun String.clipboardCopy() {
-    val clipData = ClipData.newPlainText(null, this)
+fun String.clipboardCopy(label: String? = null) {
+    val clipData = ClipData.newPlainText(label, this)
     App.getSystemService<ClipboardManager>()?.setPrimaryClip(clipData)
 }
