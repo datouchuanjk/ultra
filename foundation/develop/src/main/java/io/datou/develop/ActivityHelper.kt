@@ -1,6 +1,7 @@
 package io.datou.develop
 
 import android.app.Activity
+import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
 import java.lang.ref.WeakReference
@@ -15,15 +16,15 @@ internal object ActivityHelper {
     private val activities: List<Activity>
         get() = _activities.mapNotNull { it.get() }
 
-    val topActivity: Activity?
+    internal val topActivity
         get() = activities.lastOrNull()
 
-    fun finishActivities() {
+    internal fun finishActivities() {
         activities.forEach { it.finish() }
     }
 
-         fun registerActivityLifecycleCallbacks() {
-        App.registerActivityLifecycleCallbacks(object :
+    internal fun registerActivityLifecycleCallbacks(application: Application) {
+        application.registerActivityLifecycleCallbacks(object :
             ActivityLifecycleCallbacks by noOpDelegate() {
             override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
                 _activities.add(WeakReference(activity))

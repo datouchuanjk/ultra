@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-fun Bitmap.compressToBytes(maxSize: Int): ByteArray {
+fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
     var quality = 100
     compress(Bitmap.CompressFormat.JPEG, quality, outputStream)

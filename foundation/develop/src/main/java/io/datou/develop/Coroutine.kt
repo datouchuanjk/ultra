@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-val SilentExceptionHandler = CoroutineExceptionHandler { _, exception ->
+internal val SilentExceptionHandler = CoroutineExceptionHandler { _, exception ->
     exception.printStackTrace()
 }
 

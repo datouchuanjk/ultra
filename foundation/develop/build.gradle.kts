@@ -43,4 +43,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
     //gson
     implementation(libs.gson)
+    implementation( libs.androidx.fragment)
 }

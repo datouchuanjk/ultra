@@ -37,7 +37,7 @@ fun <T> ActivityResultLauncher<List<T>>.launch(vararg input: T) {
 }
 
 fun <T> ActivityResultLauncher<Uri>.launch(file: File) {
-    launch(file.toSharedUri()!!)
+    launch(checkNotNull(file.toSharedUri()))
 }
 
 

@@ -9,26 +9,44 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 
 fun Application.develop() {
-    App = this
-    ActivityHelper.registerActivityLifecycleCallbacks()
+    ApplicationHelper.init(this)
 }
 
-lateinit var App: Application
-    private set
+val App get() = ApplicationHelper.app
 
-val AppLifecycleCurrentStateFlow = ProcessLifecycleOwner.get().lifecycle.currentStateFlow
+val AppCurrentStateFlow get() = ApplicationHelper.currentStateFlow
 
-val AppLifecycleScope = ProcessLifecycleOwner.get().lifecycleScope
+val AppLifecycleScope get() = ApplicationHelper.lifecycleScope
 
 suspend fun launchWhenAppResumed(block: () -> Unit) {
-    if (AppLifecycleCurrentStateFlow.value == Lifecycle.State.RESUMED) {
-        block()
-    } else {
-        AppLifecycleCurrentStateFlow
-            .filter { it == Lifecycle.State.RESUMED }
-            .take(1)
-            .collectLatest {
-                block()
-            }
+    ApplicationHelper.launchWhenResumed(block)
+}
+
+internal object ApplicationHelper {
+
+    private var _application: Application? = null
+
+    internal val app get() = checkNotNull(_application)
+
+    internal fun init(application: Application) {
+        _application = application
+        ActivityHelper.registerActivityLifecycleCallbacks(application)
+    }
+
+    internal val currentStateFlow = ProcessLifecycleOwner.get().lifecycle.currentStateFlow
+
+    internal val lifecycleScope = ProcessLifecycleOwner.get().lifecycleScope
+
+    internal suspend fun launchWhenResumed(block: () -> Unit) {
+        if (currentStateFlow.value == Lifecycle.State.RESUMED) {
+            block()
+        } else {
+            currentStateFlow
+                .filter { it == Lifecycle.State.RESUMED }
+                .take(1)
+                .collectLatest {
+                    block()
+                }
+        }
     }
 }

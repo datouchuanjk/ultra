@@ -23,6 +23,7 @@ object CustomActivityResultContracts {
                 }
             }
         }
+
         private var _channelId: String? = null
         override fun createIntent(context: Context, input: String?): Intent {
             _channelId = input
@@ -141,7 +142,7 @@ object CustomActivityResultContracts {
             return null
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?):Boolean {
+        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
             return _input?.invoke() ?: false
         }
     }

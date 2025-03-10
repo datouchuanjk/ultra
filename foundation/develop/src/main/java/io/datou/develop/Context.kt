@@ -26,7 +26,24 @@ fun Context.findActivity(): Activity? {
     return null
 }
 
-internal val InternalPackageInfo by lazy {
+val VersionCode: Long
+        by lazy {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                App.packageManager.getPackageInfo(
+                    App.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                App.packageManager.getPackageInfo(App.packageName, 0)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                packageInfo.versionCode.toLong()
+            }
+        }
+
+val VersionName: String by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         App.packageManager.getPackageInfo(
             App.packageName,
@@ -34,20 +51,7 @@ internal val InternalPackageInfo by lazy {
         )
     } else {
         App.packageManager.getPackageInfo(App.packageName, 0)
-    }
-}
-
-val VersionCode: Long
-        by lazy {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                InternalPackageInfo.longVersionCode
-            } else {
-                InternalPackageInfo.versionCode.toLong()
-            }
-        }
-
-val VersionName: String by lazy {
-    InternalPackageInfo.versionName.orEmpty()
+    }.versionName.orEmpty()
 }
 
 val InstalledPackages: List<PackageInfo>
@@ -70,7 +74,7 @@ val MetaData: Bundle by lazy {
     }.metaData
 }
 
-fun Context.newContextByDensity(designWidth: Float): Context {
+fun Context.createDesignConfigurationContext(designWidth: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(designWidth)
         .times(DisplayMetrics.DENSITY_DEFAULT)

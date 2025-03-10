@@ -135,14 +135,3 @@ fun Calendar.isSomeYeah(calendar: Calendar): Boolean {
     return year == calendar.year
 }
 
-fun Calendar.simpleFormat(): String {
-    val now = Calendar.getInstance()
-    return when {
-        isSomeDay(now) -> "${hourOfDay}:${minute}"
-        isYesterday(now) -> "昨天 ${hourOfDay}:${minute}"
-        isSomeWeekByCN(now) -> "$dayOfWeekFormat ${hourOfDay}:${minute}"
-        isSomeMonth(now) -> "${weekOfMonth}日 ${hourOfDay}:${minute}"
-        isSomeYeah(now) -> "${month + 1}月${weekOfMonth}日 ${hourOfDay}:${minute}"
-        else -> "${year}年${month + 1}月${weekOfMonth}日 ${hourOfDay}:${minute}"
-    }
-}
