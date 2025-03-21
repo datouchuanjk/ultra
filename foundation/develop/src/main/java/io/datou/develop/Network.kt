@@ -1,76 +1,90 @@
 package io.datou.develop
 
 import android.Manifest
+import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.annotation.RequiresPermission
 import androidx.core.content.getSystemService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.LifecycleOwner
 
+val Context.connectivityManager get() = getSystemService<ConnectivityManager>()
 
-val CurrentNetworkStateFlow get() = NetworkHelper().currentStateFlow
-
-class NetworkHelper {
-
-    val currentStateFlow: StateFlow<State>
-        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) get() {
-            val mutableStateFlow = MutableStateFlow(defaultCurrentState)
-            addObserver {
-                mutableStateFlow.value = it.currentState
-            }
-            return mutableStateFlow.asStateFlow()
-        }
-
+val Context.activeNetwork
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    internal fun addObserver(block: (Network) -> Unit) {
+    get() = connectivityManager?.activeNetwork
+
+@RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+fun LifecycleOwner.registerNetworkCallback(block: (NetworkCapabilities) -> Unit) {
+    bindLifecycle {
         val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                block(network)
-            }
-
-            override fun onLost(network: Network) {
-                block(network)
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                block(networkCapabilities)
             }
         }
-        App.getSystemService<ConnectivityManager>()?.registerDefaultNetworkCallback(callback)
-    }
-
-    private val defaultCurrentState
-        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-        get() = App.getSystemService<ConnectivityManager>()
-            ?.activeNetwork?.currentState
-            ?: State.Unknown(false)
-
-    private val Network.currentState: State
-        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE) get() {
-            val manager = App.getSystemService<ConnectivityManager>()
-            return manager?.getNetworkCapabilities(this)
-                ?.let {
-                    val isVpn = it.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
-                    when {
-                        it.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> State.Wifi(
-                            isVpn = isVpn
-                        )
-
-                        it.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                            State.Mobile(
-                                isUnlimited = it.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED),
-                                isVpn = isVpn
-                            )
-                        }
-
-                        else -> State.Other(isVpn = isVpn)
-                    }
-                } ?: State.Unknown(false)
+        InstanceApp.connectivityManager?.registerDefaultNetworkCallback(callback)
+        onDestroy {
+            InstanceApp.connectivityManager?.unregisterNetworkCallback(callback)
         }
-
-    sealed class State(val isVpn: Boolean) {
-        class Unknown(isVpn: Boolean) : State(isVpn)
-        class Wifi(isVpn: Boolean) : State(isVpn)
-        class Mobile(isUnlimited: Boolean, isVpn: Boolean) : State(isVpn)
-        class Other(isVpn: Boolean) : State(isVpn)
     }
 }
+
+val Network.isConnected: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.getSystemService<ConnectivityManager>()
+        ?.getNetworkCapabilities(this)
+        ?.isConnected == true
+
+val Network.isWifi: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.connectivityManager
+        ?.getNetworkCapabilities(this)
+        ?.isWifi == true
+
+val Network.isCellular: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.connectivityManager
+        ?.getNetworkCapabilities(this)
+        ?.isCellular == true
+
+val Network.isVpn: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.connectivityManager
+        ?.getNetworkCapabilities(this)
+        ?.isVpn == true
+
+val Network.isEthernet: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.connectivityManager
+        ?.getNetworkCapabilities(this)
+        ?.isEthernet == true
+
+val Network.isBluetooth: Boolean
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    get() = InstanceApp.connectivityManager
+        ?.getNetworkCapabilities(this)
+        ?.isBluetooth == true
+
+
+val NetworkCapabilities.isConnected: Boolean
+    get() = hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+
+val NetworkCapabilities.isWifi: Boolean
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+
+val NetworkCapabilities.isCellular: Boolean
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true
+
+val NetworkCapabilities.isVpn: Boolean
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true
+
+val NetworkCapabilities.isEthernet: Boolean
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) == true
+
+val NetworkCapabilities.isBluetooth: Boolean
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) == true

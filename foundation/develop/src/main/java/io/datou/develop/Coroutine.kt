@@ -8,17 +8,15 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-internal val SilentExceptionHandler = CoroutineExceptionHandler { _, exception ->
-    exception.printStackTrace()
-}
-
 fun CoroutineScope.launchSilently(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
     return launch(
-        context = context + SilentExceptionHandler,
+        context = context + CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+        },
         start = start,
         block = block
     )

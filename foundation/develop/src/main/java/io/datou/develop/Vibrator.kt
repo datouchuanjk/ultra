@@ -11,9 +11,9 @@ import androidx.core.content.getSystemService
 @RequiresPermission(Manifest.permission.VIBRATE)
 fun vibrate(duration: Long = 50) {
     val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        App.getSystemService<VibratorManager>()?.defaultVibrator
+        InstanceApp.getSystemService<VibratorManager>()?.defaultVibrator
     } else {
-        App.getSystemService<Vibrator>()
+        InstanceApp.getSystemService<Vibrator>()
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         vibrator?.vibrate(

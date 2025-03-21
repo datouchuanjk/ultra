@@ -2,7 +2,6 @@ package io.datou.develop
 
 import android.app.Activity
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -11,51 +10,91 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.core.graphics.drawable.toDrawable
 
 fun ComponentActivity.setOnKeyboardHeightListener(
     view: View = window.decorView,
+    useCompat: Boolean = true,
     listener: (Int) -> Unit
 ) {
-    var observer: KeyboardHeightObserver? = null
-    var keyboardHeight: Int? = null
-    val handle: (Int) -> Unit = {
-        if (keyboardHeight != it) {
-            listener(it)
-            keyboardHeight = it
-        }
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val imeIsVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
-            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val newKeyboardHeight = if (imeIsVisible) {
-                ime.bottom - navigationBars.bottom
-            } else {
-                0
+    bindLifecycle {
+        var observer: KeyboardHeightObserver? = null
+        var keyboardHeight: Int? = null
+        val handle: (Int) -> Unit = {
+            if (keyboardHeight != it) {
+                listener(it)
+                keyboardHeight = it
             }
-            handle(newKeyboardHeight)
-            insets
         }
-    } else {
-        observer = KeyboardHeightObserver(activity = this) {
-            handle(it)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && useCompat) {
+            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+                val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+                val imeIsVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+                val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                val newKeyboardHeight = if (imeIsVisible) {
+                    ime.bottom - navigationBars.bottom
+                } else {
+                    0
+                }
+                handle(newKeyboardHeight)
+                insets
+            }
+        } else {
+            observer = KeyboardHeightObserver(activity = this@setOnKeyboardHeightListener) {
+                handle(it)
+            }
         }
-    }
-    lifecycle.addObserver(object : DefaultLifecycleObserver {
-        override fun onDestroy(owner: LifecycleOwner) {
-            super.onDestroy(owner)
+        onDestroy {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 ViewCompat.setOnApplyWindowInsetsListener(window.decorView, null)
             } else {
                 observer?.onDispose()
             }
         }
-    })
+    }
+}
+
+fun Modifier.imePaddingCompat(useCompat: Boolean = true) = composed {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && useCompat) {
+        then(
+            Modifier.imePadding()
+        )
+    } else {
+        var keyboardHeight by remember {
+            mutableIntStateOf(0)
+        }
+        val activity = LocalContext.current.findActivity()
+        var listener: KeyboardHeightObserver? = remember { null }
+        DisposableEffect(Unit) {
+            activity?.let {
+                listener = KeyboardHeightObserver(it) { height ->
+                    keyboardHeight = height
+                }
+            }
+            onDispose {
+                listener?.onDispose()
+            }
+        }
+        then(
+            Modifier.padding(
+                bottom = LocalDensity.current.run {
+                    keyboardHeight.toDp()
+                })
+        )
+    }
 }
 
 internal class KeyboardHeightObserver(
@@ -68,7 +107,7 @@ internal class KeyboardHeightObserver(
     init {
         rootView.viewTreeObserver.addOnGlobalLayoutListener(this)
         contentView = rootView
-        setBackgroundDrawable(ColorDrawable(0))
+        setBackgroundDrawable(0.toDrawable())
         width = 0
         height = ViewGroup.LayoutParams.MATCH_PARENT
         @Suppress("DEPRECATION")

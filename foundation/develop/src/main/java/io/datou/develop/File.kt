@@ -1,37 +1,35 @@
 package io.datou.develop
 
 import android.os.Environment
-import android.util.Log
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.security.DigestInputStream
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 
 fun createFileInCacheDir(fileName: String): File {
-    return File(App.cacheDir, fileName).createAbsolutely()
+    return File(InstanceApp.cacheDir, fileName).createAbsolutely()
 }
 
 fun createFileInFilesDir(fileName: String): File {
-    return File(App.filesDir, fileName).createAbsolutely()
+    return File(InstanceApp.filesDir, fileName).createAbsolutely()
 }
 
 fun createFileInExternalCacheDir(fileName: String): File {
-    return File(App.externalCacheDir, fileName).createAbsolutely()
+    return File(InstanceApp.externalCacheDir, fileName).createAbsolutely()
 }
 
 fun createFileInExternalFilesDir(type: String?, fileName: String): File {
-    return File(App.getExternalFilesDir(type), fileName).createAbsolutely()
+    return File(InstanceApp.getExternalFilesDir(type), fileName).createAbsolutely()
 }
 
 fun createFileInExternalStoragePublicDirectory(type: String, fileName: String): File {
     return File(Environment.getExternalStoragePublicDirectory(type), fileName).createAbsolutely()
 }
 
-internal fun File.createAbsolutely(): File {
+fun createFileInExternalStorageDirectory(fileName: String): File {
+    return File(Environment.getExternalStorageDirectory(), fileName).createAbsolutely()
+}
+
+fun File.createAbsolutely(): File {
     if (exists()) {
         return this
     }
@@ -54,23 +52,6 @@ val File.totalSize: Long
         }
         return size
     }
-
-fun File.deleteRecursively(): Boolean {
-    if (!exists()) {
-        return true
-    }
-    if (isDirectory) {
-        val children = listFiles()
-        if (children != null) {
-            for (child in children) {
-                if (!child.deleteRecursively()) {
-                    return false
-                }
-            }
-        }
-    }
-    return delete()
-}
 
 val File.md5: String
     get() {

@@ -1,19 +1,25 @@
 package io.datou.develop
 
+import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 
 object CustomActivityResultContracts {
     class AppNotificationSettings : ActivityResultContract<String?, Boolean>() {
         companion object {
             fun areNotificationsEnabled(channelId: String? = null): Boolean {
-                val manager = NotificationManagerCompat.from(App)
+                val manager = NotificationManagerCompat.from(InstanceApp)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && channelId != null) {
                     val channel = manager.getNotificationChannel(channelId) ?: return false
                     return channel.importance > NotificationManager.IMPORTANCE_NONE
@@ -29,7 +35,7 @@ object CustomActivityResultContracts {
             _channelId = input
             return Intent().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (_channelId.isNullOrEmpty()) {
+                    if (_channelId.isNullOrEmpty() || areNotificationsEnabled() == false) {
                         action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                     } else {
@@ -64,7 +70,7 @@ object CustomActivityResultContracts {
         companion object {
             fun canRequestPackageInstalls(): Boolean {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    App.packageManager.canRequestPackageInstalls()
+                    InstanceApp.packageManager.canRequestPackageInstalls()
                 } else {
                     true
                 }
@@ -74,7 +80,7 @@ object CustomActivityResultContracts {
         override fun createIntent(context: Context, input: Unit): Intent {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                    data = Uri.parse("package:${context.packageName}")
+                    data = "package:${context.packageName}".toUri()
                 }
             } else {
                 Intent(Intent.ACTION_VIEW)
@@ -99,7 +105,7 @@ object CustomActivityResultContracts {
     class ManageOverlayPermissions : ActivityResultContract<Unit, Boolean>() {
         companion object {
             fun canDrawOverlays(): Boolean {
-                return Settings.canDrawOverlays(App)
+                return Settings.canDrawOverlays(InstanceApp)
             }
         }
 
@@ -122,28 +128,56 @@ object CustomActivityResultContracts {
         }
     }
 
-    class ApplicationDetailsSettings : ActivityResultContract<() -> Boolean, Boolean>() {
-        private var _input: (() -> Boolean)? = null
-        override fun createIntent(context: Context, input: () -> Boolean): Intent {
-            _input = input
-            return Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.parse("package:" + context.packageName)
-            )
+    class ManageExternalStoragePermission : ActivityResultContract<Unit, Boolean>() {
+        companion object {
+            fun isExternalStorageManager(): Boolean {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Environment.isExternalStorageManager()
+                } else {
+                    arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                    ).all {
+                        ContextCompat.checkSelfPermission(InstanceApp, it) == PERMISSION_GRANTED
+                    }
+                }
+            }
+        }
+
+        override fun createIntent(
+            context: Context,
+            input: Unit
+        ): Intent {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+            } else {
+                ActivityResultContracts.RequestMultiplePermissions().createIntent(
+                    context,
+                    arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                    )
+                )
+            }
         }
 
         override fun getSynchronousResult(
             context: Context,
-            input: () -> Boolean
+            input: Unit
         ): SynchronousResult<Boolean>? {
-            if (input()) {
+            if (isExternalStorageManager()) {
                 return SynchronousResult(true)
             }
             return null
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return _input?.invoke() ?: false
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ): Boolean {
+            return isExternalStorageManager()
         }
     }
 }

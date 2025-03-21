@@ -1,6 +1,7 @@
 package io.datou.develop
 
 import android.Manifest
+import android.content.DialogInterface
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
@@ -27,11 +28,11 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 fun toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     message ?: return
-    if ( Looper.getMainLooper().thread == Thread.currentThread()) {
-        Toast.makeText(App, message, duration).show()
+    if (Looper.getMainLooper().thread == Thread.currentThread()) {
+        Toast.makeText(InstanceApp, message, duration).show()
     } else {
         Handler(Looper.getMainLooper()).post {
-            Toast.makeText(App, message, duration).show()
+            Toast.makeText(InstanceApp, message, duration).show()
         }
     }
 }
@@ -41,9 +42,9 @@ fun alertToast(
     width: Int = WindowManager.LayoutParams.MATCH_PARENT,
     height: Int = WindowManager.LayoutParams.WRAP_CONTENT,
     gravity: Int = Gravity.TOP,
-    content: @Composable () -> Unit
+    content: @Composable DialogInterface.() -> Unit
 ) {
-    val wm = App.getSystemService<WindowManager>() ?: return
+    val wm = InstanceApp.getSystemService<WindowManager>() ?: return
     val handler = Handler(Looper.getMainLooper())
     val params = WindowManager.LayoutParams(
         width,
@@ -57,33 +58,38 @@ fun alertToast(
         PixelFormat.TRANSLUCENT
     )
     params.gravity = gravity
-    val composeView = ComposeView(App).apply {
-        setContent {
-            content()
-        }
-    }
-    var lifecycleOwner: io.datou.develop.LifecycleOwner? = LifecycleOwner(composeView)
-    lifecycleOwner?.create {
+    val composeView = ComposeView(InstanceApp)
+    var dialogLifecycleOwner: DialogLifecycleOwner? = DialogLifecycleOwner(composeView)
+    dialogLifecycleOwner?.create {
         wm.addView(composeView, params)
     }
     val closeBlock = {
-        lifecycleOwner?.destroy {
+        dialogLifecycleOwner?.destroy {
             if (composeView.isAttachedToWindow) {
                 wm.removeView(composeView)
             }
         }
-        lifecycleOwner = null
+        dialogLifecycleOwner = null
     }
-    lifecycleOwner?.resume()
+    dialogLifecycleOwner?.resume()
     composeView.setOnClickListener {
         closeBlock()
     }
-    handler.postDelayed({
-        closeBlock()
-    }, 3500)
+    composeView.setContent {
+        content(object : DialogInterface {
+            override fun cancel() {
+                closeBlock()
+            }
+
+            override fun dismiss() {
+                closeBlock()
+            }
+        }
+        )
+    }
 }
 
-internal class LifecycleOwner(
+private class DialogLifecycleOwner(
     private val rootView: View
 ) : LifecycleOwner,
     ViewModelStoreOwner,

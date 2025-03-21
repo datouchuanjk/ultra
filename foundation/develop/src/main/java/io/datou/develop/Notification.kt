@@ -2,19 +2,28 @@ package io.datou.develop
 
 import android.Manifest
 import android.app.Notification
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.graphics.drawable.IconCompat
+import androidx.core.content.getSystemService
+
+val Context.notificationManagerCompat get() = NotificationManagerCompat.from(this)
 
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun Notification.show(
     id: Int = System.currentTimeMillis().toInt(),
-) {
-    NotificationManagerCompat.from(App).notify(id, this)
+): Int {
+    InstanceApp.notificationManagerCompat.notify(id, this)
+    return id
+}
+
+fun cancelNotification(id: Int) {
+    InstanceApp.notificationManagerCompat.cancel(id)
 }
 
 fun createNotification(
@@ -25,12 +34,12 @@ fun createNotification(
     autoCancel: Boolean = true,
     useDefaultSound: Boolean = true,
     buildAction: (NotificationCompat.Builder) -> Unit = {}
-) = NotificationCompat.Builder(App, channelId)
+) = NotificationCompat.Builder(InstanceApp, channelId)
     .setContentTitle(title)
     .setContentText(content)
     .setSmallIcon(smallIcon)
+    .setAutoCancel(autoCancel)
     .apply {
-        setAutoCancel(autoCancel)
         if (useDefaultSound) {
             setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
         }
@@ -38,20 +47,24 @@ fun createNotification(
     .apply(buildAction)
     .build()
 
-fun cancelNotification(id: Int) {
-    NotificationManagerCompat.from(App).cancel(id)
-}
 
 fun createNotificationChannel(
     channelId: String,
-    channelName: String,
+    channelName: String = channelId,
     importance: Int = NotificationManagerCompat.IMPORTANCE_DEFAULT,
     useDefaultSound: Boolean = true,
     buildAction: (NotificationChannelCompat.Builder) -> Unit = {}
 ) {
-    val manager = NotificationManagerCompat.from(App)
-    val find = manager.notificationChannelsCompat.map { it.id }.find { it == channelId }
-    if (find != null) {
+    if (
+        InstanceApp
+            .notificationManagerCompat
+            .notificationChannelsCompat
+            .map {
+                it.id
+            }.find {
+                it == channelId
+            } != null
+    ) {
         return
     }
     var newImportance = importance
@@ -60,7 +73,7 @@ fun createNotificationChannel(
             newImportance = NotificationManagerCompat.IMPORTANCE_HIGH
         }
     }
-    manager.createNotificationChannel(
+    InstanceApp.notificationManagerCompat.createNotificationChannel(
         NotificationChannelCompat.Builder(channelId, newImportance)
             .setName(channelName)
             .apply {

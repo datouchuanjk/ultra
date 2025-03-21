@@ -24,8 +24,4 @@ rootProject.name = "Devil"
 include ':app'
 include ':develop'
 project(":develop").projectDir = file("foundation/develop")
-include ':chat'
-project(":chat").projectDir = file("foundation/chat")
-include ':paging3'
-project(":paging3").projectDir = file("foundation/paging3")
 

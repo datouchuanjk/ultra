@@ -3,17 +3,11 @@ package io.datou.develop
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import java.io.File
-import java.io.FileNotFoundException
 
 fun Context.findActivity(): Activity? {
     var context = this
@@ -26,55 +20,56 @@ fun Context.findActivity(): Activity? {
     return null
 }
 
-val VersionCode: Long
-        by lazy {
-            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                App.packageManager.getPackageInfo(
-                    App.packageName,
-                    PackageManager.PackageInfoFlags.of(0)
-                )
-            } else {
-                App.packageManager.getPackageInfo(App.packageName, 0)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                packageInfo.versionCode.toLong()
-            }
-        }
-
-val VersionName: String by lazy {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getPackageInfo(
-            App.packageName,
+val Context.versionCode: Long
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        InstanceApp.packageManager.getPackageInfo(
+            InstanceApp.packageName,
             PackageManager.PackageInfoFlags.of(0)
         )
     } else {
-        App.packageManager.getPackageInfo(App.packageName, 0)
-    }.versionName.orEmpty()
-}
-
-val InstalledPackages: List<PackageInfo>
-    get() {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            App.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+        InstanceApp.packageManager.getPackageInfo(InstanceApp.packageName, 0)
+    }.run {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            longVersionCode
         } else {
-            App.packageManager.getInstalledPackages(0)
+            versionCode.toLong()
         }
     }
 
-val MetaData: Bundle by lazy {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        App.packageManager.getApplicationInfo(
-            App.packageName,
+
+val Context.versionName: String
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        InstanceApp.packageManager.getPackageInfo(
+            InstanceApp.packageName,
+            PackageManager.PackageInfoFlags.of(0)
+        )
+    } else {
+        InstanceApp.packageManager.getPackageInfo(InstanceApp.packageName, 0)
+    }.versionName.orEmpty()
+
+
+val Context.installedPackages: List<PackageInfo>
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        InstanceApp.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+    } else {
+        InstanceApp.packageManager.getInstalledPackages(0)
+    }
+
+
+val Context.metaData: Bundle
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        InstanceApp.packageManager.getApplicationInfo(
+            InstanceApp.packageName,
             PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
         )
     } else {
-        App.packageManager.getApplicationInfo(App.packageName, PackageManager.GET_META_DATA)
+        InstanceApp.packageManager.getApplicationInfo(
+            InstanceApp.packageName,
+            PackageManager.GET_META_DATA
+        )
     }.metaData
-}
 
-fun Context.createDesignConfigurationContext(designWidth: Float): Context {
+fun Context.createDesignAdapterContext(designWidth: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(designWidth)
         .times(DisplayMetrics.DENSITY_DEFAULT)

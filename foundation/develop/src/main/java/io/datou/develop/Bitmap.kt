@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import android.Manifest
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,10 +9,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.annotation.RequiresPermission
 import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
@@ -74,7 +74,7 @@ private fun Bitmap.saveToGalleryAboveQ(
         put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
         put(MediaStore.Images.Media.IS_PENDING, 1)
     }
-    val contentResolver = App.contentResolver
+    val contentResolver = InstanceApp.contentResolver
     val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
     return try {
         uri?.apply {
@@ -111,7 +111,7 @@ private fun Bitmap.saveToGalleryBelowQ(
         throw e
     }
     MediaScannerConnection.scanFile(
-        App,
+        InstanceApp,
         arrayOf(file.absolutePath),
         arrayOf("image/${format.name.lowercase()}"),
         null

@@ -40,8 +40,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     //process
-    implementation(libs.androidx.lifecycle.process)
+    api(libs.androidx.lifecycle.process)
     //gson
-    implementation(libs.gson)
-    implementation( libs.androidx.fragment)
+    api(libs.gson)
 }
