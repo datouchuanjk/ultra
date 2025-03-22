@@ -23,7 +23,6 @@ fun vibrate(duration: Long = 50) {
             )
         )
     } else {
-        @Suppress("DEPRECATION")
         vibrator?.vibrate(duration)
     }
 }

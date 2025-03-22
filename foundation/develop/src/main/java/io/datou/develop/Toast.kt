@@ -45,7 +45,6 @@ fun alertToast(
     content: @Composable DialogInterface.() -> Unit
 ) {
     val wm = InstanceApp.getSystemService<WindowManager>() ?: return
-    val handler = Handler(Looper.getMainLooper())
     val params = WindowManager.LayoutParams(
         width,
         height,
@@ -72,9 +71,6 @@ fun alertToast(
         dialogLifecycleOwner = null
     }
     dialogLifecycleOwner?.resume()
-    composeView.setOnClickListener {
-        closeBlock()
-    }
     composeView.setContent {
         content(object : DialogInterface {
             override fun cancel() {
@@ -130,5 +126,4 @@ private class DialogLifecycleOwner(
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         _viewModelStore.clear()
     }
-
 }

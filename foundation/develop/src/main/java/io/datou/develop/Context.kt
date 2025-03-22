@@ -8,6 +8,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
+
+@Composable
+fun findActivity() = LocalContext.current.findActivity()
 
 fun Context.findActivity(): Activity? {
     var context = this
@@ -36,7 +43,6 @@ val Context.versionCode: Long
         }
     }
 
-
 val Context.versionName: String
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         InstanceApp.packageManager.getPackageInfo(
@@ -47,14 +53,12 @@ val Context.versionName: String
         InstanceApp.packageManager.getPackageInfo(InstanceApp.packageName, 0)
     }.versionName.orEmpty()
 
-
 val Context.installedPackages: List<PackageInfo>
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         InstanceApp.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
     } else {
         InstanceApp.packageManager.getInstalledPackages(0)
     }
-
 
 val Context.metaData: Bundle
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
