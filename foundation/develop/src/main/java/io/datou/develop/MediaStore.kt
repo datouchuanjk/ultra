@@ -29,24 +29,12 @@ suspend fun saveToMediaStore(
             put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
             put(MediaStore.MediaColumns.IS_PENDING, 1)
             if (isOverwrite) {
-                val projection = arrayOf(MediaStore.MediaColumns._ID)
-                val selection = buildString {
-                    append(MediaStore.MediaColumns.DISPLAY_NAME)
-                    append(" = ? ")
-                    append(" AND ")
-                    append(MediaStore.MediaColumns.RELATIVE_PATH)
-                    append(" = ? ")
-                    append(" AND ")
-                    append(MediaStore.MediaColumns.MIME_TYPE)
-                    append(" = ? ")
-                }
-                val selectionArgs = arrayOf(displayName, relativePath, mimeType)
-                contentResolver.query(insertUri, projection, selection, selectionArgs, null)?.use {
-                    if (it.moveToFirst()) {
-                        val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID))
-                        val existingUri = ContentUris.withAppendedId(insertUri, id)
-                        contentResolver.delete(existingUri, null, null)
-                    }
+                queryMediaFiles(
+                    displayName = displayName,
+                    mimeType = mimeType,
+                    insertUri = insertUri
+                ).forEach {
+                    it.delete()
                 }
             }
         } else {
@@ -123,22 +111,23 @@ fun queryMediaFiles(
         append(MediaStore.MediaColumns.MIME_TYPE)
         append(" = ? ")
     }
-    val selectionArgs = arrayOf(displayName.run {
-        if (isLike) {
-            val baseName = displayName.substringBeforeLast('.')
-            val extension = displayName.substringAfterLast('.', "")
-            if (extension.isNotEmpty()) {
-                "%$baseName%.$extension"
+    val selectionArgs = arrayOf(
+        displayName.run {
+            if (isLike) {
+                val baseName = displayName.substringBeforeLast('.')
+                val extension = displayName.substringAfterLast('.', "")
+                if (extension.isNotEmpty()) {
+                    "%$baseName%.$extension"
+                } else {
+                    "%$baseName%"
+                }
             } else {
-                "%$baseName%"
+                this
             }
-        } else {
-            this
-        }
-    }, mimeType)
+        }, mimeType
+    )
     val uris = mutableListOf<Uri>()
-    val cursor = contentResolver.query(insertUri, projection, selection, selectionArgs, null)
-    cursor?.use {
+    contentResolver.query(insertUri, projection, selection, selectionArgs, null)?.use {
         while (it.moveToNext()) {
             val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
             val fileUri = ContentUris.withAppendedId(insertUri, id)

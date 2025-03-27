@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            Log.e("1234", "权限结果$it")
+            Log.e("1234", "权限124333结果$it")
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
 //                    queryMediaFiles(
@@ -44,16 +44,10 @@ class MainActivity : ComponentActivity() {
                         "text/plain",
                         Environment.DIRECTORY_DOCUMENTS,
                         MediaStore.Files.getContentUri("external"),
-                        true
+                        false
                     ) {
-                        it.write("我是新xinxinxinx的".toByteArray())
-                    }.let {
-                        if (it == null) {
-                            Log.e("1234", "炸了")
-                        } else {
-                            Log.e("1234", "没炸")
-                        }
-                }
+                        it.write("我是狗".toByteArray())
+                    }
                 }
             }
         }.launch(

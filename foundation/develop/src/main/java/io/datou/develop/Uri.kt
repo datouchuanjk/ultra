@@ -13,3 +13,7 @@ fun Uri.inputStream() = Instance.contentResolver.openInputStream(this)
 
 fun Uri.outputStream() = Instance.contentResolver.openOutputStream(this)
 
+fun Uri.delete(where: String? = null, selectionArgs: Array<String>? = null) {
+    Instance.contentResolver.delete(this, where, selectionArgs)
+}
+
