@@ -1,6 +1,5 @@
 package io.datou.develop
 
-import android.Manifest
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,9 +8,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.annotation.RequiresPermission
+import android.util.Base64
 import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
+
+fun String.base64ToBitmap(): Bitmap {
+    return Base64.decode(split(",")[1], Base64.DEFAULT).run {
+        BitmapFactory.decodeByteArray(this, 0, this.size)
+    }
+}
 
 fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
@@ -25,7 +30,7 @@ fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     return outputStream.toByteArray()
 }
 
-inline fun decodeToBitmap(
+inline fun decodeBitmapWithSizeConstraint(
     reqWidth: Int,
     reqHeight: Int,
     block: (BitmapFactory.Options) -> Bitmap?
@@ -52,69 +57,9 @@ inline fun decodeToBitmap(
 }
 
 fun Bitmap.saveToGallery(
-    fileName: String,
+    fileName: String = "${System.currentTimeMillis()}.jpeg",
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
     quality: Int = 100
 ): Uri? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        saveToGalleryAboveQ(fileName, format, quality)
-    } else {
-        saveToGalleryBelowQ(fileName, format, quality)
-    }
-}
-
-private fun Bitmap.saveToGalleryAboveQ(
-    fileName: String,
-    format: Bitmap.CompressFormat,
-    quality: Int
-): Uri? {
-    val values = ContentValues().apply {
-        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-        put(MediaStore.Images.Media.MIME_TYPE, "image/${format.name.lowercase()}")
-        put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-        put(MediaStore.Images.Media.IS_PENDING, 1)
-    }
-    val contentResolver = InstanceApp.contentResolver
-    val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-    return try {
-        uri?.apply {
-            outputStream()?.use {
-                compress(format, quality, it)
-                it.flush()
-            }
-            values.put(MediaStore.Images.Media.IS_PENDING, 0)
-            contentResolver.update(this, values, null, null)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        uri?.let { contentResolver.delete(it, null, null) }
-        throw e
-    }
-}
-
-private fun Bitmap.saveToGalleryBelowQ(
-    fileName: String,
-    format: Bitmap.CompressFormat,
-    quality: Int
-): Uri {
-    val file = createFileInExternalStoragePublicDirectory(
-        Environment.DIRECTORY_PICTURES,
-        "$fileName.${format.name.lowercase()}"
-    )
-    try {
-        file.outputStream().use {
-            compress(format, quality, it)
-            it.flush()
-        }
-    } catch (e: Exception) {
-        file.deleteRecursively()
-        throw e
-    }
-    MediaScannerConnection.scanFile(
-        InstanceApp,
-        arrayOf(file.absolutePath),
-        arrayOf("image/${format.name.lowercase()}"),
-        null
-    )
-    return file.toUri()
+    return null
 }

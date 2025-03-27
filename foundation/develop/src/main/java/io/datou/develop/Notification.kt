@@ -5,12 +5,10 @@ import android.app.Notification
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.RingtoneManager
-import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.getSystemService
 
 val Context.notificationManagerCompat get() = NotificationManagerCompat.from(this)
 
@@ -18,12 +16,12 @@ val Context.notificationManagerCompat get() = NotificationManagerCompat.from(thi
 fun Notification.show(
     id: Int = System.currentTimeMillis().toInt(),
 ): Int {
-    InstanceApp.notificationManagerCompat.notify(id, this)
+    Instance.notificationManagerCompat.notify(id, this)
     return id
 }
 
 fun cancelNotification(id: Int) {
-    InstanceApp.notificationManagerCompat.cancel(id)
+    Instance.notificationManagerCompat.cancel(id)
 }
 
 fun createNotification(
@@ -34,7 +32,7 @@ fun createNotification(
     autoCancel: Boolean = true,
     useDefaultSound: Boolean = true,
     buildAction: (NotificationCompat.Builder) -> Unit = {}
-) = NotificationCompat.Builder(InstanceApp, channelId)
+) = NotificationCompat.Builder(Instance, channelId)
     .setContentTitle(title)
     .setContentText(content)
     .setSmallIcon(smallIcon)
@@ -56,7 +54,7 @@ fun createNotificationChannel(
     buildAction: (NotificationChannelCompat.Builder) -> Unit = {}
 ) {
     if (
-        InstanceApp
+        Instance
             .notificationManagerCompat
             .notificationChannelsCompat
             .map {
@@ -73,7 +71,7 @@ fun createNotificationChannel(
             newImportance = NotificationManagerCompat.IMPORTANCE_HIGH
         }
     }
-    InstanceApp.notificationManagerCompat.createNotificationChannel(
+    Instance.notificationManagerCompat.createNotificationChannel(
         NotificationChannelCompat.Builder(channelId, newImportance)
             .setName(channelName)
             .apply {

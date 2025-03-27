@@ -5,26 +5,36 @@ import android.app.Application
 import android.os.Bundle
 import java.lang.ref.WeakReference
 
-private var GLOBAL_APPLICATION: Application? = null
-private var TOP_ACTIVITY: WeakReference<Activity>? = null
+val Instance: Application by lazy {
+    checkNotNull(ContextManager.application)
+}
 
-val InstanceApp: Application get() = checkNotNull(GLOBAL_APPLICATION)
-val TopActivity get() = TOP_ACTIVITY?.get()
+val TopActivity get() = ContextManager.topActivity?.get()
 
-fun Application.develop() {
-    GLOBAL_APPLICATION = this
-    registerActivityLifecycleCallbacks(object :
-        Application.ActivityLifecycleCallbacks by noOpDelegate() {
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-            TOP_ACTIVITY = WeakReference(activity)
-        }
+fun Application.startDevelop() {
+    ContextManager.init(this)
+}
 
-        override fun onActivityDestroyed(activity: Activity) {
-            if (activity == TOP_ACTIVITY?.get()) {
-                TOP_ACTIVITY = null
+internal object ContextManager {
+
+    var topActivity: WeakReference<Activity>? = null
+    var application: Application? = null
+
+    fun init(application: Application) {
+        this.application = application
+        application.registerActivityLifecycleCallbacks(object :
+            Application.ActivityLifecycleCallbacks by noOpDelegate() {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                topActivity = WeakReference(activity)
             }
-        }
-    })
+
+            override fun onActivityDestroyed(activity: Activity) {
+                if (activity == topActivity?.get()) {
+                    topActivity = null
+                }
+            }
+        })
+    }
 }
 
 

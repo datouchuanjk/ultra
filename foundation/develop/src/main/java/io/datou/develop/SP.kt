@@ -6,13 +6,13 @@ import androidx.core.content.edit
 
 @PublishedApi
 internal val MySharedPreferences: SharedPreferences by lazy {
-    InstanceApp.getSharedPreferences(
-        "${InstanceApp.packageName}_SPHelper_version_1",
+    Instance.getSharedPreferences(
+        "${Instance.packageName}_SPHelper_version_1",
         Context.MODE_PRIVATE
     )
 }
 
-fun <T> saveToSharedPreferences(
+fun <T> saveToShared(
     pair: Pair<String, T>,
     commit: Boolean = false
 ) = MySharedPreferences.edit(commit) {
@@ -26,7 +26,7 @@ fun <T> saveToSharedPreferences(
     }
 }
 
-inline fun <reified T> loadFromSharedPreferences(pair: Pair<String, T>) = MySharedPreferences.run {
+inline fun <reified T> loadFromShared(pair: Pair<String, T>) = MySharedPreferences.run {
     when (pair.second) {
         is Int -> getInt(pair.first, pair.second as Int) as T
         is Long -> getLong(pair.first, pair.second as Long) as T

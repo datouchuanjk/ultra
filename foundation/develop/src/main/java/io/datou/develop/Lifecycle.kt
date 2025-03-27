@@ -9,30 +9,29 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-class DisposableLifecycleScope {
-    inline fun onDestroy(
-        crossinline onDisposeEffect: () -> Unit
-    ): DisposableLifecycleResult = object : DisposableLifecycleResult {
-        override fun onDestroy() {
-            onDisposeEffect()
-        }
+class LifecycleDisposableScope
+interface LifecycleDisposable {
+    fun onDispose()
+}
+
+inline fun LifecycleDisposableScope.onDispose(
+    crossinline onDisposeEffect: () -> Unit
+) = object : LifecycleDisposable {
+    override fun onDispose() {
+        onDisposeEffect()
     }
 }
 
-interface DisposableLifecycleResult {
-    fun onDestroy()
-}
-
-inline fun LifecycleOwner.bindLifecycle(
-    effect: DisposableLifecycleScope.() -> DisposableLifecycleResult
+inline fun LifecycleOwner.withLifecycleDisposable(
+    effect: LifecycleDisposableScope.() -> LifecycleDisposable
 ) {
     if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
         return
     }
-    val callbackResult = DisposableLifecycleScope().effect()
+    val callbackResult = LifecycleDisposableScope().effect()
     lifecycle.addObserver(object : DefaultLifecycleObserver {
         override fun onDestroy(owner: LifecycleOwner) {
-            callbackResult.onDestroy()
+            callbackResult.onDispose()
         }
     })
 }

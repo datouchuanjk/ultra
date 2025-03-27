@@ -12,6 +12,5 @@ fun Modifier.onlyClick(onClick: () -> Unit) = composed {
         indication = null,
         onClick = onClick
     )
-
 }
 

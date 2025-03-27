@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "io.datou.develop"
+    namespace = "io.datou.banner"
     compileSdk = COMPILE_SDK
 
     defaultConfig {
@@ -29,9 +29,6 @@ android {
     }
 }
 dependencies {
-    //basic
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity.compose)
     //compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

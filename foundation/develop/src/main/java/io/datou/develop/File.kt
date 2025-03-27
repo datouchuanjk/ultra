@@ -1,44 +1,47 @@
 package io.datou.develop
 
 import android.os.Environment
+import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
 
-fun createFileInCacheDir(fileName: String): File {
-    return File(InstanceApp.cacheDir, fileName).createAbsolutely()
+fun fileInCacheDir(fileName: String): File {
+    return File(Instance.cacheDir, fileName)
 }
 
-fun createFileInFilesDir(fileName: String): File {
-    return File(InstanceApp.filesDir, fileName).createAbsolutely()
+fun fileInFilesDir(fileName: String): File {
+    return File(Instance.filesDir, fileName)
 }
 
-fun createFileInExternalCacheDir(fileName: String): File {
-    return File(InstanceApp.externalCacheDir, fileName).createAbsolutely()
+fun fileInExternalCacheDir(fileName: String): File {
+    return File(Instance.externalCacheDir, fileName)
 }
 
-fun createFileInExternalFilesDir(type: String?, fileName: String): File {
-    return File(InstanceApp.getExternalFilesDir(type), fileName).createAbsolutely()
+fun fileInExternalFilesDir(type: String?, fileName: String): File {
+    return File(Instance.getExternalFilesDir(type), fileName)
 }
 
-fun createFileInExternalStoragePublicDirectory(type: String, fileName: String): File {
-    return File(Environment.getExternalStoragePublicDirectory(type), fileName).createAbsolutely()
+fun fileInExternalStoragePublicDirectory(type: String, fileName: String): File {
+    return File(Environment.getExternalStoragePublicDirectory(type), fileName)
 }
 
-fun createFileInExternalStorageDirectory(fileName: String): File {
-    return File(Environment.getExternalStorageDirectory(), fileName).createAbsolutely()
-}
-
-fun File.createAbsolutely(): File {
+fun File.createAbsolutely(): Boolean {
     if (exists()) {
-        return this
+        return true
     }
-    val parentFile = parentFile
-    if (parentFile != null && !parentFile.exists()) {
-        parentFile.mkdirs()
+    val isDirectory = absolutePath.lastIndexOf(".") == -1
+    if (isDirectory) {
+        return mkdirs()
+    } else {
+        val parentFile = parentFile
+        if (parentFile != null && !parentFile.exists()) {
+            if (!parentFile.mkdirs()) {
+                return false
+            }
+        }
+        return createNewFile()
     }
-    createNewFile()
-    return this
 }
 
 val File.totalSize: Long

@@ -1,41 +1,68 @@
 package com.example.demo.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import io.datou.develop.systemAlert
-import kotlinx.coroutines.delay
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.lifecycleScope
+import io.datou.develop.queryMediaFiles
+import io.datou.develop.saveToMediaStore
+import io.datou.develop.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            systemAlert {
-                Text(
-                    "我日",
-                    modifier = Modifier
-                        .height(300.dp)
-                        .fillMaxWidth()
-                        .background(color = Color.Red)
-                        .clickable {
-                            dismiss()
-                        })
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            Log.e("1234", "权限结果$it")
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+//                    queryMediaFiles(
+//                        "name_444.txt",
+//                        "text/plain",
+//                        MediaStore.Files.getContentUri("external"),
+//                        true
+//                    ).forEach {
+//                        Log.e("1234",getFilePathFromContentUriPreQ(this@MainActivity,it).orEmpty())
+//                    }
+                    saveToMediaStore(
+                        "name_444.txt",
+                        "text/plain",
+                        Environment.DIRECTORY_DOCUMENTS,
+                        MediaStore.Files.getContentUri("external"),
+                        true
+                    ) {
+                        it.write("我是新xinxinxinx的".toByteArray())
+                    }.let {
+                        if (it == null) {
+                            Log.e("1234", "炸了")
+                        } else {
+                            Log.e("1234", "没炸")
+                        }
+                }
+                }
             }
-        }
+        }.launch(
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            )
+        )
     }
+
 }
+
