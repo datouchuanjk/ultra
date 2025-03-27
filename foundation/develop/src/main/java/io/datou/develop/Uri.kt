@@ -1,14 +1,15 @@
 package io.datou.develop
 
 import android.net.Uri
+import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import java.io.File
 
 fun File.toSharedUri(
-    authority: String = "${InstanceApp.packageName}.fileProvider"
-): Uri? = FileProvider.getUriForFile(InstanceApp, authority, this)
+    authority: String = "${Instance.packageName}.fileProvider"
+): Uri? = FileProvider.getUriForFile(Instance, authority, this)
 
-fun Uri.inputStream() = InstanceApp.contentResolver.openInputStream(this)
+fun Uri.inputStream() = Instance.contentResolver.openInputStream(this)
 
-fun Uri.outputStream() = InstanceApp.contentResolver.openOutputStream(this)
+fun Uri.outputStream() = Instance.contentResolver.openOutputStream(this)
 

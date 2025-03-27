@@ -16,8 +16,8 @@ val Context.activeNetwork
     get() = connectivityManager?.activeNetwork
 
 @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-fun LifecycleOwner.registerNetworkCallback(block: (NetworkCapabilities) -> Unit) {
-    bindLifecycle {
+fun LifecycleOwner.withNetworkCallback(block: (NetworkCapabilities) -> Unit) {
+    withLifecycleDisposable {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(
                 network: Network,
@@ -27,46 +27,46 @@ fun LifecycleOwner.registerNetworkCallback(block: (NetworkCapabilities) -> Unit)
                 block(networkCapabilities)
             }
         }
-        InstanceApp.connectivityManager?.registerDefaultNetworkCallback(callback)
-        onDestroy {
-            InstanceApp.connectivityManager?.unregisterNetworkCallback(callback)
+        Instance.connectivityManager?.registerDefaultNetworkCallback(callback)
+        onDispose {
+            Instance.connectivityManager?.unregisterNetworkCallback(callback)
         }
     }
 }
 
 val Network.isConnected: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.getSystemService<ConnectivityManager>()
+    get() = Instance.getSystemService<ConnectivityManager>()
         ?.getNetworkCapabilities(this)
         ?.isConnected == true
 
 val Network.isWifi: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.connectivityManager
+    get() = Instance.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isWifi == true
 
 val Network.isCellular: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.connectivityManager
+    get() = Instance.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isCellular == true
 
 val Network.isVpn: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.connectivityManager
+    get() = Instance.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isVpn == true
 
 val Network.isEthernet: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.connectivityManager
+    get() = Instance.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isEthernet == true
 
 val Network.isBluetooth: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = InstanceApp.connectivityManager
+    get() = Instance.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isBluetooth == true
 

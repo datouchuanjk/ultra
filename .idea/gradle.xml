@@ -26,7 +26,6 @@
             <option value="$PROJECT_DIR$/foundation/develop" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

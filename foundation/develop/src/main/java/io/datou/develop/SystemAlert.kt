@@ -13,7 +13,6 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -62,7 +61,7 @@ private class SystemAlert(
         get() = _savedStateRegistryController.savedStateRegistry
     override val viewModelStore: ViewModelStore
         get() = _viewModelStore
-    private val _windowManager = InstanceApp.getSystemService<WindowManager>()
+    private val _windowManager = Instance.getSystemService<WindowManager>()
     private val _layoutParams = WindowManager.LayoutParams(
         width,
         height,
@@ -76,7 +75,7 @@ private class SystemAlert(
     ).also {
         it.gravity = gravity
     }
-    private val _composeView = ComposeView(InstanceApp)
+    private val _composeView = ComposeView(Instance)
         .apply {
             setContent { content() }
         }

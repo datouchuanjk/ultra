@@ -23,13 +23,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.core.view.ViewCompat
 import androidx.core.graphics.drawable.toDrawable
 
-fun ComponentActivity.setOnKeyboardHeightListener(
+fun ComponentActivity.setOnKeyboardListenerCompat(
     view: View = window.decorView,
     useCompat: Boolean = true,
     onHeightChange: (Int) -> Unit
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && useCompat) {
-        bindLifecycle {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+        && useCompat
+    ) {
+        withLifecycleDisposable {
             ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
                 if (insets.isImeVisible) {
                     insets.getImeInsets().bottom - insets.getNavigationBarsInsets().bottom
@@ -38,17 +40,18 @@ fun ComponentActivity.setOnKeyboardHeightListener(
                 }.let(onHeightChange)
                 insets
             }
-            onDestroy {
+            onDispose {
                 ViewCompat.setOnApplyWindowInsetsListener(view, null)
             }
         }
     } else {
-        bindLifecycle {
+        val activity = this
+        withLifecycleDisposable {
             val keyboardHandler = KeyboardHandler(
-                this@setOnKeyboardHeightListener,
+                activity,
                 onHeightChange
             )
-            onDestroy {
+            onDispose {
                 keyboardHandler.onDispose()
             }
         }

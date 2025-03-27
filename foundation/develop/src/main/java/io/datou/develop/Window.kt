@@ -25,10 +25,13 @@ fun Window.updateAttributes(block: WindowManager.LayoutParams.() -> Unit) {
 }
 
 fun ComponentActivity.enableFullScreen() {
-    WindowCompat.setDecorFitsSystemWindows(window, false)
-    val controller = WindowCompat.getInsetsController(window, window.decorView)
-    controller.hide(WindowInsetsCompat.Type.systemBars())
-    controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    window.run {
+        WindowCompat.setDecorFitsSystemWindows(this, false)
+        WindowCompat.getInsetsController(this, decorView)
+    }.run {
+        hide(WindowInsetsCompat.Type.systemBars())
+        systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
 }
 
 

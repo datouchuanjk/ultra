@@ -59,7 +59,6 @@ fun Banner(
         snapPosition = snapPosition,
     ) { page ->
         val actualPage = state.calculateActualPage(page)
-        Log.e("1234","page=${page} actualPage=${actualPage}")
         Box(
             modifier = Modifier
                 .fillMaxSize()
