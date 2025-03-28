@@ -1,36 +1,49 @@
 package io.datou.develop
 
 import android.os.Environment
-import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
 
-fun fileInCacheDir(fileName: String): File {
+fun newFileInCacheDir(fileName: String): File {
     return File(Instance.cacheDir, fileName)
 }
 
-fun fileInFilesDir(fileName: String): File {
+fun newFileInFilesDir(fileName: String): File {
     return File(Instance.filesDir, fileName)
 }
 
-fun fileInExternalCacheDir(fileName: String): File {
+fun newFileInExternalCacheDir(fileName: String): File {
     return File(Instance.externalCacheDir, fileName)
 }
 
-fun fileInExternalFilesDir(type: String?, fileName: String): File {
+fun newFileInExternalFilesDir(type: String, fileName: String): File {
     return File(Instance.getExternalFilesDir(type), fileName)
 }
 
-fun fileInExternalStoragePublicDirectory(type: String, fileName: String): File {
+fun newFileInExternalStoragePublicDirectory(type: String, fileName: String): File {
     return File(Environment.getExternalStoragePublicDirectory(type), fileName)
+}
+
+fun File.renameUntilNonExistent(
+    block: File.(Int) -> String = { "$nameWithoutExtension ($it)" }
+): File {
+    val extension = if (extension.isNotEmpty()) ".${extension}" else ""
+    var index = 1
+    var file = this
+    while (file.exists()) {
+        val newName = block(index) + extension
+        file = File(parentFile, newName)
+        index++
+    }
+    return file
 }
 
 fun File.createAbsolutely(): Boolean {
     if (exists()) {
         return true
     }
-    val isDirectory = absolutePath.lastIndexOf(".") == -1
+    val isDirectory = extension.isEmpty()
     if (isDirectory) {
         return mkdirs()
     } else {
