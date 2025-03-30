@@ -71,9 +71,9 @@ val Context.metaData: Bundle
         )
     }.metaData
 
-fun Context.createDesignAdapterContext(designWidth: Float): Context {
+fun Context.createDesignAdapterContext(width: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
-        .div(designWidth)
+        .div(width)
         .times(DisplayMetrics.DENSITY_DEFAULT)
     val configuration = resources.configuration
     configuration.fontScale = 1f

@@ -41,7 +41,7 @@ val Calendar.dayOfWeekFormat: String
         Calendar.THURSDAY -> "周四"
         Calendar.FRIDAY -> "周五"
         Calendar.SATURDAY -> "周六"
-        else -> error("Unit")
+        else -> throw IllegalArgumentException()
     }
 
 val Calendar.weekOfMonthByCN: Int

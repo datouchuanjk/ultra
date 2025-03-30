@@ -24,27 +24,32 @@ object CustomActivityResultContracts {
 
             fun areNotificationsEnabled(channelId: String? = null): Boolean {
                 val notificationManager = NotificationManagerCompat.from(Instance)
-                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !channelId.isNullOrEmpty()) {
-                    val channel = notificationManager.getNotificationChannel(channelId)
-                    channel != null && channel.importance > NotificationManagerCompat.IMPORTANCE_NONE && notificationManager.areNotificationsEnabled()
+                val b = notificationManager.areNotificationsEnabled()
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && !channelId.isNullOrEmpty()
+                ) {
+                    val channel =
+                        notificationManager.getNotificationChannel(channelId) ?: return false
+                    channel.importance > NotificationManagerCompat.IMPORTANCE_NONE && b
                 } else {
-                    notificationManager.areNotificationsEnabled()
+                    b
                 }
             }
         }
 
-        private var channelId: String? = null
+        private var _channelId: String? = null
 
         override fun createIntent(context: Context, input: String?): Intent {
-            channelId = input
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && loadFromShared(IS_REQUEST_NOTIFICATION_PERMISSION to false) == false
+            _channelId = input
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !loadFromShared(
+                    IS_REQUEST_NOTIFICATION_PERMISSION to false
+                )
             ) {
                 saveToShared(IS_REQUEST_NOTIFICATION_PERMISSION to true)
                 ActivityResultContracts.RequestPermission()
                     .createIntent(context, Manifest.permission.POST_NOTIFICATIONS)
             } else {
-                createNotificationSettingsIntent(context, channelId)
+                createNotificationSettingsIntent(context, _channelId)
             }
         }
 
@@ -79,7 +84,7 @@ object CustomActivityResultContracts {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return areNotificationsEnabled(channelId)
+            return areNotificationsEnabled(_channelId)
         }
     }
 
@@ -171,7 +176,7 @@ object CustomActivityResultContracts {
         ): Intent {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                 data= Uri.fromParts("package", context.packageName, null)
+                    data = Uri.fromParts("package", context.packageName, null)
                 }
             } else {
                 ActivityResultContracts.RequestMultiplePermissions()

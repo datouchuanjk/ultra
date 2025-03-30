@@ -5,9 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import java.lang.ref.WeakReference
 
-val Instance: Application by lazy {
-    checkNotNull(ContextManager.application)
-}
+val Instance: Application get() = checkNotNull(ContextManager.application)
 
 val TopActivity get() = ContextManager.topActivity?.get()
 
@@ -23,9 +21,11 @@ internal object ContextManager {
     fun init(application: Application) {
         this.application = application
         application.registerActivityLifecycleCallbacks(object :
-            Application.ActivityLifecycleCallbacks by noOpDelegate() {
+            Application.ActivityLifecycleCallbacks by noOpProxyDelegate() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                topActivity = WeakReference(activity)
+                if (activity != topActivity?.get()) {
+                    topActivity = WeakReference(activity)
+                }
             }
 
             override fun onActivityDestroyed(activity: Activity) {

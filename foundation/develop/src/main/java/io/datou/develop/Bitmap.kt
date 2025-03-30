@@ -9,13 +9,17 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 fun String.base64ToBitmap(): Bitmap {
-    return Base64.decode(split(",")[1], Base64.DEFAULT).run {
-        BitmapFactory.decodeByteArray(this, 0, this.size)
-    }
+    return Base64.decode(split(",")[1], Base64.DEFAULT)
+        .run {
+            BitmapFactory.decodeByteArray(this, 0, this.size)
+        }
 }
 
 fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
@@ -30,36 +34,16 @@ fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
     return outputStream.toByteArray()
 }
 
-inline fun decodeBitmapWithSizeConstraint(
-    reqWidth: Int,
-    reqHeight: Int,
-    block: (BitmapFactory.Options) -> Bitmap?
-): Bitmap? {
-    return BitmapFactory.Options().run {
-        inJustDecodeBounds = true
-        block(this)
-        inSampleSize = run {
-            val height = outHeight
-            val width = outWidth
-            var size = 1
-            if (height > reqHeight || width > reqWidth) {
-                val halfHeight = height / 2
-                val halfWidth = width / 2
-                while (halfHeight / size >= reqHeight && halfWidth / size >= reqWidth) {
-                    size *= 2
-                }
-            }
-            size
-        }
-        inJustDecodeBounds = false
-        block(this)
-    }
-}
-
 fun Bitmap.saveToGallery(
-    fileName: String = "${System.currentTimeMillis()}.jpeg",
-    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+    fileName: String,
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
     quality: Int = 100
-): Uri? {
-    return null
-}
+) = ContentValues()
+    .setDisplayNameAndInferMimeType(fileName)
+    .setFilePathCompat(Environment.DIRECTORY_PICTURES)
+    .insertToMediaStore {
+        compress(format, quality, it)
+    }
+
+
+

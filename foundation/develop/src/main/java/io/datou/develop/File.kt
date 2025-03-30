@@ -1,6 +1,8 @@
 package io.datou.develop
 
+import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
@@ -21,7 +23,7 @@ fun newFileInExternalFilesDir(type: String, fileName: String): File {
     return File(Instance.getExternalFilesDir(type), fileName)
 }
 
-fun newFileInExternalStoragePublicDirectory(type: String, fileName: String): File {
+fun newFileInExternalPublicDir(type: String, fileName: String): File {
     return File(Environment.getExternalStoragePublicDirectory(type), fileName)
 }
 
@@ -47,9 +49,8 @@ fun File.createAbsolutely(): Boolean {
     if (isDirectory) {
         return mkdirs()
     } else {
-        val parentFile = parentFile
-        if (parentFile != null && !parentFile.exists()) {
-            if (!parentFile.mkdirs()) {
+        parentFile?.run {
+            if (!exists() && !mkdirs()) {
                 return false
             }
         }
@@ -59,6 +60,9 @@ fun File.createAbsolutely(): Boolean {
 
 val File.totalSize: Long
     get() {
+        if (!exists()) {
+            return 0
+        }
         if (isFile) {
             return length()
         }
@@ -81,3 +85,7 @@ val File.md5: String
         }
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
+
+fun File.toProviderUri(
+    authority: String = "${Instance.packageName}.fileProvider"
+): Uri? = FileProvider.getUriForFile(Instance, authority, this)

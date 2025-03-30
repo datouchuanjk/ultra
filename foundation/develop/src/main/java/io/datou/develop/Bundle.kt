@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -18,5 +19,21 @@ inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? 
         getParcelable(key, T::class.java)
     } else {
         getParcelable(key) as? T
+    }
+}
+
+inline fun <reified T : Serializable> Intent.getSerializableExtraCompat(name: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getSerializableExtra(name, T::class.java)
+    } else {
+        getSerializableExtra(name) as? T
+    }
+}
+
+inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(name: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(name, T::class.java)
+    } else {
+        getParcelableExtra(name)
     }
 }

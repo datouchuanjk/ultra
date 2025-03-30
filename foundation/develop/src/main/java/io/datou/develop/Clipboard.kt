@@ -5,8 +5,7 @@ import android.content.ClipboardManager
 import androidx.core.content.getSystemService
 
 fun String.copyToClipboard(label: String? = null) {
-    Instance.getSystemService<ClipboardManager>()?.setPrimaryClip(
-        ClipData.newPlainText(label, this)
-    )
+    Instance.getSystemService<ClipboardManager>()
+        ?.setPrimaryClip(ClipData.newPlainText(label, this))
 }
 
