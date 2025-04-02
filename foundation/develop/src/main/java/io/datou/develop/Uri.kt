@@ -6,6 +6,8 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 
 fun Uri.inputStream() = Instance.contentResolver.openInputStream(this)
 
@@ -16,11 +18,21 @@ fun Uri.delete(
     selectionArgs: Array<String>? = null
 ) = Instance.contentResolver.delete(this, where, selectionArgs)
 
-fun Uri.update(
+inline fun Uri.update(
     where: String? = null,
     selectionArgs: Array<String>? = null,
-    block: ContentValues.() -> Unit,
+    block: ContentValues.() -> Unit = {},
 ) = Instance.contentResolver.update(this, ContentValues().apply(block), where, selectionArgs)
+
+fun Uri.updatePendCompletion(
+    where: String? = null,
+    selectionArgs: Array<String>? = null,
+) = Instance.contentResolver.update(
+    this,
+    ContentValues().apply {
+        put(MediaStore.MediaColumns.IS_PENDING, 0)
+    }, where, selectionArgs
+)
 
 val Uri.id get() = ContentUris.parseId(this)
 
@@ -29,7 +41,6 @@ val Uri.displayName
 
 val Uri.mimeType
     get() = queryMediaColumns(MediaStore.MediaColumns.MIME_TYPE).firstOrNull() as? String
-
 
 val Uri.relativePath
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -62,3 +73,5 @@ fun Uri.queryMediaColumns(vararg columns: String): List<Any?> {
         resultMap
     } ?: listOf()
 }
+
+

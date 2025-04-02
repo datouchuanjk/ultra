@@ -10,6 +10,9 @@ android {
     defaultConfig {
         targetSdk = TARGET_SDK
         minSdk = MIN_SDK
+        applicationId = APPLICATION_ID
+        versionCode = VERSION_CODE
+        versionName = VERSION_NAME
     }
 
     signingConfigs {
@@ -27,27 +30,6 @@ android {
         }
         debug {
             signingConfig = signingConfigs.getByName(defaultSigningConfig.name)
-        }
-    }
-    flavorDimensions += listOf("default")
-    productFlavors {
-        create("dev") {
-            val dev = Flavors.Dev()
-            buildConfigField("String", "BASE_URL", dev.baseUrl.quoted)
-            buildConfigField("Boolean", "IS_DEV", dev.isDev.toString())
-            applicationId = dev.applicationId
-            versionCode = dev.versionCode
-            versionName = dev.versionName
-            setProperty("archivesBaseName", dev.archivesBaseName)
-        }
-        create("prod") {
-            val prod = Flavors.Prod()
-            buildConfigField("String", "BASE_URL", prod.baseUrl.quoted)
-            buildConfigField("Boolean", "IS_DEV", prod.isDev.toString())
-            applicationId = prod.applicationId
-            versionCode = prod.versionCode
-            versionName = prod.versionName
-            setProperty("archivesBaseName", prod.archivesBaseName)
         }
     }
     compileOptions {

@@ -5,6 +5,7 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.security.MessageDigest
 
 fun newFileInCacheDir(fileName: String): File {
@@ -89,3 +90,4 @@ val File.md5: String
 fun File.toProviderUri(
     authority: String = "${Instance.packageName}.fileProvider"
 ): Uri? = FileProvider.getUriForFile(Instance, authority, this)
+

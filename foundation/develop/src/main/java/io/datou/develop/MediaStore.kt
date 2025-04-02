@@ -5,138 +5,162 @@ import android.content.ContentValues
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.webkit.MimeTypeMap
 import java.io.File
+import java.io.InputStream
 import java.io.OutputStream
-import kotlin.io.use
+import kotlin.io.extension
+import kotlin.text.startsWith
 
-fun ContentValues.setDisplayNameAndInferMimeType(value: String) = apply {
-    put(MediaStore.MediaColumns.DISPLAY_NAME, value)
-    File(value).extension.run {
-        MimeTypeMap.getSingleton().getMimeTypeFromExtension(this)
-    }?.let {
-        put(MediaStore.MediaColumns.MIME_TYPE, it)
-    }
+fun File.asMediaStoreCompat(): MediaStoreCompat? {
+    return MediaStoreCompatImpl(this).takeIf { it.check() }
 }
 
-fun ContentValues.generateContentUriByMimeType(): Uri {
-    return checkNotNull(getAsString(MediaStore.MediaColumns.MIME_TYPE)).run {
-        when {
-            startsWith("image/") -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            startsWith("video/") -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            startsWith("audio/") -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            else -> MediaStore.Files.getContentUri("external")
+interface MediaStoreCompat {
+    fun delete()
+    fun useOutputStream(block: (OutputStream) -> Unit)
+    fun useInputStream(block: (InputStream) -> Unit)
+    fun check(): Boolean
+}
+
+internal class MediaStoreCompatImpl(
+    private val file: File,
+) : MediaStoreCompat {
+
+    private companion object {
+        private const val DISPLAY_NAME_SELECTION = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
+        private const val MIME_TYPE_SELECTION = "${MediaStore.MediaColumns.MIME_TYPE} = ?"
+        private val FILES_EXTERNAL_CONTENT_URI = MediaStore.Files.getContentUri("external")
+        private val IMAGES_EXTERNAL_CONTENT_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        private val VIDEO_EXTERNAL_CONTENT_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        private val AUDIO_EXTERNAL_CONTENT_URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    }
+
+    private val _isAndroid10 by lazy {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    }
+
+    private val _mediaStorePath by lazy {
+        Environment.getExternalStoragePublicDirectory("").absolutePath
+    }
+
+    private val _displayName by lazy {
+        file.name
+    }
+
+    private val _type by lazy {
+        file.parent?.substring(_mediaStorePath.length)?.trimStart(File.separatorChar)!!
+    }
+
+    private val _mimeType by lazy {
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+    }
+
+    private val _contentUri: Uri by lazy {
+        _mimeType?.run {
+            when {
+                startsWith("image/") -> IMAGES_EXTERNAL_CONTENT_URI
+                startsWith("video/") -> VIDEO_EXTERNAL_CONTENT_URI
+                startsWith("audio/") -> AUDIO_EXTERNAL_CONTENT_URI
+                else -> FILES_EXTERNAL_CONTENT_URI
+            }
+        } ?: FILES_EXTERNAL_CONTENT_URI
+    }
+
+    private val _contentValues by lazy {
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, _displayName)
+            put(MediaStore.MediaColumns.MIME_TYPE, _mimeType)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, _type)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
         }
     }
-}
 
-fun ContentValues.setFilePathCompat(value: String) = apply {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        put(MediaStore.MediaColumns.RELATIVE_PATH, value)
-    } else {
-        val displayName = checkNotNull(getAsString(MediaStore.MediaColumns.DISPLAY_NAME))
-        val file = newFileInExternalPublicDir(
-            value,
-            displayName
-        ).renameUntilNonExistent()
-        file.createAbsolutely()
-        put(MediaStore.MediaColumns.DATA, file.absolutePath)
-        put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+    private val _insertUri: Uri? by lazy {
+        Instance.contentResolver.insert(
+            _contentUri,
+            _contentValues
+        )
     }
-}
 
-fun ContentValues.insertToMediaStore(
-    contentUri: Uri = generateContentUriByMimeType(),
-    block: (OutputStream) -> Unit
-): Uri? {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        put(MediaStore.MediaColumns.IS_PENDING, 1)
-    }
-    return Instance.contentResolver.insert(contentUri, this)?.also { uri ->
-        try {
-            uri.outputStream()?.use(block)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            uri.delete()
-            throw e
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            uri.update { put(MediaStore.MediaColumns.IS_PENDING, 0) }
-        }
-    }
-}
-
-fun <T> ContentValues.generateSelectionRule(block: ContentValues.(String, Array<String>) -> T): T {
-    val selectionList = mutableListOf<String>()
-    val selectionArgsList = mutableListOf<String>()
-    for (key in keySet()) {
-        val value = get(key)
-        selectionList.add("$key = ?")
-        selectionArgsList.add(value.toString())
-    }
-    val selection = selectionList.joinToString(" AND ")
-    val selectionArgs = selectionArgsList.toTypedArray()
-    return block(selection, selectionArgs)
-}
-
-fun ContentValues.queryFromMediaStore(
-    contentUri: Uri = generateContentUriByMimeType(),
-): List<Uri> {
-    return generateSelectionRule { selection, selectionArgs ->
+    private val _existsUri: Uri? by lazy {
         Instance.contentResolver.query(
-            contentUri,
+            _contentUri,
             arrayOf(MediaStore.MediaColumns._ID),
-            selection,
-            selectionArgs,
+            buildString {
+                append(DISPLAY_NAME_SELECTION)
+                append(" AND ")
+                append(MIME_TYPE_SELECTION)
+            },
+            arrayOf(_displayName, _mimeType),
             null
         )?.use {
-            val uriList = mutableListOf<Uri>()
             val idColumnIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-            while (it.moveToNext()) {
+            if (it.moveToFirst()) {
                 val id = it.getLong(idColumnIndex)
-                val uri = ContentUris.withAppendedId(contentUri, id)
-                uriList.add(uri)
+                ContentUris.withAppendedId(_contentUri, id)
+            } else {
+                null
             }
-            uriList
-        } ?: listOf()
+        }
     }
-}
 
-fun ContentValues.deleteFromMediaStore(
-    contentUri: Uri = generateContentUriByMimeType(),
-    onScanFileFinish: (() -> Unit)? = null
-): Int {
-    return generateSelectionRule { selection, selectionArgs ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val count = contentUri.delete(selection, selectionArgs)
-            onScanFileFinish?.invoke()
-            count
+    override fun check(): Boolean {
+        if (!file.absolutePath.startsWith(_mediaStorePath)) {
+            return false
+        }
+        if (file.extension.isEmpty()) {
+            return false
+        }
+        return true
+    }
+
+    override fun delete() {
+        if (_isAndroid10) {
+            _existsUri?.delete()
         } else {
-            queryFromMediaStore(contentUri)
-                .mapNotNull {
-                    it.data
-                }.let { absolutePaths ->
-                    if (absolutePaths.isEmpty()) {
-                        onScanFileFinish?.invoke()
-                        return@let 0
-                    }
-                    absolutePaths.forEach {
-                        val file = File(it)
-                        if (file.exists()) {
-                            file.delete()
-                        }
-                    }
-                    MediaScannerConnection.scanFile(
-                        Instance,
-                        absolutePaths.toTypedArray(),
-                        null
-                    ) { _, _ -> onScanFileFinish?.invoke() }
-                    absolutePaths.size
+            file.delete()
+            MediaScannerConnection.scanFile(
+                Instance,
+                arrayOf(file.absolutePath),
+                null
+            ) { _, _ -> }
+        }
+    }
+
+    override fun useOutputStream(block: (OutputStream) -> Unit) {
+        if (_isAndroid10) {
+            if (_existsUri == null) {
+                try {
+                    _insertUri?.outputStream()?.use(block)
+                    _insertUri?.updatePendCompletion()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    _insertUri?.delete()
+                    throw e
                 }
+            } else {
+                _existsUri?.outputStream()?.use(block)
+                _existsUri?.update()
+            }
+        } else {
+            file.outputStream().use(block)
+        }
+    }
+
+    override fun useInputStream(block: (InputStream) -> Unit) {
+        if (_isAndroid10) {
+            _existsUri?.inputStream()?.use(block)
+        } else {
+            file.inputStream().use(block)
         }
     }
 }
+
+
+
+
 
 
