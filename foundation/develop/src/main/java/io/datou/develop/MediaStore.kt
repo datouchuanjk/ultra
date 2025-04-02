@@ -22,7 +22,6 @@ interface MediaStoreCompat {
     fun delete()
     fun useOutputStream(block: (OutputStream) -> Unit)
     fun useInputStream(block: (InputStream) -> Unit)
-    fun check(): Boolean
 }
 
 internal class MediaStoreCompatImpl(
@@ -107,7 +106,7 @@ internal class MediaStoreCompatImpl(
         }
     }
 
-    override fun check(): Boolean {
+    internal  fun check(): Boolean {
         if (!file.absolutePath.startsWith(_mediaStorePath)) {
             return false
         }
