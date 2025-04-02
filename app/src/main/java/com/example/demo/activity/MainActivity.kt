@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,20 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.example.demo.R
-import io.datou.develop.Instance
-import io.datou.develop.data
-import io.datou.develop.delete
-import io.datou.develop.deleteFromMediaStore
-import io.datou.develop.displayName
-import io.datou.develop.insertToMediaStore
-import io.datou.develop.mimeType
-import io.datou.develop.queryFromMediaStore
-import io.datou.develop.relativePath
-import io.datou.develop.setDisplayNameAndInferMimeType
-import io.datou.develop.setFilePathCompat
-import io.datou.develop.toast
-import java.io.File
+import io.datou.develop.CustomActivityResultContracts
+import io.datou.develop.createAbsolutely
+import io.datou.develop.newFileInExternalPublicDir
 
 
 class MainActivity : ComponentActivity() {
@@ -50,9 +40,25 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(it)
                 ) {
+                    val launcher =
+                        rememberLauncherForActivityResult(CustomActivityResultContracts.ExternalStorageAccessPermission()) {
+
+                        }
                     Button(onClick = {
-                        insetTxt()
+                        launcher.launch()
                     }) {
+                        Text(text = "获取文件管理权限", fontSize = 20.sp)
+                    }
+                    Button(
+                        onClick = {
+                            //在android10以上必崩，因为获取了读写权限也没用，必须通过media写入对吧
+                            val file = newFileInExternalPublicDir(
+                                Environment.DIRECTORY_DOCUMENTS,
+                                "fuck1.txt"
+                            )
+                            Log.e("1234",file.absolutePath)
+                            Log.e("1234",Environment.getExternalStoragePublicDirectory("").absolutePath)
+                        }) {
                         Text(text = "点击插入文本", fontSize = 20.sp)
                     }
                 }
@@ -61,22 +67,5 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun insetTxt() {
-        ContentValues()
-            .setDisplayNameAndInferMimeType("a.txt")
-            .deleteFromMediaStore {
-                ContentValues()
-                    .setDisplayNameAndInferMimeType("a.txt")
-                    .setFilePathCompat(Environment.DIRECTORY_DOCUMENTS)
-                    .insertToMediaStore {
-                        it.write("12".toByteArray())
-                    }?.apply {
-                        val a =
-                            "displayName=${displayName} \nmimeType=${mimeType}\nrelativePath=$relativePath\ndata=$data"
-                        Log.e("124", a)
-                    }
-            }
-
-    }
 }
 
