@@ -8,27 +8,27 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.security.MessageDigest
 
-fun newFileInCacheDir(fileName: String): File {
-    return File(Instance.cacheDir, fileName)
+fun String.toFileInCacheDir(): File {
+    return File(Instance.cacheDir, this)
 }
 
-fun newFileInFilesDir(fileName: String): File {
-    return File(Instance.filesDir, fileName)
+fun String.toFileInFilesDir(): File {
+    return File(Instance.filesDir, this)
 }
 
-fun newFileInExternalCacheDir(fileName: String): File {
-    return File(Instance.externalCacheDir, fileName)
+fun String.toFileInExternalCacheDir(): File {
+    return File(Instance.externalCacheDir, this)
 }
 
-fun newFileInExternalFilesDir(type: String, fileName: String): File {
-    return File(Instance.getExternalFilesDir(type), fileName)
+fun String.toFileInExternalFilesDir(type: String): File {
+    return File(Instance.getExternalFilesDir(type), this)
 }
 
-fun newFileInExternalPublicDir(type: String, fileName: String): File {
-    return File(Environment.getExternalStoragePublicDirectory(type), fileName)
+fun String.toFileInExternalPublicFilesDir(type: String): File {
+    return File(Environment.getExternalStoragePublicDirectory(type), this)
 }
 
-fun File.renameUntilNonExistent(
+fun File.renameIfExists(
     block: File.(Int) -> String = { "$nameWithoutExtension ($it)" }
 ): File {
     val extension = if (extension.isNotEmpty()) ".${extension}" else ""

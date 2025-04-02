@@ -38,10 +38,10 @@ fun Bitmap.saveToGallery(
     fileName: String,
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
     quality: Int = 100
-) = ContentValues()
-    .setDisplayNameAndInferMimeType(fileName)
-    .setFilePathCompat(Environment.DIRECTORY_PICTURES)
-    .insertToMediaStore {
+) = fileName
+    .toFileInExternalPublicFilesDir(Environment.DIRECTORY_PICTURES)
+    .asMediaStoreCompat()
+    ?.useOutputStream {
         compress(format, quality, it)
     }
 

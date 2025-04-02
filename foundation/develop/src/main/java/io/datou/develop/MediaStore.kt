@@ -14,19 +14,19 @@ import java.io.OutputStream
 import kotlin.io.extension
 import kotlin.text.startsWith
 
-fun File.asMediaStoreCompat(): MediaStoreCompat? {
-    return MediaStoreCompatImpl(this).takeIf { it.check() }
+fun File.asMediaStoreCompat(): MediaStoreOperator? {
+    return MediaStoreOperatorImpl(this).takeIf { it.check() }
 }
 
-interface MediaStoreCompat {
+interface MediaStoreOperator {
     fun delete()
-    fun useOutputStream(block: (OutputStream) -> Unit)
-    fun useInputStream(block: (InputStream) -> Unit)
+    fun <T> useOutputStream(block: (OutputStream) -> T): T?
+    fun <T> useInputStream(block: (InputStream) -> T): T?
 }
 
-internal class MediaStoreCompatImpl(
+internal class MediaStoreOperatorImpl(
     private val file: File,
-) : MediaStoreCompat {
+) : MediaStoreOperator {
 
     private companion object {
         private const val DISPLAY_NAME_SELECTION = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
@@ -106,7 +106,7 @@ internal class MediaStoreCompatImpl(
         }
     }
 
-    internal  fun check(): Boolean {
+    internal fun check(): Boolean {
         if (!file.absolutePath.startsWith(_mediaStorePath)) {
             return false
         }
@@ -129,28 +129,30 @@ internal class MediaStoreCompatImpl(
         }
     }
 
-    override fun useOutputStream(block: (OutputStream) -> Unit) {
-        if (_isAndroid10) {
+    override fun <T> useOutputStream(block: (OutputStream) -> T): T? {
+        return if (_isAndroid10) {
             if (_existsUri == null) {
                 try {
-                    _insertUri?.outputStream()?.use(block)
+                    val result = _insertUri?.outputStream()?.use(block)
                     _insertUri?.updatePendCompletion()
+                    result
                 } catch (e: Exception) {
                     e.printStackTrace()
                     _insertUri?.delete()
                     throw e
                 }
             } else {
-                _existsUri?.outputStream()?.use(block)
+                val result = _existsUri?.outputStream()?.use(block)
                 _existsUri?.update()
+                result
             }
         } else {
             file.outputStream().use(block)
         }
     }
 
-    override fun useInputStream(block: (InputStream) -> Unit) {
-        if (_isAndroid10) {
+    override fun <T> useInputStream(block: (InputStream) -> T): T? {
+        return if (_isAndroid10) {
             _existsUri?.inputStream()?.use(block)
         } else {
             file.inputStream().use(block)
