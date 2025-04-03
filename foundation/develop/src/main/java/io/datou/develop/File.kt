@@ -1,48 +1,101 @@
 package io.datou.develop
 
+import android.content.ContentUris
+import android.content.ContentValues
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import java.io.OutputStream
 import java.security.MessageDigest
+import kotlin.text.startsWith
 
-fun String.toFileInCacheDir(): File {
+fun String.asFileInCacheDir(): File {
     return File(Instance.cacheDir, this)
 }
 
-fun String.toFileInFilesDir(): File {
+fun String.asFileInFilesDir(): File {
     return File(Instance.filesDir, this)
 }
 
-fun String.toFileInExternalCacheDir(): File {
+fun String.asFileInExternalCacheDir(): File {
     return File(Instance.externalCacheDir, this)
 }
 
-fun String.toFileInExternalFilesDir(type: String): File {
+fun String.asFileInExternalFilesDir(type: String): File {
     return File(Instance.getExternalFilesDir(type), this)
 }
 
-fun String.toFileInExternalPublicFilesDir(type: String): File {
+fun String.asFileInExternalPublicFilesDir(type: String): File {
     return File(Environment.getExternalStoragePublicDirectory(type), this)
 }
 
-fun File.renameIfExists(
-    block: File.(Int) -> String = { "$nameWithoutExtension ($it)" }
-): File {
-    val extension = if (extension.isNotEmpty()) ".${extension}" else ""
-    var index = 1
-    var file = this
-    while (file.exists()) {
-        val newName = block(index) + extension
-        file = File(parentFile, newName)
-        index++
+val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+
+val File.externalPublicRelativePath
+    get() = absolutePath.replace(Environment.getExternalStoragePublicDirectory("").absolutePath, "")
+        .trimStart(File.separatorChar)
+        .substringBeforeLast(File.separatorChar)
+
+val File.baseName get() = name.substringBeforeLast('.')
+
+fun File.findFileUriInMediaStore(): Uri? = contentUri?.run {
+    Instance.contentResolver.query(
+        this,
+        arrayOf(MediaStore.MediaColumns._ID),
+        buildString {
+            append("${MediaStore.MediaColumns.DISPLAY_NAME} = ?")
+            if (!mimeType.isNullOrEmpty()) {
+                append(" AND ")
+                append("${MediaStore.MediaColumns.MIME_TYPE} = ?")
+            }
+        },
+        if (!mimeType.isNullOrEmpty()) {
+            arrayOf(name, mimeType)
+        } else {
+            arrayOf(name)
+        },
+        null
+    )?.use {
+        val idColumnIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+        if (it.moveToFirst()) {
+            val id = it.getLong(idColumnIndex)
+            ContentUris.withAppendedId(this, id)
+        } else {
+            null
+        }
     }
-    return file
 }
 
-fun File.createAbsolutely(): Boolean {
+val File.contentUri: Uri?
+    get() = mimeType.run {
+        when {
+            isNullOrEmpty() -> MediaStore.Files.getContentUri("external")
+            startsWith("image/") -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            startsWith("video/") -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            startsWith("audio/") -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            else -> MediaStore.Files.getContentUri("external")
+        }
+    }
+
+fun File.insertFileIntoMediaStore(): Uri? = contentUri?.run {
+    Instance.contentResolver.insert(
+        this,
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            put(MediaStore.MediaColumns.RELATIVE_PATH, externalPublicRelativePath)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+    )
+}
+
+fun File.createFileOrDirectory(): Boolean {
     if (exists()) {
         return true
     }
@@ -90,4 +143,38 @@ val File.md5: String
 fun File.toProviderUri(
     authority: String = "${Instance.packageName}.fileProvider"
 ): Uri? = FileProvider.getUriForFile(Instance, authority, this)
+
+fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val queryUri: Uri? = findFileUriInMediaStore()
+        if (queryUri == null) {
+            var insertUri: Uri? = null
+            try {
+                insertUri = insertFileIntoMediaStore()
+                insertUri?.outputStream()
+                    ?.let(block)
+                    .apply {
+                        insertUri?.updatePendCompletion()
+                    }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                insertUri?.delete()
+                null
+            }
+        } else {
+            queryUri.outputStream()?.let(block)
+        }
+    } else {
+        outputStream().let(block)
+    }
+}
+
+fun <T> File.useInputStreamCompat(block: (InputStream) -> T) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val queryUri: Uri? = findFileUriInMediaStore()
+        queryUri?.inputStream()?.let(block)
+    } else {
+        inputStream().let(block)
+    }
+}
 

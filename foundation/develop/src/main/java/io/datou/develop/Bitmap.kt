@@ -1,25 +1,28 @@
 package io.datou.develop
 
-import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.MediaScannerConnection
-import android.net.Uri
-import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Base64
-import android.util.Log
-import androidx.core.net.toUri
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
-fun String.base64ToBitmap(): Bitmap {
-    return Base64.decode(split(",")[1], Base64.DEFAULT)
-        .run {
-            BitmapFactory.decodeByteArray(this, 0, this.size)
-        }
+fun String.base64ToBitmap(): Bitmap? {
+    if (!startsWith("data:")) {
+        return null
+    }
+    val parts = split(",", limit = 2)
+    if (parts.size < 2) {
+        return null
+    }
+    return try {
+        Base64.decode(parts[1], Base64.DEFAULT)
+            .run {
+                BitmapFactory.decodeByteArray(this, 0, size)
+            }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
@@ -38,10 +41,8 @@ fun Bitmap.saveToGallery(
     fileName: String,
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
     quality: Int = 100
-) = fileName
-    .toFileInExternalPublicFilesDir(Environment.DIRECTORY_PICTURES)
-    .asMediaStoreCompat()
-    ?.useOutputStream {
+) = fileName.asFileInExternalPublicFilesDir(Environment.DIRECTORY_PICTURES)
+    .useOutputStreamCompat {
         compress(format, quality, it)
     }
 

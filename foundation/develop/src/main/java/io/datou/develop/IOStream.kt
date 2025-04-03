@@ -1,12 +1,9 @@
 package io.datou.develop
 
-import androidx.annotation.WorkerThread
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.io.InputStream
 import java.io.OutputStream
@@ -15,7 +12,6 @@ import java.net.URL
 
 @Suppress("BlockingMethodInNonBlockingContext")
 fun InputStream.copyAsFlow(outputStream: OutputStream) = flow {
-    copyTo(outputStream)
     var bytesCopied: Long = 0
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
     var bytes = read(/* b = */ buffer)
@@ -28,7 +24,7 @@ fun InputStream.copyAsFlow(outputStream: OutputStream) = flow {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun String.copyAsFlow(outputStream: OutputStream) = flowOf(openAsConnection())
+fun String.copyAsFlow(outputStream: OutputStream) = flowOf(openAsHttpURLConnection())
     .map {
         if (it == null) {
             throw NullPointerException()
@@ -50,7 +46,7 @@ fun InputStream.readText() = bufferedReader()
         reader.readText()
     }
 
-fun String.openAsConnection() = try {
+fun String.openAsHttpURLConnection() = try {
     URL(this).openConnection() as HttpURLConnection
 } catch (e: Exception) {
     e.printStackTrace()

@@ -36,7 +36,7 @@ fun Context.jumpToBrowser(url: String) = Intent(Intent.ACTION_VIEW, url.toUri())
         startActivity(this)
     }
 
-fun Context.shareTo(
+fun Context.shareTextTo(
     text: String,
     packageName: String
 ) = Intent(Intent.ACTION_SEND).apply {
