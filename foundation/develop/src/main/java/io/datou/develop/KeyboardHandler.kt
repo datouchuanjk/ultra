@@ -3,6 +3,7 @@ package io.datou.develop
 import android.app.Activity
 import android.graphics.Rect
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,9 @@ import android.widget.PopupWindow
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -20,66 +23,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalDensity
-import androidx.core.view.ViewCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.DEFAULT_ARGS_KEY
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-fun ComponentActivity.setOnKeyboardListenerCompat(
-    view: View = window.decorView,
-    useCompat: Boolean = true,
+fun ComponentActivity.addOnKeyboardListener(
     onHeightChange: (Int) -> Unit
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-        && useCompat
-    ) {
-        withLifecycleDisposable {
-            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-                if (insets.isImeVisible) {
-                    insets.getImeInsets().bottom - insets.getNavigationBarsInsets().bottom
-                } else {
-                    0
-                }.let(onHeightChange)
-                insets
-            }
-            onDispose {
-                ViewCompat.setOnApplyWindowInsetsListener(view, null)
-            }
-        }
-    } else {
-        val activity = this
-        withLifecycleDisposable {
-            val keyboardHandler = KeyboardHandler(
-                activity,
-                onHeightChange
-            )
-            onDispose {
-                keyboardHandler.onDispose()
-            }
+    withLifecycleDisposable {
+        val keyboardHandler = KeyboardHandler(
+            this@addOnKeyboardListener,
+            onHeightChange
+        )
+        onDispose {
+            keyboardHandler.onDispose()
         }
     }
 }
 
-fun Modifier.imePaddingCompat(useCompat: Boolean = true) = composed {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && useCompat) {
-        then(Modifier.imePadding())
-    } else {
-        var keyboardHeight by remember {
-            mutableIntStateOf(0)
-        }
-        val activity = findActivity()
-        DisposableEffect(Unit) {
-            val listener = activity?.let {
-                KeyboardHandler(it) { height ->
-                    keyboardHeight = height
-                }
-            }
-            onDispose {
-                listener?.onDispose()
-            }
-        }
-        then(
-            Modifier.padding(bottom = LocalDensity.current.run { keyboardHeight.toDp() })
-        )
+@Composable
+fun rememberKeyboardHeight(): Int {
+    var value by remember {
+        mutableIntStateOf(0)
     }
+    val activity = findActivity()
+    LaunchedEffect(Unit) {
+        if (activity is ComponentActivity) {
+            activity.addOnKeyboardListener {
+                value = it
+            }
+        }
+    }
+    return value
 }
 
 internal class KeyboardHandler(
@@ -88,6 +67,7 @@ internal class KeyboardHandler(
 ) : PopupWindow(activity), OnGlobalLayoutListener {
     private val _rootView = View(activity)
     private var _maxHeight = 0
+    private var _keyboardHeight: Int = 0
 
     init {
         _rootView.viewTreeObserver.addOnGlobalLayoutListener(this)
@@ -120,11 +100,17 @@ internal class KeyboardHandler(
         if (_maxHeight == 0) {
             _maxHeight = rect.bottom
         }
-        val keyboardHeight = _maxHeight - rect.bottom
-        if (keyboardHeight > _maxHeight / 3) {
-            onHeightChange(keyboardHeight)
-        } else {
-            onHeightChange(0)
+        (_maxHeight - rect.bottom).run {
+            if (this > _maxHeight / 3) {
+                this
+            } else {
+                0
+            }
+        }.run {
+            if (this != _keyboardHeight) {
+                _keyboardHeight = this
+                onHeightChange(this)
+            }
         }
     }
 }

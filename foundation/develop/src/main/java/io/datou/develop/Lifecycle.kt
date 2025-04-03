@@ -9,18 +9,20 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-class LifecycleDisposableScope
+class LifecycleDisposableScope {
+    inline fun onDispose(
+        crossinline onDisposeEffect: () -> Unit
+    ) = object : LifecycleDisposable {
+        override fun onDispose() {
+            onDisposeEffect()
+        }
+    }
+}
+
 interface LifecycleDisposable {
     fun onDispose()
 }
 
-inline fun LifecycleDisposableScope.onDispose(
-    crossinline onDisposeEffect: () -> Unit
-) = object : LifecycleDisposable {
-    override fun onDispose() {
-        onDisposeEffect()
-    }
-}
 
 inline fun LifecycleOwner.withLifecycleDisposable(
     effect: LifecycleDisposableScope.() -> LifecycleDisposable
