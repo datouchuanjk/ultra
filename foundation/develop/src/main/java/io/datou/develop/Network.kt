@@ -27,46 +27,46 @@ fun LifecycleOwner.withNetworkCallback(block: (NetworkCapabilities) -> Unit) {
                 block(networkCapabilities)
             }
         }
-        Instance.connectivityManager?.registerDefaultNetworkCallback(callback)
+        AppContext.connectivityManager?.registerDefaultNetworkCallback(callback)
         onDispose {
-            Instance.connectivityManager?.unregisterNetworkCallback(callback)
+            AppContext.connectivityManager?.unregisterNetworkCallback(callback)
         }
     }
 }
 
 val Network.isConnected: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.getSystemService<ConnectivityManager>()
+    get() = AppContext.getSystemService<ConnectivityManager>()
         ?.getNetworkCapabilities(this)
         ?.isConnected == true
 
 val Network.isWifi: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.connectivityManager
+    get() = AppContext.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isWifi == true
 
 val Network.isCellular: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.connectivityManager
+    get() = AppContext.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isCellular == true
 
 val Network.isVpn: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.connectivityManager
+    get() = AppContext.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isVpn == true
 
 val Network.isEthernet: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.connectivityManager
+    get() = AppContext.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isEthernet == true
 
 val Network.isBluetooth: Boolean
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = Instance.connectivityManager
+    get() = AppContext.connectivityManager
         ?.getNetworkCapabilities(this)
         ?.isBluetooth == true
 

@@ -27,12 +27,12 @@ fun Context.findActivity(): Activity? {
 
 val Context.versionCode: Long
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Instance.packageManager.getPackageInfo(
-            Instance.packageName,
+        AppContext.packageManager.getPackageInfo(
+            AppContext.packageName,
             PackageManager.PackageInfoFlags.of(0)
         )
     } else {
-        Instance.packageManager.getPackageInfo(Instance.packageName, 0)
+        AppContext.packageManager.getPackageInfo(AppContext.packageName, 0)
     }.run {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             longVersionCode
@@ -43,30 +43,30 @@ val Context.versionCode: Long
 
 val Context.versionName: String
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Instance.packageManager.getPackageInfo(
-            Instance.packageName,
+        AppContext.packageManager.getPackageInfo(
+            AppContext.packageName,
             PackageManager.PackageInfoFlags.of(0)
         )
     } else {
-        Instance.packageManager.getPackageInfo(Instance.packageName, 0)
+        AppContext.packageManager.getPackageInfo(AppContext.packageName, 0)
     }.versionName.orEmpty()
 
 val Context.installedPackages: List<PackageInfo>
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Instance.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+        AppContext.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
     } else {
-        Instance.packageManager.getInstalledPackages(0)
+        AppContext.packageManager.getInstalledPackages(0)
     }
 
 val Context.metaData: Bundle
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Instance.packageManager.getApplicationInfo(
-            Instance.packageName,
+        AppContext.packageManager.getApplicationInfo(
+            AppContext.packageName,
             PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
         )
     } else {
-        Instance.packageManager.getApplicationInfo(
-            Instance.packageName,
+        AppContext.packageManager.getApplicationInfo(
+            AppContext.packageName,
             PackageManager.GET_META_DATA
         )
     }.metaData

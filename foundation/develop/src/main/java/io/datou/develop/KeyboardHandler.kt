@@ -45,22 +45,6 @@ fun ComponentActivity.addOnKeyboardListener(
     }
 }
 
-@Composable
-fun rememberKeyboardHeight(): Int {
-    var value by remember {
-        mutableIntStateOf(0)
-    }
-    val activity = findActivity()
-    LaunchedEffect(Unit) {
-        if (activity is ComponentActivity) {
-            activity.addOnKeyboardListener {
-                value = it
-            }
-        }
-    }
-    return value
-}
-
 internal class KeyboardHandler(
     activity: Activity,
     private val onHeightChange: (Int) -> Unit

@@ -41,10 +41,11 @@ fun Bitmap.saveToGallery(
     fileName: String,
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
     quality: Int = 100
-) = fileName.asFileInExternalPublicFilesDir(Environment.DIRECTORY_PICTURES)
-    .useOutputStreamCompat {
-        compress(format, quality, it)
-    }
+) = fileName.asFileInExternalPublicFilesDir(
+    Environment.DIRECTORY_PICTURES
+).useOutputStreamCompat {
+    compress(format, quality, it)
+}
 
 
 

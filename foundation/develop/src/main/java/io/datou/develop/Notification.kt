@@ -16,12 +16,12 @@ val Context.notificationManagerCompat get() = NotificationManagerCompat.from(thi
 fun Notification.show(
     id: Int = System.currentTimeMillis().toInt(),
 ): Int {
-    Instance.notificationManagerCompat.notify(id, this)
+    AppContext.notificationManagerCompat.notify(id, this)
     return id
 }
 
 fun cancelNotification(id: Int) {
-    Instance.notificationManagerCompat.cancel(id)
+    AppContext.notificationManagerCompat.cancel(id)
 }
 
 fun createNotification(
@@ -32,7 +32,7 @@ fun createNotification(
     autoCancel: Boolean = true,
     useDefaultSound: Boolean = true,
     buildAction: (NotificationCompat.Builder) -> Unit = {}
-) = NotificationCompat.Builder(Instance, channelId)
+) = NotificationCompat.Builder(AppContext, channelId)
     .setContentTitle(title)
     .setContentText(content)
     .setSmallIcon(smallIcon)
@@ -54,7 +54,7 @@ fun createNotificationChannel(
     buildAction: (NotificationChannelCompat.Builder) -> Unit = {}
 ) {
     if (
-        Instance
+        AppContext
             .notificationManagerCompat
             .notificationChannelsCompat
             .map {
@@ -71,7 +71,7 @@ fun createNotificationChannel(
             newImportance = NotificationManagerCompat.IMPORTANCE_HIGH
         }
     }
-    Instance.notificationManagerCompat.createNotificationChannel(
+    AppContext.notificationManagerCompat.createNotificationChannel(
         NotificationChannelCompat.Builder(channelId, newImportance)
             .setName(channelName)
             .apply {

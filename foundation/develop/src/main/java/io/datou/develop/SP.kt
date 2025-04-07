@@ -6,8 +6,8 @@ import androidx.core.content.edit
 
 @PublishedApi
 internal val MySharedPreferences: SharedPreferences by lazy {
-    Instance.getSharedPreferences(
-        "${Instance.packageName}_SPHelper_version_1",
+    AppContext.getSharedPreferences(
+        "${AppContext.packageName}_SPHelper_version_1",
         Context.MODE_PRIVATE
     )
 }

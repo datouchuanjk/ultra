@@ -5,7 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import java.lang.ref.WeakReference
 
-val Instance: Application get() = checkNotNull(ContextManager.application)
+val AppContext: Application get() = checkNotNull(ContextManager.application)
 
 val TopActivity get() = ContextManager.topActivity?.get()
 

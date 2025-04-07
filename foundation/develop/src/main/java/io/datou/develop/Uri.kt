@@ -6,28 +6,26 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
 
-fun Uri.inputStream() = Instance.contentResolver.openInputStream(this)
+fun Uri.inputStream() = AppContext.contentResolver.openInputStream(this)
 
-fun Uri.outputStream() = Instance.contentResolver.openOutputStream(this)
+fun Uri.outputStream() = AppContext.contentResolver.openOutputStream(this)
 
 fun Uri.delete(
     where: String? = null,
     selectionArgs: Array<String>? = null
-) = Instance.contentResolver.delete(this, where, selectionArgs)
+) = AppContext.contentResolver.delete(this, where, selectionArgs)
 
 inline fun Uri.update(
     where: String? = null,
     selectionArgs: Array<String>? = null,
     block: ContentValues.() -> Unit = {},
-) = Instance.contentResolver.update(this, ContentValues().apply(block), where, selectionArgs)
+) = AppContext.contentResolver.update(this, ContentValues().apply(block), where, selectionArgs)
 
 fun Uri.updatePendCompletion(
     where: String? = null,
     selectionArgs: Array<String>? = null,
-) = Instance.contentResolver.update(
+) = AppContext.contentResolver.update(
     this,
     ContentValues().apply {
         put(MediaStore.MediaColumns.IS_PENDING, 0)
@@ -51,7 +49,7 @@ val Uri.data
     get() = queryMediaColumns(MediaStore.MediaColumns.DATA).firstOrNull() as? String
 
 fun Uri.queryMediaColumns(vararg columns: String): List<Any?> {
-    return Instance.contentResolver.query(this, columns, null, null, null)?.use { cursor ->
+    return AppContext.contentResolver.query(this, columns, null, null, null)?.use { cursor ->
         val resultMap = mutableListOf<Any?>()
         if (cursor.moveToFirst()) {
             columns.forEach { column ->

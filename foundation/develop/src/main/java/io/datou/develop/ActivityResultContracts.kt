@@ -23,7 +23,7 @@ object CustomActivityResultContracts {
                 "is_request_notification_permission"
 
             fun areNotificationsEnabled(channelId: String? = null): Boolean {
-                val notificationManager = NotificationManagerCompat.from(Instance)
+                val notificationManager = NotificationManagerCompat.from(AppContext)
                 val b = notificationManager.areNotificationsEnabled()
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     && !channelId.isNullOrEmpty()
@@ -118,7 +118,7 @@ object CustomActivityResultContracts {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return canRequestPackageInstalls(Instance)
+            return canRequestPackageInstalls(AppContext)
         }
     }
 
@@ -145,24 +145,30 @@ object CustomActivityResultContracts {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return canDrawOverlays(Instance)
+            return canDrawOverlays(AppContext)
         }
     }
 
-    class ExternalStorageAccessPermission() : ActivityResultContract<Unit, Boolean>() {
+    class ExternalStorageAccessPermission(
+        private val useSAF: Boolean = true
+    ) : ActivityResultContract<Unit, Boolean>() {
         companion object {
             private val EXTERNAL_STORAGE_PERMISSIONS = arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
 
-            fun isExternalStorageManager(): Boolean {
+            fun isExternalStorageManager(useSAF: Boolean = true): Boolean {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    Environment.isExternalStorageManager()
+                    if (useSAF) {
+                        true
+                    } else {
+                        Environment.isExternalStorageManager()
+                    }
                 } else {
                     EXTERNAL_STORAGE_PERMISSIONS.all {
                         ContextCompat.checkSelfPermission(
-                            Instance,
+                            AppContext,
                             it
                         ) == PackageManager.PERMISSION_GRANTED
                     }
@@ -188,7 +194,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: Unit
         ): SynchronousResult<Boolean>? {
-            return if (isExternalStorageManager()) {
+            return if (isExternalStorageManager(useSAF)) {
                 SynchronousResult(true)
             } else {
                 null

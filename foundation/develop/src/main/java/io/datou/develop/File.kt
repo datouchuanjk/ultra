@@ -16,19 +16,19 @@ import java.security.MessageDigest
 import kotlin.text.startsWith
 
 fun String.asFileInCacheDir(): File {
-    return File(Instance.cacheDir, this)
+    return File(AppContext.cacheDir, this)
 }
 
 fun String.asFileInFilesDir(): File {
-    return File(Instance.filesDir, this)
+    return File(AppContext.filesDir, this)
 }
 
 fun String.asFileInExternalCacheDir(): File {
-    return File(Instance.externalCacheDir, this)
+    return File(AppContext.externalCacheDir, this)
 }
 
 fun String.asFileInExternalFilesDir(type: String): File {
-    return File(Instance.getExternalFilesDir(type), this)
+    return File(AppContext.getExternalFilesDir(type), this)
 }
 
 fun String.asFileInExternalPublicFilesDir(type: String): File {
@@ -45,7 +45,7 @@ val File.externalPublicRelativePath
 val File.baseName get() = name.substringBeforeLast('.')
 
 fun File.findFileUriInMediaStore(): Uri? = contentUri?.run {
-    Instance.contentResolver.query(
+    AppContext.contentResolver.query(
         this,
         arrayOf(MediaStore.MediaColumns._ID),
         buildString {
@@ -84,7 +84,7 @@ val File.contentUri: Uri?
     }
 
 fun File.insertFileIntoMediaStore(): Uri? = contentUri?.run {
-    Instance.contentResolver.insert(
+    AppContext.contentResolver.insert(
         this,
         ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
@@ -141,8 +141,8 @@ val File.md5: String
     }
 
 fun File.toProviderUri(
-    authority: String = "${Instance.packageName}.fileProvider"
-): Uri? = FileProvider.getUriForFile(Instance, authority, this)
+    authority: String = "${AppContext.packageName}.fileProvider"
+): Uri? = FileProvider.getUriForFile(AppContext, authority, this)
 
 fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

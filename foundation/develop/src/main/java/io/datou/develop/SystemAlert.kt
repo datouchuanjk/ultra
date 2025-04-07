@@ -61,7 +61,7 @@ private class SystemAlert(
         get() = _savedStateRegistryController.savedStateRegistry
     override val viewModelStore: ViewModelStore
         get() = _viewModelStore
-    private val _windowManager = Instance.getSystemService<WindowManager>()
+    private val _windowManager = AppContext.getSystemService<WindowManager>()
     private val _layoutParams = WindowManager.LayoutParams(
         width,
         height,
@@ -75,7 +75,7 @@ private class SystemAlert(
     ).also {
         it.gravity = gravity
     }
-    private val _composeView = ComposeView(Instance)
+    private val _composeView = ComposeView(AppContext)
         .apply {
             setContent { content() }
         }

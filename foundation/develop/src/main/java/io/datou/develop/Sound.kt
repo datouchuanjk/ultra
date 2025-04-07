@@ -6,7 +6,7 @@ import android.media.RingtoneManager
 fun playSystemDefaultSound() {
     val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
     try {
-        MediaPlayer.create(Instance, soundUri).apply {
+        MediaPlayer.create(AppContext, soundUri).apply {
             setOnCompletionListener { mp ->
                 mp.release()
             }
@@ -14,6 +14,6 @@ fun playSystemDefaultSound() {
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        RingtoneManager.getRingtone(Instance, soundUri)?.play()
+        RingtoneManager.getRingtone(AppContext, soundUri)?.play()
     }
 }
