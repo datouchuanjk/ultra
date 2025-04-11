@@ -37,10 +37,17 @@ fun String.asFileInExternalPublicFilesDir(type: String): File {
 
 val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 
-val File.externalPublicRelativePath
+ val File.externalPublicRelativePath
     get() = absolutePath.replace(Environment.getExternalStoragePublicDirectory("").absolutePath, "")
         .trimStart(File.separatorChar)
         .substringBeforeLast(File.separatorChar)
+
+val File.isInExternalPublicDir
+    get() = absolutePath.startsWith(
+        Environment.getExternalStoragePublicDirectory(
+            ""
+        ).absolutePath
+    )
 
 val File.baseName get() = name.substringBeforeLast('.')
 
@@ -145,7 +152,7 @@ fun File.toProviderUri(
 ): Uri? = FileProvider.getUriForFile(AppContext, authority, this)
 
 fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
         val queryUri: Uri? = findFileUriInMediaStore()
         if (queryUri == null) {
             var insertUri: Uri? = null
@@ -169,10 +176,9 @@ fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
     }
 }
 
-fun <T> File.useInputStreamCompat(block: (InputStream) -> T) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val queryUri: Uri? = findFileUriInMediaStore()
-        queryUri?.inputStream()?.let(block)
+fun <T> File.useInputStreamCompat(block: (InputStream) -> T): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
+        findFileUriInMediaStore()?.inputStream()?.let(block)
     } else {
         inputStream().let(block)
     }

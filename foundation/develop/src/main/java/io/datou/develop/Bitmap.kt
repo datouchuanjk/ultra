@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Base64
+import androidx.core.graphics.BitmapCompat
 import java.io.ByteArrayOutputStream
 
 fun String.base64ToBitmap(): Bitmap? {
@@ -46,6 +47,7 @@ fun Bitmap.saveToGallery(
 ).useOutputStreamCompat {
     compress(format, quality, it)
 }
+
 
 
 

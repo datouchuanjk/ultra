@@ -1,8 +1,13 @@
 package io.datou.develop
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.Process
+import androidx.core.content.getSystemService
 import java.lang.ref.WeakReference
 
 val AppContext: Application get() = checkNotNull(ContextManager.application)
@@ -10,7 +15,9 @@ val AppContext: Application get() = checkNotNull(ContextManager.application)
 val TopActivity get() = ContextManager.topActivity?.get()
 
 fun Application.startDevelop() {
-    ContextManager.init(this)
+    if(isMainProcess){
+        ContextManager.init(this)
+    }
 }
 
 internal object ContextManager {
@@ -35,6 +42,8 @@ internal object ContextManager {
             }
         })
     }
+
+
 }
 
 

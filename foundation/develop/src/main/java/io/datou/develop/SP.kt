@@ -12,6 +12,9 @@ internal val MySharedPreferences: SharedPreferences by lazy {
     )
 }
 
+infix fun String.commitInt(value: Int) = MySharedPreferences.edit { putInt(this@commitInt, value) }
+infix fun <T> String.saveApply(value: T) = saveToShared(this to value)
+
 fun <T> saveToShared(
     pair: Pair<String, T>,
     commit: Boolean = false

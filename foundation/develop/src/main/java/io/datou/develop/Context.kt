@@ -1,15 +1,18 @@
 package io.datou.develop
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import android.util.DisplayMetrics
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.getSystemService
 
 @Composable
 fun findActivity() = LocalContext.current.findActivity()
@@ -24,6 +27,23 @@ fun Context.findActivity(): Activity? {
     }
     return null
 }
+
+val Context.isMainProcess: Boolean
+    get() {
+        return processName == packageName
+    }
+
+val Context.processName: String
+    get() {
+        getSystemService<ActivityManager>()
+            ?.runningAppProcesses
+            ?.forEach {
+                if (it.pid == Process.myPid()) {
+                    return it.processName
+                }
+            }
+        return ""
+    }
 
 val Context.versionCode: Long
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

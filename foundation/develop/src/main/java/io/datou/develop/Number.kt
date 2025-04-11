@@ -4,7 +4,7 @@ import java.text.DecimalFormat
 
 val Number.format2f: Float get() = DecimalFormat("#.##").format(this).toFloat()
 
-val Number.format2fFileSize: String
+val Number.format2fToFileSize: String
     get() {
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         var size = toDouble()

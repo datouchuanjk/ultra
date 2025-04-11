@@ -34,11 +34,16 @@ fun Context.jumpToBrowser(url: String) = Intent(Intent.ACTION_VIEW, url.toUri())
 
 fun Context.shareTextTo(
     text: String,
-    packageName: String
+    packageName: String? = null
 ) = Intent(Intent.ACTION_SEND).apply {
     type = "text/plain"
     putExtra(Intent.EXTRA_TEXT, text)
-    setPackage(packageName)
+}.run {
+    if (packageName == null) {
+        Intent.createChooser(this, "share to")
+    } else {
+        this.setPackage(packageName)
+    }
 }.takeIfNotNullActivity()
     ?.run {
         startActivity(this)

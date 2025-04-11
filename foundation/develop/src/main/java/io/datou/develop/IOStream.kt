@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -22,24 +23,6 @@ fun InputStream.copyAsFlow(outputStream: OutputStream) = flow {
         emit(bytes)
     }
 }
-
-@OptIn(ExperimentalCoroutinesApi::class)
-fun String.copyAsFlow(outputStream: OutputStream) = flowOf(openAsHttpURLConnection())
-    .map {
-        if (it == null) {
-            throw NullPointerException()
-        }
-        it
-    }.flatMapConcat { connection ->
-        val totalBytes = connection.contentLength.takeIf { it >= 0 }
-            ?.toLong()
-            ?: throw NullPointerException("contentLength < 0")
-        connection.inputStream.use { input ->
-            input.copyAsFlow(outputStream)
-        }.map {
-            (it.toDouble() / totalBytes).toFloat().format2f
-        }
-    }
 
 fun InputStream.readText() = bufferedReader()
     .use { reader ->

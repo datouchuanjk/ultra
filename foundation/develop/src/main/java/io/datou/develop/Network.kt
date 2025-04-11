@@ -16,7 +16,7 @@ val Context.activeNetwork
     get() = connectivityManager?.activeNetwork
 
 @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-fun LifecycleOwner.withNetworkCallback(block: (NetworkCapabilities) -> Unit) {
+fun LifecycleOwner.registerDefaultNetworkCallback(block: (NetworkCapabilities) -> Unit) {
     withLifecycleDisposable {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(
