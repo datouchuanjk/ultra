@@ -18,15 +18,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import io.datou.develop.commitInt
-import io.datou.develop.createDesignAdapterContext
+import io.datou.develop.createDesignConfigurationContext
+import io.datou.develop.persist
 import io.datou.develop.shareTextTo
 
 
 class MainActivity : ComponentActivity() {
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val a =  "" to 1
+        a.persist()
         enableEdgeToEdge()
         setContent {
             Scaffold {
@@ -35,7 +36,6 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(it)
                 ) {
-                    CONNECTIVITY_SERVICE. commitInt(1)
                     Column {
                         Button(
                             modifier = Modifier.statusBarsPadding(),
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(newBase?.createDesignAdapterContext(375f))
+        super.attachBaseContext(newBase?.createDesignConfigurationContext(375f))
     }
 }
 

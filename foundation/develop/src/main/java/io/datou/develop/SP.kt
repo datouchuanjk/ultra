@@ -5,37 +5,31 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 
 @PublishedApi
-internal val MySharedPreferences: SharedPreferences by lazy {
+internal val AppSharedPreferences: SharedPreferences by lazy {
     AppContext.getSharedPreferences(
         "${AppContext.packageName}_SPHelper_version_1",
         Context.MODE_PRIVATE
     )
 }
 
-infix fun String.commitInt(value: Int) = MySharedPreferences.edit { putInt(this@commitInt, value) }
-infix fun <T> String.saveApply(value: T) = saveToShared(this to value)
-
-fun <T> saveToShared(
-    pair: Pair<String, T>,
-    commit: Boolean = false
-) = MySharedPreferences.edit(commit) {
-    when (pair.second) {
-        is Int -> putInt(pair.first, pair.second as Int)
-        is Long -> putLong(pair.first, pair.second as Long)
-        is Float -> putFloat(pair.first, pair.second as Float)
-        is String -> putString(pair.first, pair.second as String)
-        is Boolean -> putBoolean(pair.first, pair.second as Boolean)
-        else -> throw IllegalArgumentException()
+fun <T> T.persistByKey(key:String,commit: Boolean = false) {
+    AppSharedPreferences.edit(commit) {
+        when ( val value = this@persistByKey) {
+            is Int -> putInt(key, value as Int)
+            is Float -> putFloat(key, value as Float)
+            is Long -> putLong(key, value as Long)
+            is String -> putString(key, value as String)
+            is Boolean -> putBoolean(key, value as Boolean)
+            is Set<*> -> putStringSet(key, value as Set<String>)
+            else -> {
+                throw IllegalArgumentException("Unsupported type: ${value!!::class.java.simpleName}")
+            }
+        }
     }
 }
 
-inline fun <reified T> loadFromShared(pair: Pair<String, T>) = MySharedPreferences.run {
-    when (pair.second) {
-        is Int -> getInt(pair.first, pair.second as Int) as T
-        is Long -> getLong(pair.first, pair.second as Long) as T
-        is Float -> getFloat(pair.first, pair.second as Float) as T
-        is String -> getString(pair.first, pair.second as String) as T
-        is Boolean -> getBoolean(pair.first, pair.second as Boolean) as T
-        else -> throw IllegalArgumentException()
-    }
+fun getPersistByKey(key:String,defaultValue:Boolean =false){
+    AppSharedPreferences.getBoolean(key,defaultValue)
 }
+
+

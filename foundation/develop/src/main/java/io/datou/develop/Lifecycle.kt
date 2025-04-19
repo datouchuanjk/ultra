@@ -9,39 +9,38 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-class LifecycleDisposableScope {
-    inline fun onDispose(
-        crossinline onDisposeEffect: () -> Unit
-    ) = object : LifecycleDisposable {
-        override fun onDispose() {
-            onDisposeEffect()
+class LifecycleDestroyedScope {
+    inline fun onDestroyed(
+        crossinline onDestroyedEffect: () -> Unit
+    ) = object : LifecycleDestroyed {
+        override fun onDestroyed() {
+            onDestroyedEffect()
         }
     }
 }
 
-interface LifecycleDisposable {
-    fun onDispose()
+interface LifecycleDestroyed {
+    fun onDestroyed()
 }
 
-
-inline fun LifecycleOwner.withLifecycleDisposable(
-    effect: LifecycleDisposableScope.() -> LifecycleDisposable
+inline fun LifecycleOwner.withLifecycleDestroyed(
+    effect: LifecycleDestroyedScope.() -> LifecycleDestroyed
 ) {
+
     if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
         return
     }
-    val callbackResult = LifecycleDisposableScope().effect()
+    val callbackResult = LifecycleDestroyedScope().effect()
     lifecycle.addObserver(object : DefaultLifecycleObserver {
         override fun onDestroy(owner: LifecycleOwner) {
-            callbackResult.onDispose()
+            callbackResult.onDestroyed()
         }
     })
 }
 
-fun LifecycleOwner.launchOnceWhenResumed(block: () -> Unit): Job? {
+fun LifecycleOwner.launchOnceWhenResumed(block: () -> Unit): Job {
     return if (lifecycle.currentState == Lifecycle.State.RESUMED) {
-        block()
-        null
+        lifecycleScope.launch { block()}
     } else {
         lifecycleScope.launch {
             lifecycle.currentStateFlow

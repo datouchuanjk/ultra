@@ -18,3 +18,8 @@ fun String.filterChinese() = filter {
     it in '\u4e00'..'\u9fa5'
 }
 
+fun String.isNotNullOrEmpty() = !isNullOrEmpty()
+
+fun String.isNotNullOrBlank() = !isNullOrBlank()
+
+

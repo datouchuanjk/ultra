@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.os.bundleOf
 import java.io.Serializable
 
 inline fun <reified T : Serializable> Bundle.getSerializableCompat(key: String): T? {

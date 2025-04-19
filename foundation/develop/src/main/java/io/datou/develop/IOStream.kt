@@ -1,11 +1,6 @@
 package io.datou.develop
 
-import androidx.compose.runtime.collectAsState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -24,7 +19,7 @@ fun InputStream.copyAsFlow(outputStream: OutputStream) = flow {
     }
 }
 
-fun InputStream.readText() = bufferedReader()
+fun InputStream.readAsString() = bufferedReader()
     .use { reader ->
         reader.readText()
     }

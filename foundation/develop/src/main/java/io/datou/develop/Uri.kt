@@ -16,21 +16,24 @@ fun Uri.delete(
     selectionArgs: Array<String>? = null
 ) = AppContext.contentResolver.delete(this, where, selectionArgs)
 
-inline fun Uri.update(
+fun Uri.update(
+    values: ContentValues,
     where: String? = null,
     selectionArgs: Array<String>? = null,
-    block: ContentValues.() -> Unit = {},
-) = AppContext.contentResolver.update(this, ContentValues().apply(block), where, selectionArgs)
+) = AppContext.contentResolver.update(this, values, where, selectionArgs)
 
 fun Uri.updatePendCompletion(
     where: String? = null,
     selectionArgs: Array<String>? = null,
-) = AppContext.contentResolver.update(
-    this,
-    ContentValues().apply {
-        put(MediaStore.MediaColumns.IS_PENDING, 0)
-    }, where, selectionArgs
-)
+) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    AppContext.contentResolver.update(
+        this,
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.IS_PENDING, 0)
+        }, where, selectionArgs)
+} else {
+    0
+}
 
 val Uri.id get() = ContentUris.parseId(this)
 

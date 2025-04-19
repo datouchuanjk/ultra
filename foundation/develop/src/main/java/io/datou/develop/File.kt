@@ -51,7 +51,7 @@ val File.isInExternalPublicDir
 
 val File.baseName get() = name.substringBeforeLast('.')
 
-fun File.findFileUriInMediaStore(): Uri? = contentUri?.run {
+fun File.findFromMediaStore(): Uri? = contentUri?.run {
     AppContext.contentResolver.query(
         this,
         arrayOf(MediaStore.MediaColumns._ID),
@@ -90,7 +90,7 @@ val File.contentUri: Uri?
         }
     }
 
-fun File.insertFileIntoMediaStore(): Uri? = contentUri?.run {
+fun File.insertToMediaStore(): Uri? = contentUri?.run {
     AppContext.contentResolver.insert(
         this,
         ContentValues().apply {
@@ -151,13 +151,13 @@ fun File.toProviderUri(
     authority: String = "${AppContext.packageName}.fileProvider"
 ): Uri? = FileProvider.getUriForFile(AppContext, authority, this)
 
-fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
+fun <T> File.useOutputStream(block: (OutputStream) -> T): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        val queryUri: Uri? = findFileUriInMediaStore()
+        val queryUri: Uri? = findFromMediaStore()
         if (queryUri == null) {
             var insertUri: Uri? = null
             try {
-                insertUri = insertFileIntoMediaStore()
+                insertUri = insertToMediaStore()
                 insertUri?.outputStream()
                     ?.let(block)
                     .apply {
@@ -169,18 +169,18 @@ fun <T> File.useOutputStreamCompat(block: (OutputStream) -> T): T? {
                 null
             }
         } else {
-            queryUri.outputStream()?.let(block)
+            queryUri.outputStream()?.use(block)
         }
     } else {
-        outputStream().let(block)
+        outputStream().use(block)
     }
 }
 
-fun <T> File.useInputStreamCompat(block: (InputStream) -> T): T? {
+fun <T> File.useInputStream(block: (InputStream) -> T): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        findFileUriInMediaStore()?.inputStream()?.let(block)
+        findFromMediaStore()?.inputStream()?.use(block)
     } else {
-        inputStream().let(block)
+        inputStream().use(block)
     }
 }
 
