@@ -107,7 +107,7 @@ internal class SystemAlert(
     }
 
     override fun cancel() {
-        destroy()
+        throw throw Exception()
     }
 
     override fun dismiss() {

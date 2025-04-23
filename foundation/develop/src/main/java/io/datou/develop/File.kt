@@ -51,7 +51,7 @@ val File.isInExternalPublicDir
 
 val File.baseName get() = name.substringBeforeLast('.')
 
-fun File.findFromMediaStore(): Uri? = contentUri?.run {
+fun File.findUriFromMediaStore(): Uri? = contentUri?.run {
     AppContext.contentResolver.query(
         this,
         arrayOf(MediaStore.MediaColumns._ID),
@@ -90,7 +90,7 @@ val File.contentUri: Uri?
         }
     }
 
-fun File.insertToMediaStore(): Uri? = contentUri?.run {
+fun File.insertToMediaStoreAsUri(): Uri? = contentUri?.run {
     AppContext.contentResolver.insert(
         this,
         ContentValues().apply {
@@ -153,11 +153,11 @@ fun File.toProviderUri(
 
 fun <T> File.useOutputStream(block: (OutputStream) -> T): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        val queryUri: Uri? = findFromMediaStore()
+        val queryUri: Uri? = findUriFromMediaStore()
         if (queryUri == null) {
             var insertUri: Uri? = null
             try {
-                insertUri = insertToMediaStore()
+                insertUri = insertToMediaStoreAsUri()
                 insertUri?.outputStream()
                     ?.let(block)
                     .apply {
@@ -178,7 +178,7 @@ fun <T> File.useOutputStream(block: (OutputStream) -> T): T? {
 
 fun <T> File.useInputStream(block: (InputStream) -> T): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        findFromMediaStore()?.inputStream()?.use(block)
+        findUriFromMediaStore()?.inputStream()?.use(block)
     } else {
         inputStream().use(block)
     }

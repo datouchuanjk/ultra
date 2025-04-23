@@ -10,6 +10,12 @@ import android.os.Process
 import androidx.core.content.getSystemService
 import java.lang.ref.WeakReference
 
+fun Application.startDevelop() {
+    if (isMainProcess) {
+        ContextManager.init(this)
+    }
+}
+
 val AppContext: Application get() {
     val result = ContextManager.application
     require(result!=null){
@@ -22,15 +28,10 @@ val TopActivityOrNull get() = ContextManager.topActivity?.get()
 
 val TopActivity get() = checkNotNull(TopActivityOrNull)
 
-fun Application.startDevelop() {
-    if (isMainProcess) {
-        ContextManager.init(this)
-    }
-}
-
 internal object ContextManager {
 
     var topActivity: WeakReference<Activity>? = null
+
     var application: Application? = null
 
     fun init(application: Application) {
