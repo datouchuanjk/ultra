@@ -42,7 +42,7 @@ fun systemAlert(
     resume()
 }
 
-private class SystemAlert(
+internal class SystemAlert(
     width: Int = WindowManager.LayoutParams.MATCH_PARENT,
     height: Int = WindowManager.LayoutParams.WRAP_CONTENT,
     flag: Int = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
@@ -51,7 +51,8 @@ private class SystemAlert(
     content: @Composable DialogInterface.() -> Unit
 ) : LifecycleOwner,
     ViewModelStoreOwner,
-    SavedStateRegistryOwner, DialogInterface {
+    SavedStateRegistryOwner,
+    DialogInterface {
     private val _lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
     private val _viewModelStore = ViewModelStore()
@@ -94,7 +95,7 @@ private class SystemAlert(
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
-    fun destroy() {
+    private fun destroy() {
         if (_composeView.isAttachedToWindow) {
             _windowManager?.removeView(_composeView)
         }
@@ -106,7 +107,7 @@ private class SystemAlert(
     }
 
     override fun cancel() {
-        destroy()
+        throw throw Exception()
     }
 
     override fun dismiss() {

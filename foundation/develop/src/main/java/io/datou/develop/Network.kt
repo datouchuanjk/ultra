@@ -9,7 +9,7 @@ import androidx.annotation.RequiresPermission
 import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
 
-val Context.connectivityManager get() = getSystemService<ConnectivityManager>()
+internal val Context.connectivityManager get() = getSystemService<ConnectivityManager>()
 
 val Context.activeNetwork
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
@@ -17,7 +17,7 @@ val Context.activeNetwork
 
 @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
 fun LifecycleOwner.registerDefaultNetworkCallback(block: (NetworkCapabilities) -> Unit) {
-    withLifecycleDisposable {
+    withLifecycleDestroyed {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(
                 network: Network,
@@ -28,7 +28,7 @@ fun LifecycleOwner.registerDefaultNetworkCallback(block: (NetworkCapabilities) -
             }
         }
         AppContext.connectivityManager?.registerDefaultNetworkCallback(callback)
-        onDispose {
+        onDestroyed {
             AppContext.connectivityManager?.unregisterNetworkCallback(callback)
         }
     }
@@ -72,19 +72,19 @@ val Network.isBluetooth: Boolean
 
 
 val NetworkCapabilities.isConnected: Boolean
-    get() = hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    get() = hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 
 val NetworkCapabilities.isWifi: Boolean
-    get() = hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
 
 val NetworkCapabilities.isCellular: Boolean
-    get() = hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
 
 val NetworkCapabilities.isVpn: Boolean
-    get() = hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_VPN)
 
 val NetworkCapabilities.isEthernet: Boolean
-    get() = hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) == true
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
 
 val NetworkCapabilities.isBluetooth: Boolean
-    get() = hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) == true
+    get() = hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)

@@ -12,15 +12,16 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.suspendCoroutine
 
+val IgnoreExceptionCoroutineContext = CoroutineExceptionHandler { _, exception ->
+    exception.printStackTrace()
+},
 fun CoroutineScope.launchSilently(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
     return launch(
-        context = context + CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
-        },
+        context = context + IgnoreExceptionCoroutineContext,
         start = start,
         block = block
     )
@@ -32,9 +33,7 @@ fun CoroutineScope.asyncSilently(
     block: suspend CoroutineScope.() -> Unit
 ): Job {
     return async(
-        context = context + CoroutineExceptionHandler { _, exception ->
-            exception.printStackTrace()
-        },
+        context = context + IgnoreExceptionCoroutineContext,
         start = start,
         block = block
     )

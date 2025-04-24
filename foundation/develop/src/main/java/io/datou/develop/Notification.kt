@@ -10,7 +10,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
-val Context.notificationManagerCompat get() = NotificationManagerCompat.from(this)
+internal val Context.notificationManagerCompat get() = NotificationManagerCompat.from(this)
 
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 fun Notification.show(
@@ -57,19 +57,15 @@ fun createNotificationChannel(
         AppContext
             .notificationManagerCompat
             .notificationChannelsCompat
-            .map {
-                it.id
-            }.find {
-                it == channelId
+            .find {
+                it.id == channelId
             } != null
     ) {
         return
     }
     var newImportance = importance
-    if (useDefaultSound) {
-        if (importance <= NotificationManagerCompat.IMPORTANCE_DEFAULT) {
+    if (useDefaultSound&&importance<=NotificationManagerCompat.IMPORTANCE_DEFAULT) {
             newImportance = NotificationManagerCompat.IMPORTANCE_HIGH
-        }
     }
     AppContext.notificationManagerCompat.createNotificationChannel(
         NotificationChannelCompat.Builder(channelId, newImportance)

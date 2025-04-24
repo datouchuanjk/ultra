@@ -4,10 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Base64
-import androidx.core.graphics.BitmapCompat
 import java.io.ByteArrayOutputStream
 
-fun String.base64ToBitmap(): Bitmap? {
+fun String.base64decodeAsBitmap(): Bitmap? {
     if (!startsWith("data:")) {
         return null
     }
@@ -26,7 +25,7 @@ fun String.base64ToBitmap(): Bitmap? {
     }
 }
 
-fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
+fun Bitmap.compressAsBytes(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
     var quality = 100
     compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
@@ -44,7 +43,7 @@ fun Bitmap.saveToGallery(
     quality: Int = 100
 ) = fileName.asFileInExternalPublicFilesDir(
     Environment.DIRECTORY_PICTURES
-).useOutputStreamCompat {
+).writeAs {
     compress(format, quality, it)
 }
 

@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.net.toUri
 
 fun ActivityResultLauncher<PickVisualMediaRequest>.launchImageOnly(
@@ -55,28 +56,30 @@ object CustomActivityResultContracts {
 
             fun areNotificationsEnabled(channelId: String? = null): Boolean {
                 val notificationManager = NotificationManagerCompat.from(AppContext)
-                val b = notificationManager.areNotificationsEnabled()
-                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    && !channelId.isNullOrEmpty()
-                ) {
-                    val channel =
-                        notificationManager.getNotificationChannel(channelId) ?: return false
-                    channel.importance > NotificationManagerCompat.IMPORTANCE_NONE && b
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !channelId.isNullOrEmpty()) {
+                    notificationManager.getNotificationChannel(channelId)?.let {
+                        it.importance > NotificationManagerCompat.IMPORTANCE_NONE
+                    } ?: false
                 } else {
-                    b
-                }
+                    true
+                } && notificationManager.areNotificationsEnabled()
             }
         }
 
         private var _channelId: String? = null
+        private val _sp = AppContext.getSharedPreferences(
+            "${AppContext.packageName}_NotificationPermission",
+            Context.MODE_PRIVATE
+        )
 
         override fun createIntent(context: Context, input: String?): Intent {
             _channelId = input
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !loadFromShared(
-                    IS_REQUEST_NOTIFICATION_PERMISSION to false
-                )
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && !_sp.getBoolean(IS_REQUEST_NOTIFICATION_PERMISSION, false)
             ) {
-                saveToShared(IS_REQUEST_NOTIFICATION_PERMISSION to true)
+                _sp.edit {
+                    putBoolean(IS_REQUEST_NOTIFICATION_PERMISSION, true)
+                }
                 ActivityResultContracts.RequestPermission()
                     .createIntent(context, Manifest.permission.POST_NOTIFICATIONS)
             } else {
@@ -155,8 +158,8 @@ object CustomActivityResultContracts {
 
     class OverlayDrawPermission : ActivityResultContract<Unit, Boolean>() {
         companion object {
-            fun canDrawOverlays(context: Context): Boolean {
-                return Settings.canDrawOverlays(context)
+            fun canDrawOverlays(): Boolean {
+                return Settings.canDrawOverlays(AppContext)
             }
         }
 
@@ -168,7 +171,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: Unit
         ): SynchronousResult<Boolean>? {
-            return if (canDrawOverlays(context)) {
+            return if (canDrawOverlays()) {
                 SynchronousResult(true)
             } else {
                 null
@@ -176,7 +179,7 @@ object CustomActivityResultContracts {
         }
 
         override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-            return canDrawOverlays(AppContext)
+            return canDrawOverlays()
         }
     }
 

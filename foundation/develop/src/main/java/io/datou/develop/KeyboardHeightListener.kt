@@ -2,8 +2,6 @@ package io.datou.develop
 
 import android.app.Activity
 import android.graphics.Rect
-import android.os.Build
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -11,41 +9,23 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.platform.LocalDensity
 import androidx.core.graphics.drawable.toDrawable
-import androidx.lifecycle.DEFAULT_ARGS_KEY
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 
-fun ComponentActivity.addOnKeyboardListener(
+fun ComponentActivity.addOnKeyboardHeightListener(
     onHeightChange: (Int) -> Unit
 ) {
-    withLifecycleDisposable {
-        val keyboardHandler = KeyboardHandler(
-            this@addOnKeyboardListener,
+    withLifecycleDestroyed {
+        val listener = KeyboardHeightListener(
+            this@addOnKeyboardHeightListener,
             onHeightChange
         )
-        onDispose {
-            keyboardHandler.onDispose()
+        onDestroyed {
+            listener.onDispose()
         }
     }
 }
 
-internal class KeyboardHandler(
+internal class KeyboardHeightListener(
     activity: Activity,
     private val onHeightChange: (Int) -> Unit
 ) : PopupWindow(activity), OnGlobalLayoutListener {

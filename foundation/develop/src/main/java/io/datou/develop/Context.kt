@@ -33,7 +33,7 @@ val Context.isMainProcess: Boolean
         return processName == packageName
     }
 
-val Context.processName: String
+val Context.processName: String?
     get() {
         getSystemService<ActivityManager>()
             ?.runningAppProcesses
@@ -42,7 +42,7 @@ val Context.processName: String
                     return it.processName
                 }
             }
-        return ""
+        return null
     }
 
 val Context.versionCode: Long
@@ -91,7 +91,7 @@ val Context.metaData: Bundle
         )
     }.metaData
 
-fun Context.createDesignAdapterContext(width: Float): Context {
+fun Context.createDesignConfigurationContext(width: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(width)
         .times(DisplayMetrics.DENSITY_DEFAULT)

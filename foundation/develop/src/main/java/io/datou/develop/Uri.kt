@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import kotlin.reflect.KTypeProjection
 
 fun Uri.inputStream() = AppContext.contentResolver.openInputStream(this)
 
@@ -16,60 +17,59 @@ fun Uri.delete(
     selectionArgs: Array<String>? = null
 ) = AppContext.contentResolver.delete(this, where, selectionArgs)
 
-inline fun Uri.update(
+fun Uri.update(
+    values: ContentValues,
     where: String? = null,
     selectionArgs: Array<String>? = null,
-    block: ContentValues.() -> Unit = {},
-) = AppContext.contentResolver.update(this, ContentValues().apply(block), where, selectionArgs)
+) = AppContext.contentResolver.update(this, values, where, selectionArgs)
 
 fun Uri.updatePendCompletion(
     where: String? = null,
     selectionArgs: Array<String>? = null,
-) = AppContext.contentResolver.update(
+) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    AppContext.contentResolver.update(
+        this,
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.IS_PENDING, 0)
+        }, where, selectionArgs
+    )
+} else {
+    0
+}
+
+fun Uri.query(
+    projection: List<String>? = null,
+    selection: List<String>? = null,
+    selectionArgs: List<String>? = null,
+    sortOrder: List<String>? = null,
+    sortOrderType: String = "DESC"
+) = AppContext.contentResolver.query(
     this,
-    ContentValues().apply {
-        put(MediaStore.MediaColumns.IS_PENDING, 0)
-    }, where, selectionArgs
-)
-
-val Uri.id get() = ContentUris.parseId(this)
-
-val Uri.displayName
-    get() = queryMediaColumns(MediaStore.MediaColumns.DISPLAY_NAME).firstOrNull() as? String
-
-val Uri.mimeType
-    get() = queryMediaColumns(MediaStore.MediaColumns.MIME_TYPE).firstOrNull() as? String
-
-val Uri.relativePath
-    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        queryMediaColumns(MediaStore.MediaColumns.RELATIVE_PATH).firstOrNull() as? String
-    } else null
-
-val Uri.data
-    get() = queryMediaColumns(MediaStore.MediaColumns.DATA).firstOrNull() as? String
-
-fun Uri.queryMediaColumns(vararg columns: String): List<Any?> {
-    return AppContext.contentResolver.query(this, columns, null, null, null)?.use { cursor ->
-        val resultMap = mutableListOf<Any?>()
-        if (cursor.moveToFirst()) {
-            columns.forEach { column ->
-                val columnIndex = cursor.getColumnIndex(column)
-                if (columnIndex != -1) {
-                    when (cursor.getType(columnIndex)) {
-                        Cursor.FIELD_TYPE_NULL -> resultMap.add(null)
-                        Cursor.FIELD_TYPE_INTEGER -> resultMap.add(cursor.getLong(columnIndex))
-                        Cursor.FIELD_TYPE_FLOAT -> resultMap.add(cursor.getDouble(columnIndex))
-                        Cursor.FIELD_TYPE_STRING -> resultMap.add(cursor.getString(columnIndex))
-                        Cursor.FIELD_TYPE_BLOB -> resultMap.add(cursor.getBlob(columnIndex))
-                        else -> resultMap.add(null)
+    projection?.toTypedArray(),
+    selection?.joinToString(" AND ") { "$it = ?" },
+    selectionArgs?.toTypedArray(),
+    sortOrder?.joinToString(" , ") { "$it  $sortOrderType" }
+)?.use { cursor ->
+    buildList {
+        while (cursor.moveToNext()) {
+            projection?.associate { columnName ->
+                columnName to cursor.getColumnIndex(columnName)
+                    .let { columnIndex ->
+                        when (cursor.getType(columnIndex)) {
+                            Cursor.FIELD_TYPE_NULL -> null
+                            Cursor.FIELD_TYPE_INTEGER -> cursor.getLong(columnIndex)
+                            Cursor.FIELD_TYPE_FLOAT -> cursor.getDouble(columnIndex)
+                            Cursor.FIELD_TYPE_STRING -> cursor.getString(columnIndex)
+                            Cursor.FIELD_TYPE_BLOB -> cursor.getBlob(columnIndex)
+                            else -> null
+                        }
                     }
-                } else {
-                    resultMap.add(null)
-                }
+            }?.let { pair ->
+                add(pair)
             }
         }
-        resultMap
-    } ?: listOf()
-}
+    }
+} ?: listOf()
+
 
 
