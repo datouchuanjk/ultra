@@ -1,112 +1,34 @@
 package io.datou.develop
 
-import android.content.ContentUris
-import android.content.ContentValues
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
-import java.io.OutputStream
 import java.security.MessageDigest
-import kotlin.text.startsWith
 
-fun String.asFileInCacheDir(): File {
-    return File(AppContext.cacheDir, this)
-}
+fun String.toCacheDir() = File(AppContext.cacheDir, this)
 
-fun String.asFileInFilesDir(): File {
-    return File(AppContext.filesDir, this)
-}
+fun String.toFilesDirFile(): File = File(AppContext.filesDir, this)
 
-fun String.asFileInExternalCacheDir(): File {
-    return File(AppContext.externalCacheDir, this)
-}
+fun String.asFileInExternalCacheDir() = File(AppContext.externalCacheDir, this)
 
-fun String.asFileInExternalFilesDir(type: String): File {
-    return File(AppContext.getExternalFilesDir(type), this)
-}
+fun String.asFileInExternalFilesDir(type: String) = File(AppContext.getExternalFilesDir(type), this)
 
-fun String.asFileInExternalPublicFilesDir(type: String): File {
-    return File(Environment.getExternalStoragePublicDirectory(type), this)
-}
+fun String.asFileInExternalPublicFilesDir(type: String) =
+    File(Environment.getExternalStoragePublicDirectory(type), this)
 
 val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 
- val File.externalPublicRelativePath
-    get() = absolutePath.replace(Environment.getExternalStoragePublicDirectory("").absolutePath, "")
-        .trimStart(File.separatorChar)
-        .substringBeforeLast(File.separatorChar)
-
-val File.isInExternalPublicDir
-    get() = absolutePath.startsWith(
-        Environment.getExternalStoragePublicDirectory(
-            ""
-        ).absolutePath
-    )
-
 val File.baseName get() = name.substringBeforeLast('.')
 
-fun File.findUriFromMediaStore(): Uri? = contentUri?.run {
-    AppContext.contentResolver.query(
-        this,
-        arrayOf(MediaStore.MediaColumns._ID),
-        buildString {
-            append("${MediaStore.MediaColumns.DISPLAY_NAME} = ?")
-            if (!mimeType.isNullOrEmpty()) {
-                append(" AND ")
-                append("${MediaStore.MediaColumns.MIME_TYPE} = ?")
-            }
-        },
-        if (!mimeType.isNullOrEmpty()) {
-            arrayOf(name, mimeType)
-        } else {
-            arrayOf(name)
-        },
-        null
-    )?.use {
-        val idColumnIndex = it.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-        if (it.moveToFirst()) {
-            val id = it.getLong(idColumnIndex)
-            ContentUris.withAppendedId(this, id)
-        } else {
-            null
-        }
-    }
-}
-
-val File.contentUri: Uri?
-    get() = mimeType.run {
-        when {
-            isNullOrEmpty() -> MediaStore.Files.getContentUri("external")
-            startsWith("image/") -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            startsWith("video/") -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            startsWith("audio/") -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            else -> MediaStore.Files.getContentUri("external")
-        }
-    }
-
-fun File.insertToMediaStoreAsUri(): Uri? = contentUri?.run {
-    AppContext.contentResolver.insert(
-        this,
-        ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.RELATIVE_PATH, externalPublicRelativePath)
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-    )
-}
-
-fun File.createFileOrDirectory(): Boolean {
+fun File.createFileOrDirectory(
+    isDirectory: Boolean= extension.isEmpty()
+): Boolean {
     if (exists()) {
         return true
     }
-    val isDirectory = extension.isEmpty()
     if (isDirectory) {
         return mkdirs()
     } else {
@@ -147,40 +69,9 @@ val File.md5: String
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
-fun File.toProviderUri(
+fun File.toSharedUri(
     authority: String = "${AppContext.packageName}.fileProvider"
 ): Uri? = FileProvider.getUriForFile(AppContext, authority, this)
 
-fun <T> File.useOutputStream(block: (OutputStream) -> T): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        val queryUri: Uri? = findUriFromMediaStore()
-        if (queryUri == null) {
-            var insertUri: Uri? = null
-            try {
-                insertUri = insertToMediaStoreAsUri()
-                insertUri?.outputStream()
-                    ?.let(block)
-                    .apply {
-                        insertUri?.updatePendCompletion()
-                    }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                insertUri?.delete()
-                null
-            }
-        } else {
-            queryUri.outputStream()?.use(block)
-        }
-    } else {
-        outputStream().use(block)
-    }
-}
 
-fun <T> File.useInputStream(block: (InputStream) -> T): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q&&isInExternalPublicDir) {
-        findUriFromMediaStore()?.inputStream()?.use(block)
-    } else {
-        inputStream().use(block)
-    }
-}
 

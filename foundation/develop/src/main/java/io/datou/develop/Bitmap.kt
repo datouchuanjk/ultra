@@ -1,12 +1,19 @@
 package io.datou.develop
 
+import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaScannerConnection
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Base64
+import android.webkit.MimeTypeMap
 import java.io.ByteArrayOutputStream
+import java.io.File
+import kotlin.io.extension
 
-fun String.base64decodeAsBitmap(): Bitmap? {
+fun String.decodeAsBitmap(): Bitmap? {
     if (!startsWith("data:")) {
         return null
     }
@@ -25,7 +32,7 @@ fun String.base64decodeAsBitmap(): Bitmap? {
     }
 }
 
-fun Bitmap.compressAsBytes(maxSize: Int): ByteArray {
+fun Bitmap.compressAsByteArray(maxSize: Int): ByteArray {
     val outputStream = ByteArrayOutputStream()
     var quality = 100
     compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
@@ -38,13 +45,62 @@ fun Bitmap.compressAsBytes(maxSize: Int): ByteArray {
 }
 
 fun Bitmap.saveToGallery(
-    fileName: String,
+    parent: String = Environment.DIRECTORY_PICTURES,
+    name: String = "${AppContext.packageName}${File.separator}${System.currentTimeMillis()}.PNG",
+    type: String = name.mimeType.orEmpty(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
-    quality: Int = 100
-) = fileName.asFileInExternalPublicFilesDir(
-    Environment.DIRECTORY_PICTURES
-).writeAs {
-    compress(format, quality, it)
+    quality: Int = 100,
+    onComplete: (() -> Unit)? = null
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        (ExternalImagesUri
+            ?.query(
+                projection = arrayOf(MediaStore.MediaColumns._ID),
+                selection = buildString {
+                    append("${MediaStore.MediaColumns.DISPLAY_NAME} = ?")
+                    append("${MediaStore.MediaColumns.MIME_TYPE} = ?")
+                },
+                selectionArgs = arrayOf(name, type)
+            )?.use {
+                it.takeIf {
+                    it.moveToFirst()
+                }?.getUriOrNull(ExternalImagesUri)
+            } ?: ExternalImagesUri?.insert(
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                put(MediaStore.MediaColumns.MIME_TYPE, type)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, parent)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+        ))?.let { uri ->
+            uri.outputStream()
+                ?.use {
+                    compress(format, quality, it)
+                }
+            uri.update(
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
+                }
+            )
+            onComplete?.invoke()
+        }
+    } else {
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(parent),
+            name
+        )
+        file.parentFile?.mkdirs()
+        file.outputStream().use {
+            compress(format, quality, it)
+        }
+        MediaScannerConnection.scanFile(
+            AppContext,
+            arrayOf(file.absolutePath),
+            null
+        ) { _, _ ->
+            onComplete?.invoke()
+        }
+    }
 }
 
 
