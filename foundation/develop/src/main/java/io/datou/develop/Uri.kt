@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.net.Uri
 import android.provider.MediaStore
@@ -15,6 +16,19 @@ val ExternalVideoUri: Uri? = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 fun Uri.inputStream() = AppContext.contentResolver.openInputStream(this)
 
 fun Uri.outputStream() = AppContext.contentResolver.openOutputStream(this)
+
+fun Uri.insertOrUpdate(
+    values: ContentValues,
+    query: List<String>,
+) = query(
+    projection = arrayOf(MediaStore.MediaColumns._ID),
+    selection = query.joinToString(" AND ") { "$it = ?" },
+    selectionArgs = query.map { values.get(it).toString() }.toTypedArray()
+)?.use {
+    it.takeIf { it.moveToFirst() }?.getLongOrNull(MediaStore.MediaColumns._ID)?.let {
+        ContentUris.withAppendedId(this, it)
+    }
+} ?: insert(values)
 
 fun Uri.insert(
     values: ContentValues

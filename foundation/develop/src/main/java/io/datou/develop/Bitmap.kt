@@ -53,26 +53,18 @@ fun Bitmap.saveToGallery(
     onComplete: (() -> Unit)? = null
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        (ExternalImagesUri
-            ?.query(
-                projection = arrayOf(MediaStore.MediaColumns._ID),
-                selection = buildString {
-                    append("${MediaStore.MediaColumns.DISPLAY_NAME} = ?")
-                    append("${MediaStore.MediaColumns.MIME_TYPE} = ?")
-                },
-                selectionArgs = arrayOf(name, type)
-            )?.use {
-                it.takeIf {
-                    it.moveToFirst()
-                }?.getUriOrNull(ExternalImagesUri)
-            } ?: ExternalImagesUri?.insert(
-            ContentValues().apply {
+        ExternalImagesUri?.insertOrUpdate(
+            values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                 put(MediaStore.MediaColumns.MIME_TYPE, type)
                 put(MediaStore.MediaColumns.RELATIVE_PATH, parent)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
-            }
-        ))?.let { uri ->
+            },
+            query = listOf(
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.MIME_TYPE
+            )
+        )?.let { uri ->
             uri.outputStream()
                 ?.use {
                     compress(format, quality, it)

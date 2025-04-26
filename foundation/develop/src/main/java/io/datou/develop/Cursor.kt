@@ -12,12 +12,6 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getShortOrNull
 import androidx.core.database.getStringOrNull
 
-fun Cursor.getUriOrNull(contentUri: Uri): Uri? {
-    return getLongOrNull(MediaStore.MediaColumns._ID)?.run {
-        ContentUris.withAppendedId(contentUri, this)
-    }
-}
-
 fun Cursor.getLongOrNull(columnName: String) = getLongOrNull(getColumnIndex(columnName))
 
 fun Cursor.getStringOrNull(columnName: String) = getStringOrNull(getColumnIndex(columnName))
