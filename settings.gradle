@@ -22,15 +22,8 @@ dependencyResolutionManagement {
 rootProject.name = "Devil"
 include ':app'
 include ':develop'
-project(":develop").projectDir = file("foundation/develop")
-//include ':banner'
-//project(":banner").projectDir = file("foundation/banner")
-//include ':paging'
-//project(":paging").projectDir = file("foundation/paging")
-//include ':paging3'
-//project(":paging3").projectDir = file("foundation/paging3")
-//include ':picker'
-//project(":picker").projectDir = file("foundation/picker")
-//include ':swipe'
-//project(":swipe").projectDir = file("foundation/swipe")
+include ':banner'
+include ':paging3'
+include ':picker'
+include ':swipe'
 
