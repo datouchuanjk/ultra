@@ -1,0 +1,80 @@
+package io.datou.develop
+
+import android.app.Activity
+import android.graphics.Rect
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.WindowManager
+import android.widget.PopupWindow
+import androidx.activity.ComponentActivity
+import androidx.core.graphics.drawable.toDrawable
+
+fun ComponentActivity.addOnKeyboardHeightListener(
+    onHeightChange: (Int) -> Unit
+) {
+    withLifecycleDestroyed {
+        val listener = KeyboardHeightListener(
+            this@addOnKeyboardHeightListener,
+            onHeightChange
+        )
+        onDestroyed {
+            listener.onDispose()
+        }
+    }
+}
+
+internal class KeyboardHeightListener(
+    activity: Activity,
+    private val onHeightChange: (Int) -> Unit
+) : PopupWindow(activity), OnGlobalLayoutListener {
+    private val _rootView = View(activity)
+    private var _maxHeight = 0
+    private var _keyboardHeight: Int = 0
+
+    init {
+        _rootView.viewTreeObserver.addOnGlobalLayoutListener(this)
+        contentView = _rootView
+        setBackgroundDrawable(0.toDrawable())
+        width = 0
+        height = ViewGroup.LayoutParams.MATCH_PARENT
+        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        inputMethodMode = INPUT_METHOD_NEEDED
+        if (!isShowing) {
+            activity.window.decorView.apply {
+                post {
+                    showAtLocation(this, Gravity.NO_GRAVITY, 0, 0)
+                    val rect = Rect()
+                    rootView.getWindowVisibleDisplayFrame(rect)
+                    _maxHeight = rect.bottom
+                }
+            }
+        }
+    }
+
+    fun onDispose() {
+        _rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        dismiss()
+    }
+
+    override fun onGlobalLayout() {
+        val rect = Rect()
+        _rootView.getWindowVisibleDisplayFrame(rect)
+        if (_maxHeight == 0) {
+            _maxHeight = rect.bottom
+        }
+        (_maxHeight - rect.bottom).run {
+            if (this > _maxHeight / 3) {
+                this
+            } else {
+                0
+            }
+        }.run {
+            if (this != _keyboardHeight) {
+                _keyboardHeight = this
+                onHeightChange(this)
+            }
+        }
+    }
+}
