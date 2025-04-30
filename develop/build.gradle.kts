@@ -28,6 +28,7 @@ android {
         compose = true
     }
 }
+
 dependencies {
     //basic
     implementation(libs.androidx.core.ktx)

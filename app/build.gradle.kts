@@ -58,7 +58,6 @@ dependencies {
     implementation(project(":banner"))
     implementation(project(":paging3"))
     implementation(project(":picker"))
-    implementation(project(":swipe"))
     implementation(libs.im.chat)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.paging.compose)

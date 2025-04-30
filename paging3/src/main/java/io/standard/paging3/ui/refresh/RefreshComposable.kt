@@ -100,8 +100,6 @@ internal val DefaultRefreshComposable = object : RefreshComposable {
                     modifier = Modifier.size(30.dp)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
-                Text(text = throwable.message?:"Nothing error", fontSize = 14.sp, color = Color.Black)
-                Spacer(modifier = Modifier.height(15.dp))
                 Text(text = "Load Error Click to Refresh", fontSize = 14.sp, color = Color.Black)
             }
         }

@@ -27,7 +27,6 @@
             <option value="$PROJECT_DIR$/develop" />
             <option value="$PROJECT_DIR$/paging3" />
             <option value="$PROJECT_DIR$/picker" />
-            <option value="$PROJECT_DIR$/swipe" />
           </set>
         </option>
       </GradleProjectSettings>

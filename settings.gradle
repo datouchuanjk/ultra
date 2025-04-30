@@ -25,5 +25,4 @@ include ':develop'
 include ':banner'
 include ':paging3'
 include ':picker'
-include ':swipe'
 

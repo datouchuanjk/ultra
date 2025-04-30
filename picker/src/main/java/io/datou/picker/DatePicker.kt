@@ -20,21 +20,19 @@ import java.util.Calendar
 @Composable
 fun DatePicker(
     modifier: Modifier = Modifier,
-    fromYear: Int = 1970,
-    toYear: Int = Calendar.getInstance().get(Calendar.YEAR),
+    yearRange: List<Int> = remember {
+        (1970..Calendar.getInstance().get(Calendar.YEAR)).toList()
+    },
     textStyle: TextStyle = TextStyle(
         color = Color.Black,
         fontSize = 14.sp
     ),
     block: (Calendar) -> Unit
 ) {
-    val years = remember {
-        (fromYear..toYear).toList()
-    }
-    val months = remember {
+    val monthRange = remember {
         mutableStateListOf<Int>()
     }
-    val days = remember {
+    val dayRange = remember {
         mutableStateListOf<Int>()
     }
     val yearState = rememberLazyListState()
@@ -43,34 +41,24 @@ fun DatePicker(
     val monthIndex by remember { derivedStateOf { monthState.firstVisibleItemIndex } }
     val dayState = rememberLazyListState()
     val dayIndex by remember { derivedStateOf { dayState.firstVisibleItemIndex } }
-
-    LaunchedEffect(yearIndex) {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, years[yearIndex])
-        months.clear()
-        months.addAll(
+    val calendar = remember {
+        Calendar.getInstance()
+    }
+    LaunchedEffect(yearIndex, monthIndex,dayIndex) {
+        calendar.set(Calendar.YEAR, yearRange[yearIndex])
+        calendar.set(Calendar.MONTH, monthRange[monthIndex])
+        calendar.set(Calendar.DAY_OF_MONTH, dayRange[dayIndex])
+        monthRange.clear()
+        monthRange.addAll(
             calendar.getActualMinimum(Calendar.MONTH)..
                     calendar.getActualMaximum(Calendar.MONTH)
         )
-    }
-    LaunchedEffect(yearIndex, monthIndex) {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, years[yearIndex])
-        calendar.set(Calendar.MONTH, months[monthIndex])
-        days.clear()
-        days.addAll(
+        dayRange.clear()
+        dayRange.addAll(
             calendar.getActualMinimum(Calendar.DAY_OF_MONTH)..
                     calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         )
-    }
-    LaunchedEffect(yearIndex, monthIndex, dayIndex) {
-        snapshotFlow {
-            Calendar.getInstance().apply {
-                set(Calendar.YEAR, years[yearIndex])
-                set(Calendar.MONTH, months[monthIndex])
-                set(Calendar.DAY_OF_MONTH, days[dayIndex])
-            }
-        }.collectLatest {
+        snapshotFlow{calendar}.collectLatest {
             block(it)
         }
     }
@@ -78,22 +66,22 @@ fun DatePicker(
         modifier = modifier,
     ) {
         Wheel(
-            itemCount = years.count(),
+            itemCount = yearRange.count(),
             state = yearState
         ) {
-            Text(text = "${years[it]}年", style = textStyle)
+            Text(text = "${yearRange[it]}年", style = textStyle)
         }
         Wheel(
-            itemCount = months.count(),
+            itemCount = monthRange.count(),
             state = monthState
         ) {
-            Text(text = "${months[it] + 1}月", style = textStyle)
+            Text(text = "${monthRange[it] + 1}月", style = textStyle)
         }
         Wheel(
-            itemCount = days.count(),
+            itemCount = dayRange.count(),
             state = dayState
         ) {
-            Text(text = "${days[it]}日", style = textStyle)
+            Text(text = "${dayRange[it]}日", style = textStyle)
         }
     }
 }

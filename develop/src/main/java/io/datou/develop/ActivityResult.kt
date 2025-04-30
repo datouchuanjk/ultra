@@ -12,7 +12,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.NotificationManagerCompat
@@ -24,7 +23,7 @@ fun ActivityResultLauncher<PickVisualMediaRequest>.launchImageOnly(
     options: ActivityOptionsCompat? = null
 ) {
     launch(
-        PickVisualMediaRequest(PickVisualMedia.ImageOnly),
+        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
         options
     )
 }
@@ -33,7 +32,7 @@ fun ActivityResultLauncher<PickVisualMediaRequest>.launchVideoOnly(
     options: ActivityOptionsCompat? = null,
 ) {
     launch(
-        PickVisualMediaRequest(PickVisualMedia.VideoOnly),
+        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly),
         options
     )
 }
@@ -42,13 +41,12 @@ fun ActivityResultLauncher<PickVisualMediaRequest>.launchImageAndVideo(
     options: ActivityOptionsCompat? = null,
 ) {
     launch(
-        PickVisualMediaRequest(PickVisualMedia.ImageAndVideo),
+        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo),
         options
     )
 }
 
 object CustomActivityResultContracts {
-
     class NotificationPermission : ActivityResultContract<String?, Boolean>() {
         companion object {
             private const val IS_REQUEST_NOTIFICATION_PERMISSION =
@@ -67,10 +65,12 @@ object CustomActivityResultContracts {
         }
 
         private var _channelId: String? = null
-        private val _sp = AppContext.getSharedPreferences(
-            "NOTIFICATION_PERMISSION",
-            Context.MODE_PRIVATE
-        )
+        private val _sp by lazy {
+            AppContext.getSharedPreferences(
+                "NOTIFICATION_PERMISSION",
+                Context.MODE_PRIVATE
+            )
+        }
 
         override fun createIntent(context: Context, input: String?): Intent {
             _channelId = input
@@ -187,9 +187,8 @@ object CustomActivityResultContracts {
         }
     }
 
-    class ExternalStorageAccessPermission(
-        private val useSAF: Boolean = true
-    ) : ActivityResultContract<Unit, Boolean>() {
+    class ExternalStorageAccessPermission(private val useSAF: Boolean = true) :
+        ActivityResultContract<Unit, Boolean>() {
         companion object {
             private val EXTERNAL_STORAGE_PERMISSIONS = arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -247,6 +246,43 @@ object CustomActivityResultContracts {
         ): Boolean {
             return isExternalStorageManager()
         }
+    }
+
+    class PickVisualMedia(private val max: Int) :
+        ActivityResultContract<PickVisualMediaRequest, List<Uri>>() {
+        override fun createIntent(
+            context: Context,
+            input: PickVisualMediaRequest
+        ): Intent {
+            return if (max > 1) {
+                ActivityResultContracts
+                    .PickMultipleVisualMedia(max)
+                    .createIntent(context, input)
+            } else {
+                ActivityResultContracts
+                    .PickVisualMedia()
+                    .createIntent(context, input)
+            }
+        }
+
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ): List<Uri> {
+            return if (max > 1) {
+                ActivityResultContracts
+                    .PickMultipleVisualMedia(max)
+                    .parseResult(resultCode, intent)
+            } else {
+                ActivityResultContracts
+                    .PickVisualMedia()
+                    .parseResult(resultCode, intent)
+                    ?.run {
+                        listOf(this)
+                    } ?: listOf()
+            }
+        }
+
     }
 }
 

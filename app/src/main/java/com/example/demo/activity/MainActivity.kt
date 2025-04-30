@@ -1,39 +1,36 @@
 package com.example.demo.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import io.datou.banner.Banner
-import io.datou.banner.BannerState
-import io.datou.banner.animator.DefaultTransformAnimator
-import io.datou.banner.animator.FlipTransformAnimator
-import io.datou.banner.rememberBannerState
-import io.datou.banner.rememberInfiniteBannerState
-import io.datou.banner.utils.withAutoPlay
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import io.datou.develop.CurrentActiveNetworkFlow
+import io.datou.develop.isConnected
+import kotlinx.coroutines.launch
 
+
+fun a(block: @Composable () -> Unit) {
+
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,20 +43,12 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(it)
                 ) {
-                    Banner(
-                        modifier = Modifier.height(200.dp),
-                        state = rememberInfiniteBannerState {
-                            10
-                        }.withAutoPlay()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    color = Color.Red,
-                                    shape = RoundedCornerShape(15.dp)
-                                )
-                        )
+                    val scope = rememberCoroutineScope()
+                    val flow by CurrentActiveNetworkFlow(rememberCoroutineScope()).collectAsState()
+                    LazyColumn {
+                        items(count = 10) {
+                            Text(flow?.isConnected?.toString() ?: "null")
+                        }
                     }
                 }
             }

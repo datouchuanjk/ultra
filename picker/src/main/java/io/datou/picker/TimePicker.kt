@@ -40,16 +40,16 @@ fun TimePicker(
     val minuteIndex by remember { derivedStateOf { minuteState.firstVisibleItemIndex } }
     val secondState = rememberLazyListState()
     val secondIndex by remember { derivedStateOf { secondState.firstVisibleItemIndex } }
-
+    val calendar = remember {
+        Calendar.getInstance()
+    }
     LaunchedEffect(hourIndex, minuteIndex, secondIndex) {
         snapshotFlow {
-            Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hours[hourIndex])
-                set(Calendar.MINUTE, minutes[minuteIndex])
-                set(Calendar.SECOND, seconds[secondIndex])
-            }
+            calendar.set(Calendar.HOUR_OF_DAY, hours[hourIndex])
+            calendar.set(Calendar.MINUTE, minutes[minuteIndex])
+            calendar.set(Calendar.SECOND, seconds[secondIndex])
         }.collectLatest {
-            block(it)
+            block(calendar)
         }
     }
     Row(

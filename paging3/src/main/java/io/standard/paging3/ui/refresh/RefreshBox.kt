@@ -7,9 +7,11 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,11 +22,11 @@ import androidx.paging.compose.LazyPagingItems
 @Composable
 fun <T : Any> RefreshBox(
     lazyPagingItems: LazyPagingItems<T>,
+    modifier: Modifier = Modifier,
     isRefreshing: Boolean = lazyPagingItems.loadState.refresh is LoadState.Loading,
     onRefresh: () -> Unit = {
         lazyPagingItems.refresh()
     },
-    modifier: Modifier = Modifier,
     state: PullToRefreshState = rememberPullToRefreshState(),
     contentAlignment: Alignment = Alignment.TopStart,
     indicator: @Composable BoxScope.(Boolean) -> Unit = {
@@ -39,7 +41,7 @@ fun <T : Any> RefreshBox(
     refreshComposable: RefreshComposable = DefaultRefreshComposable,
     content: @Composable BoxScope.() -> Unit
 ) {
-    var isFirstLoad by remember { mutableStateOf(true) }
+    var isFirstLoad by rememberSaveable { mutableStateOf(true) }
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
@@ -50,17 +52,29 @@ fun <T : Any> RefreshBox(
             indicator(isFirstLoad)
         }
     ) {
-        if (isFirstLoad && lazyPagingItems.loadState.refresh is LoadState.Loading) {
-            refreshComposable.run { FirstLoading() }
-        } else if (isFirstLoad && lazyPagingItems.loadState.refresh is LoadState.Error) {
-         val error =   ( lazyPagingItems.loadState.refresh as LoadState.Error).error
-            refreshComposable.run { FirstError(error) { onRefresh() } }
+        val refreshState by remember {
+            derivedStateOf { lazyPagingItems.loadState.refresh }
+        }
+        if (isFirstLoad && refreshState is LoadState.Loading) {
+            refreshComposable.run {
+                FirstLoading()
+            }
+        } else if (isFirstLoad && refreshState is LoadState.Error) {
+            refreshComposable.run {
+                FirstError((refreshState as LoadState.Error).error) {
+                    onRefresh()
+                }
+            }
         } else {
-            if (isFirstLoad && lazyPagingItems.loadState.refresh is LoadState.NotLoading) {
+            if (isFirstLoad && refreshState is LoadState.NotLoading) {
                 isFirstLoad = false
             }
             if (lazyPagingItems.itemCount == 0) {
-                refreshComposable.run { Empty { onRefresh() } }
+                refreshComposable.run {
+                    Empty {
+                        onRefresh()
+                    }
+                }
             } else {
                 content()
             }

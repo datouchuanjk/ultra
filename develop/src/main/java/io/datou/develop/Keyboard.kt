@@ -1,6 +1,5 @@
 package io.datou.develop
 
-import android.app.Activity
 import android.graphics.Rect
 import android.view.Gravity
 import android.view.View
@@ -10,23 +9,23 @@ import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.activity.ComponentActivity
 import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-fun ComponentActivity.addOnKeyboardHeightListener(
-    onHeightChange: (Int) -> Unit
-) {
-    withLifecycleDestroyed {
-        val listener = KeyboardHeightListener(
-            this@addOnKeyboardHeightListener,
-            onHeightChange
-        )
-        onDestroyed {
-            listener.onDispose()
+val CurrentKeyboardHeightFlow: ((ComponentActivity) -> StateFlow<Int>)
+    get() = { activity ->
+        val state = MutableStateFlow(0)
+        KeyboardHeightListener(activity) {
+            state.value = it
         }
+        state.asStateFlow()
     }
-}
 
 internal class KeyboardHeightListener(
-    activity: Activity,
+    activity: ComponentActivity,
     private val onHeightChange: (Int) -> Unit
 ) : PopupWindow(activity), OnGlobalLayoutListener {
     private val _rootView = View(activity)
@@ -34,6 +33,11 @@ internal class KeyboardHeightListener(
     private var _keyboardHeight: Int = 0
 
     init {
+        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                onDispose()
+            }
+        })
         _rootView.viewTreeObserver.addOnGlobalLayoutListener(this)
         contentView = _rootView
         setBackgroundDrawable(0.toDrawable())
