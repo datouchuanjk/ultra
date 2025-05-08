@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.core.database.getLongOrNull
 
 val ExternalFilesUri: Uri? = MediaStore.Files.getContentUri("external")
 
@@ -27,7 +28,7 @@ fun Uri.insertOrUpdate(
     selectionArgs = selectionArgs
 )?.use {
     it.takeIf { it.moveToFirst() }
-        ?.getLongOrNull(MediaStore.MediaColumns._ID)
+        ?.getLongOrNull(it.getColumnIndex(MediaStore.MediaColumns._ID))
         ?.let {
             ContentUris.withAppendedId(this, it)
         }?.also {

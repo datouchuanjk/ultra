@@ -47,7 +47,7 @@ fun ActivityResultLauncher<PickVisualMediaRequest>.launchImageAndVideo(
 }
 
 object CustomActivityResultContracts {
-    class NotificationPermission : ActivityResultContract<String?, Boolean>() {
+    class RequestNotificationPermission : ActivityResultContract<String?, Boolean>() {
         companion object {
             private const val IS_REQUEST_NOTIFICATION_PERMISSION =
                 "is_request_notification_permission"

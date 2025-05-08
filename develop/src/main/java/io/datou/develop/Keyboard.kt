@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-val CurrentKeyboardHeightFlow: ((ComponentActivity) -> StateFlow<Int>)
-    get() = { activity ->
+val ComponentActivity.currentKeyboardHeightFlow: StateFlow<Int>
+    get() {
         val state = MutableStateFlow(0)
-        KeyboardHeightListener(activity) {
+        KeyboardHeightListener(this) {
             state.value = it
         }
-        state.asStateFlow()
+        return state.asStateFlow()
     }
 
 internal class KeyboardHeightListener(
@@ -33,12 +33,14 @@ internal class KeyboardHeightListener(
     private var _keyboardHeight: Int = 0
 
     init {
-        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                onDispose()
+        activity.withLifecycleDestroyed {
+            _rootView.viewTreeObserver.addOnGlobalLayoutListener(this@KeyboardHeightListener)
+            onDestroyed {
+                _rootView.viewTreeObserver.removeOnGlobalLayoutListener(this@KeyboardHeightListener)
+                dismiss()
             }
-        })
-        _rootView.viewTreeObserver.addOnGlobalLayoutListener(this)
+        }
+
         contentView = _rootView
         setBackgroundDrawable(0.toDrawable())
         width = 0
@@ -55,11 +57,6 @@ internal class KeyboardHeightListener(
                 }
             }
         }
-    }
-
-    fun onDispose() {
-        _rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-        dismiss()
     }
 
     override fun onGlobalLayout() {

@@ -6,7 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 
-fun Modifier.onlyClick(onClick: () -> Unit) = composed {
+fun Modifier.onClick(onClick: () -> Unit) = composed {
     clickable(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,

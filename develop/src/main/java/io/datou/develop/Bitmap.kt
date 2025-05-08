@@ -8,12 +8,11 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
-import android.webkit.MimeTypeMap
 import java.io.ByteArrayOutputStream
 import java.io.File
-import kotlin.io.extension
+import java.io.OutputStream
 
-fun String.base64AsBitmap(): Bitmap? {
+fun String.toBitmap(): Bitmap? {
     if (!startsWith("data:")) {
         return null
     }
@@ -32,41 +31,42 @@ fun String.base64AsBitmap(): Bitmap? {
     }
 }
 
-fun Bitmap.compressToByteArray(maxSize: Int): ByteArray {
+fun Bitmap.toByteArray(maxSize: Int? = null): ByteArray {
     val outputStream = ByteArrayOutputStream()
     var quality = 100
     compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-    while (outputStream.toByteArray().size > maxSize && quality > 0) {
-        outputStream.reset()
-        quality -= 10
-        compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+    maxSize?.let {
+        require(it > 0)
+        while (outputStream.toByteArray().size > it && quality > 0) {
+            outputStream.reset()
+            quality -= 10
+            compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+        }
     }
     return outputStream.toByteArray()
 }
 
 fun Bitmap.saveToGallery(
-    parent: String = Environment.DIRECTORY_PICTURES,
-    name: String = "${AppContext.packageName}${File.separator}${System.currentTimeMillis()}.PNG",
-    type: String = name.mimeType.orEmpty(),
-    format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
-    quality: Int = 100,
+    directory: String = Environment.DIRECTORY_PICTURES,
+    file: String = "${AppContext.packageName}${File.separator}${System.currentTimeMillis()}.PNG",
+    mimeType: String = file.mimeType.orEmpty(),
+    use: (OutputStream) -> Unit = {
+        compress(Bitmap.CompressFormat.PNG, 100, it)
+    },
     onComplete: (() -> Unit)? = null
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         ExternalImagesUri?.insertOrUpdate(
             values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                put(MediaStore.MediaColumns.MIME_TYPE, type)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, parent)
+                put(MediaStore.MediaColumns.DISPLAY_NAME, file)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, directory)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
             },
             selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?",
-            selectionArgs = arrayOf(name, type)
+            selectionArgs = arrayOf(file, mimeType)
         )?.let { uri ->
-            uri.outputStream()
-                ?.use {
-                    compress(format, quality, it)
-                }
+            uri.outputStream()?.use(use)
             uri.update(
                 ContentValues().apply {
                     put(MediaStore.MediaColumns.IS_PENDING, 0)
@@ -75,17 +75,15 @@ fun Bitmap.saveToGallery(
             onComplete?.invoke()
         }
     } else {
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(parent),
-            name
+        val target = File(
+            Environment.getExternalStoragePublicDirectory(directory),
+            file
         )
-        file.parentFile?.mkdirs()
-        file.outputStream().use {
-            compress(format, quality, it)
-        }
+        target.parentFile?.mkdirs()
+        target.outputStream().use(use)
         MediaScannerConnection.scanFile(
             AppContext,
-            arrayOf(file.absolutePath),
+            arrayOf(target.absolutePath),
             null
         ) { _, _ ->
             onComplete?.invoke()

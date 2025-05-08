@@ -16,13 +16,14 @@ fun Application.startDevelop() {
     }
 }
 
-val AppContext: Application get() {
-    val result = ContextManager.application
-    require(result!=null){
-        "invoke startDevelop in  your Application first"
+val AppContext: Application
+    get() {
+        val result = ContextManager.application
+        require(result != null) {
+            "invoke startDevelop in  your Application first"
+        }
+        return result
     }
-    return result
-}
 
 val TopActivityOrNull get() = ContextManager.topActivity?.get()
 
@@ -47,7 +48,8 @@ internal object ContextManager {
                     topActivity = null
                 }
             }
-        })
+        }
+        )
     }
 }
 

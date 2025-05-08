@@ -91,10 +91,6 @@ var Calendar.millisecond: Int
         set(Calendar.MILLISECOND, value)
     }
 
-val Calendar.monthRangeInYear
-    get() = getActualMinimum(Calendar.MONTH)..
-            getActualMaximum(Calendar.MONTH)
-
 val Calendar.dayRangeInMonth
     get() = getActualMinimum(Calendar.DAY_OF_MONTH)..
             getActualMaximum(Calendar.DAY_OF_MONTH)

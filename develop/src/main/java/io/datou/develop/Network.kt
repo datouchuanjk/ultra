@@ -6,6 +6,9 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.annotation.RequiresPermission
 import androidx.core.content.getSystemService
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -15,31 +18,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
-val CurrentActiveNetworkFlow: ( CoroutineScope) -> StateFlow<Network?>
+val LifecycleOwner.currentNetworkFlow: StateFlow<Network?>
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    get() = { scope ->
+    get() {
         val connectivityManager = AppContext.getSystemService<ConnectivityManager>()
         val state = MutableStateFlow(connectivityManager?.activeNetwork)
-        scope.launch(Dispatchers.Main) {
-            callbackFlow {
-                val callback = object : ConnectivityManager.NetworkCallback() {
-                    override fun onCapabilitiesChanged(
-                        network: Network,
-                        networkCapabilities: NetworkCapabilities
-                    ) {
-                        super.onCapabilitiesChanged(network, networkCapabilities)
-                        trySend(network)
-                    }
+        withLifecycleDestroyed {
+            val callback = object : ConnectivityManager.NetworkCallback() {
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    networkCapabilities: NetworkCapabilities
+                ) {
+                    super.onCapabilitiesChanged(network, networkCapabilities)
+                    state.value = network
                 }
-                connectivityManager?.registerDefaultNetworkCallback(callback)
-                awaitClose {
-                    connectivityManager?.unregisterNetworkCallback(callback)
-                }
-            }.collect {
-                state.value = it
+            }
+            connectivityManager?.registerDefaultNetworkCallback(callback)
+            onDestroyed {
+                connectivityManager?.unregisterNetworkCallback(callback)
             }
         }
-        state.asStateFlow()
+        return state.asStateFlow()
     }
 
 val Network.isConnected: Boolean

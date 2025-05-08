@@ -8,23 +8,26 @@ import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
 
-fun String.toFileInCacheDir() = File(AppContext.cacheDir, this)
+fun String.toFileInCacheDir() = toFileInDirectory(AppContext.cacheDir)
 
-fun String.toFileInFilesDir(): File = File(AppContext.filesDir, this)
+fun String.toFileInFilesDir(): File = toFileInDirectory(AppContext.filesDir)
 
-fun String.toFileInExternalCacheDir() = File(AppContext.externalCacheDir, this)
+fun String.toFileInExternalCacheDir() = toFileInDirectory(AppContext.externalCacheDir)
 
-fun String.toFileInExternalFilesDir(type: String) = File(AppContext.getExternalFilesDir(type), this)
+fun String.toFileInExternalFilesDir(
+    type: String
+) = toFileInDirectory(AppContext.getExternalFilesDir(type))
 
-fun String.toFileInExternalPublicFilesDir(type: String) =
-    File(Environment.getExternalStoragePublicDirectory(type), this)
+fun String.toFileInExternalPublicFilesDir(
+    type: String
+) = toFileInDirectory(Environment.getExternalStoragePublicDirectory(type))
+
+fun String.toFileInDirectory(parent: File?) = File(parent, this)
 
 val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 
-val File.baseName get() = name.substringBeforeLast('.')
-
-fun File.createFileOrDirectory(
-    isDirectory: Boolean= extension.isEmpty()
+fun File.ensureCreated(
+    isDirectory: Boolean = extension.isEmpty()
 ): Boolean {
     if (exists()) {
         return true

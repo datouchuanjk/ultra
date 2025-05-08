@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.suspendCoroutine
 
-val IgnoreExceptionCoroutineContext = CoroutineExceptionHandler { _, exception ->
+internal val IgnoreExceptionCoroutineContext = CoroutineExceptionHandler { _, exception ->
     exception.printStackTrace()
 }
 
