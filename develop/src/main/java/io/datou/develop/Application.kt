@@ -10,22 +10,16 @@ import android.os.Process
 import androidx.core.content.getSystemService
 import java.lang.ref.WeakReference
 
+val AppContext: Application
+    get() = checkNotNull(ContextManager.application)
+
+val TopActivityOrNull get() = ContextManager.topActivity?.get()
+
 fun Application.startDevelop() {
     if (isMainProcess) {
         ContextManager.init(this)
     }
 }
-
-val AppContext: Application
-    get() {
-        val result = ContextManager.application
-        require(result != null) {
-            "invoke startDevelop in  your Application first"
-        }
-        return result
-    }
-
-val TopActivityOrNull get() = ContextManager.topActivity?.get()
 
 internal object ContextManager {
 

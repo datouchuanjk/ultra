@@ -6,6 +6,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
+import android.widget.Toolbar
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
@@ -23,31 +24,34 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 @RequiresPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
-fun systemAlert(
+fun systemDialog(
     width: Int = WindowManager.LayoutParams.MATCH_PARENT,
     height: Int = WindowManager.LayoutParams.WRAP_CONTENT,
     flag: Int = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
     format: Int = PixelFormat.TRANSLUCENT,
     gravity: Int = Gravity.TOP,
     content: @Composable DialogInterface.() -> Unit
-): DialogInterface = SystemAlert(
-    width = width,
-    height = height,
-    flag = flag,
-    format = format,
-    gravity = gravity,
+): DialogInterface = SystemDialog(
+    layoutParams = WindowManager.LayoutParams(
+        width,
+        height,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+        },
+        flag,
+        format
+    ).also {
+        it.gravity = gravity
+    },
     content = content
 ).apply {
     create()
-    resume()
 }
 
-internal class SystemAlert(
-    width: Int = WindowManager.LayoutParams.MATCH_PARENT,
-    height: Int = WindowManager.LayoutParams.WRAP_CONTENT,
-    flag: Int = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-    format: Int = PixelFormat.TRANSLUCENT,
-    gravity: Int = Gravity.TOP,
+internal class SystemDialog(
+    layoutParams: WindowManager.LayoutParams,
     content: @Composable DialogInterface.() -> Unit
 ) : LifecycleOwner,
     ViewModelStoreOwner,
@@ -63,19 +67,8 @@ internal class SystemAlert(
     override val viewModelStore: ViewModelStore
         get() = _viewModelStore
     private val _windowManager = AppContext.getSystemService<WindowManager>()
-    private val _layoutParams = WindowManager.LayoutParams(
-        width,
-        height,
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-        },
-        flag,
-        format
-    ).also {
-        it.gravity = gravity
-    }
+    private val _layoutParams = layoutParams
+
     private val _composeView = ComposeView(AppContext)
         .apply {
             setContent { content() }
@@ -88,14 +81,11 @@ internal class SystemAlert(
         _composeView.setViewTreeLifecycleOwner(this)
         _composeView.setViewTreeSavedStateRegistryOwner(this)
         _windowManager?.addView(_composeView, _layoutParams)
-    }
-
-    fun resume() {
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
-    private fun destroy() {
+    fun destroy() {
         if (_composeView.isAttachedToWindow) {
             _windowManager?.removeView(_composeView)
         }
@@ -107,7 +97,7 @@ internal class SystemAlert(
     }
 
     override fun cancel() {
-        throw throw Exception()
+        throw Exception()
     }
 
     override fun dismiss() {

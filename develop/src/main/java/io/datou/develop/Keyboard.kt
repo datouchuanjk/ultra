@@ -15,32 +15,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-val ComponentActivity.currentKeyboardHeightFlow: StateFlow<Int>
+val LifecycleOwner.KeyboardHeightFlow: StateFlow<Int>
     get() {
         val state = MutableStateFlow(0)
-        KeyboardHeightListener(this) {
-            state.value = it
+        disposableEffect {
+            val listener = KeyboardHeightListener {
+                state.value = it
+            }
+            onDispose {
+                listener.onDispose()
+            }
         }
         return state.asStateFlow()
     }
 
 internal class KeyboardHeightListener(
-    activity: ComponentActivity,
     private val onHeightChange: (Int) -> Unit
-) : PopupWindow(activity), OnGlobalLayoutListener {
-    private val _rootView = View(activity)
+) : PopupWindow(TopActivityOrNull), OnGlobalLayoutListener {
+    private val _rootView = View(TopActivityOrNull)
     private var _maxHeight = 0
     private var _keyboardHeight: Int = 0
 
     init {
-        activity.withLifecycleDestroyed {
-            _rootView.viewTreeObserver.addOnGlobalLayoutListener(this@KeyboardHeightListener)
-            onDestroyed {
-                _rootView.viewTreeObserver.removeOnGlobalLayoutListener(this@KeyboardHeightListener)
-                dismiss()
-            }
-        }
-
+        _rootView.viewTreeObserver.addOnGlobalLayoutListener(this@KeyboardHeightListener)
         contentView = _rootView
         setBackgroundDrawable(0.toDrawable())
         width = 0
@@ -48,7 +45,7 @@ internal class KeyboardHeightListener(
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         inputMethodMode = INPUT_METHOD_NEEDED
         if (!isShowing) {
-            activity.window.decorView.apply {
+            TopActivityOrNull?.window?.decorView?.apply {
                 post {
                     showAtLocation(this, Gravity.NO_GRAVITY, 0, 0)
                     val rect = Rect()
@@ -57,6 +54,11 @@ internal class KeyboardHeightListener(
                 }
             }
         }
+    }
+
+    fun onDispose() {
+        _rootView.viewTreeObserver.removeOnGlobalLayoutListener(this@KeyboardHeightListener)
+        dismiss()
     }
 
     override fun onGlobalLayout() {

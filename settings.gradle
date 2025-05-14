@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 rootProject.name = "Devil"
 include ':app'
 include ':develop'
-include ':banner'
-include ':paging3'
-include ':picker'
+//include ':banner'
+//include ':paging3'
+//include ':picker'
 

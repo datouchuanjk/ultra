@@ -1,34 +1,34 @@
 package io.datou.develop
 
-
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 
-internal class LifecycleDestroyedScope {
-    inline fun onDestroyed(
-        crossinline onDestroyedEffect: () -> Unit
-    ) = object : LifecycleDestroyed {
-        override fun onDestroyed() {
-            onDestroyedEffect()
+internal class DisposableEffectScope {
+    inline fun onDispose(
+        crossinline onDisposeEffect: () -> Unit
+    ) = object : DisposableEffectResult {
+        override fun dispose() {
+            onDisposeEffect()
         }
     }
 }
 
-internal interface LifecycleDestroyed {
-    fun onDestroyed()
+internal interface DisposableEffectResult {
+    fun dispose()
 }
 
-internal inline fun LifecycleOwner.withLifecycleDestroyed(
-    effect: LifecycleDestroyedScope.() -> LifecycleDestroyed
+internal inline fun LifecycleOwner.disposableEffect(
+    effect: DisposableEffectScope.() -> DisposableEffectResult
 ) {
     if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
         return
     }
-    val callbackResult = LifecycleDestroyedScope().effect()
+    val callbackResult = DisposableEffectScope().effect()
     lifecycle.addObserver(object : DefaultLifecycleObserver {
         override fun onDestroy(owner: LifecycleOwner) {
-            callbackResult.onDestroyed()
+            callbackResult.dispose()
         }
     })
 }

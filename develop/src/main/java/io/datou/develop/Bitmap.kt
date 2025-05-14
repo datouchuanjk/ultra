@@ -8,42 +8,42 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
+import androidx.annotation.IntRange
+import androidx.compose.ui.graphics.FilterQuality
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.OutputStream
 
-fun String.toBitmap(): Bitmap? {
-    if (!startsWith("data:")) {
-        return null
-    }
-    val parts = split(",", limit = 2)
-    if (parts.size < 2) {
-        return null
-    }
-    return try {
-        Base64.decode(parts[1], Base64.DEFAULT)
-            .run {
-                BitmapFactory.decodeByteArray(this, 0, size)
-            }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
+fun String.toBitmapOrNull(): Bitmap? = takeIf {
+    startsWith("data:")
+}?.run {
+    split(",", limit = 2)
+}?.takeIf {
+    it.size >= 2
+}?.run {
+    Base64.decode(this[1], Base64.DEFAULT)
+}?.run {
+    BitmapFactory.decodeByteArray(this, 0, size)
 }
 
-fun Bitmap.toByteArray(maxSize: Int? = null): ByteArray {
-    val outputStream = ByteArrayOutputStream()
+fun Bitmap.toByteArray(
+    @IntRange(from = 0)
+    maxSize: Int? = null,
+    quality: (Int) -> Int = {
+        it - 10
+    }
+): ByteArray = ByteArrayOutputStream().run {
     var quality = 100
-    compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+    compress(Bitmap.CompressFormat.JPEG, quality, this)
     maxSize?.let {
         require(it > 0)
-        while (outputStream.toByteArray().size > it && quality > 0) {
-            outputStream.reset()
-            quality -= 10
-            compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+        while (size() > it && quality > 0) {
+            reset()
+            quality = quality(quality)
+            compress(Bitmap.CompressFormat.JPEG, quality, this)
         }
     }
-    return outputStream.toByteArray()
+    toByteArray()
 }
 
 fun Bitmap.saveToGallery(

@@ -10,17 +10,15 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import android.util.DisplayMetrics
-import android.util.Xml
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
-import org.xmlpull.v1.XmlPullParser
 
 
 @Composable
-fun findActivity() = LocalContext.current.findActivity()
+ fun findActivity() = LocalContext.current.findActivity()
 
-fun Context.findActivity(): Activity? {
+ fun Context.findActivity(): Activity? {
     var context = this
     while (context is ContextWrapper) {
         if (context is Activity) {
