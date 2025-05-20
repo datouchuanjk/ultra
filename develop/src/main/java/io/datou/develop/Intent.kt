@@ -6,7 +6,7 @@ import android.content.Intent
 import androidx.core.net.toUri
 import java.io.File
 
-fun Intent.takeIfNotNullActivity() = takeUnless { resolveActivity(AppContext.packageManager) == null }
+fun Intent.takeIfNotNullActivity() = takeIf { resolveActivity(AppContext.packageManager) != null }
 
 inline fun <reified T : Activity> intentOf(
     block: Intent.() -> Unit = {}

@@ -7,7 +7,6 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
-
 fun String.toFileInCacheDir() = toFileInDirectory(AppContext.cacheDir)
 
 fun String.toFileInFilesDir(): File = toFileInDirectory(AppContext.filesDir)
@@ -29,6 +28,7 @@ val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ex
 fun File.ensureCreated(
     isDirectory: Boolean = extension.isEmpty()
 ): Boolean {
+
     if (exists()) {
         return true
     }

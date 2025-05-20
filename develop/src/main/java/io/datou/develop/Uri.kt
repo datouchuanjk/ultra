@@ -6,13 +6,13 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.database.getLongOrNull
 
-val ExternalFilesUri: Uri? = MediaStore.Files.getContentUri("external")
+internal val ExternalFilesUri: Uri? = MediaStore.Files.getContentUri("external")
 
-val ExternalImagesUri: Uri? = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+internal val ExternalImagesUri: Uri? = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-val ExternalAudioUri: Uri? = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+internal val ExternalAudioUri: Uri? = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
-val ExternalVideoUri: Uri? = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+internal val ExternalVideoUri: Uri? = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 
 fun Uri.inputStream() = AppContext.contentResolver.openInputStream(this)
 
@@ -22,11 +22,11 @@ fun Uri.insertOrUpdate(
     values: ContentValues,
     selection: String? = null,
     selectionArgs: Array<String>? = null
-) = queryAsCursor(
+) = query(
     projection = arrayOf(MediaStore.MediaColumns._ID),
     selection = selection,
     selectionArgs = selectionArgs
-)?.use {
+)?.use { it ->
     it.takeIf { it.moveToFirst() }
         ?.getLongOrNull(it.getColumnIndex(MediaStore.MediaColumns._ID))
         ?.let {
@@ -34,9 +34,9 @@ fun Uri.insertOrUpdate(
         }?.also {
             it.update(values)
         }
-} ?: insertAsUri(values)
+} ?: insert(values)
 
-fun Uri.insertAsUri(
+fun Uri.insert(
     values: ContentValues
 ) = AppContext.contentResolver.insert(
     this,
@@ -63,7 +63,7 @@ fun Uri.update(
     selectionArgs
 )
 
-fun Uri.queryAsCursor(
+fun Uri.query(
     projection: Array<String>? = null,
     selection: String? = null,
     selectionArgs: Array<String>? = null,
