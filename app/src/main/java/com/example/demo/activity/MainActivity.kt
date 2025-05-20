@@ -30,6 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import io.datou.develop.LocalScopedNavController
+import io.datou.develop.ScopedNavController
+import io.datou.develop.navigate
 import io.datou.develop.toFileInCacheDir
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,6 +51,26 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(it)
                 ) {
+                    ScopedNavController {
+                        NavHost(
+                            navController = it,
+                            startDestination = "home"
+                        ) {
+                            composable("A") {
+                                val scopedNavController = LocalScopedNavController.current
+                                scopedNavController?.navigate("A") {
+                                    popUpToStart = true
+                                    popUpToCurrent = true
+                                    inclusive = true
+                                    launchSingleTop = true
+                                    saveState = true
+                                }
+                            }
+                            composable("B") {
+
+                            }
+                        }
+                    }
                     val viewModel = viewModel<MainViewModel>()
                     val name by viewModel.value.collectAsState()
                     TextField(
@@ -58,13 +83,15 @@ class MainActivity : ComponentActivity() {
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
 
-                            }.padding(15.dp)
+                            }
+                            .padding(15.dp)
                     )
                 }
             }
         }
     }
 }
+
 class MainViewModel : ViewModel() {
     private val _value = MutableStateFlow("")
     val value = _value.asStateFlow()

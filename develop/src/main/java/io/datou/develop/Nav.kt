@@ -12,29 +12,39 @@ class ScopedNavController(
     val navController: NavHostController,
     val parent: ScopedNavController? = null
 ) {
-    class NavigateBuilder(private val router: String) {
-        var popBack: Boolean = false
-        var clear: Boolean = false
-        var popUpToInclusive: Boolean = true
-        var top: Boolean = false
-        var save: Boolean = false
-        internal fun NavHostController.build() {
-            val popId =
-                if (clear) {
-                    graph.startDestinationId
-                } else if (popBack) {
-                    currentBackStackEntry!!.id
-                } else {
-                    null
-                }
-            navigate(router) {
-                popId?.let {
-                    popUpTo(it) {
-                        inclusive = popUpToInclusive
-                        saveState = save
+    class NavigateBuilder(
+        private val navHostController: NavHostController,
+        private val router: String
+    ) {
+        var popUpToStart: Boolean = false
+        var popUpToCurrent: Boolean = false
+        var inclusive: Boolean = true
+        var launchSingleTop: Boolean = false
+        var saveState: Boolean = false
+
+        val startDestinationId get() = navHostController.graph.startDestinationId
+
+        val currentDestinationId get() = navHostController.currentDestination!!.id
+
+        internal fun build() {
+            navHostController.run {
+                val popId =
+                    if (popUpToStart) {
+                        graph.startDestinationId
+                    } else if (popUpToCurrent) {
+                        currentBackStackEntry!!.id
+                    } else {
+                        null
                     }
-                    launchSingleTop = top
-                    restoreState = save
+                navigate(router) {
+                    popId?.let {
+                        popUpTo(it) {
+                            inclusive = this@NavigateBuilder.inclusive
+                            saveState = this@NavigateBuilder.saveState
+                        }
+                        launchSingleTop = this@NavigateBuilder.launchSingleTop
+                        restoreState = this@NavigateBuilder.saveState
+                    }
                 }
             }
         }
@@ -42,10 +52,24 @@ class ScopedNavController(
 }
 
 val ScopedNavController.path: String
-    get() = if (parent == null) "$tag" else "${parent.path}/$tag"
+    get() {
+        var current: ScopedNavController? = this
+        val pathSegments = mutableListOf<String>()
+        while (current != null) {
+            pathSegments.add(current.tag ?: "null")
+            current = current.parent
+        }
+        return pathSegments.asReversed().joinToString("/")
+    }
 
 val ScopedNavController.root: ScopedNavController
-    get() = parent?.root ?: this
+    get() {
+        var current = this
+        while (current.parent != null) {
+            current = current.parent!!
+        }
+        return current
+    }
 
 
 fun ScopedNavController.findByTag(tag: String): ScopedNavController? {
@@ -62,10 +86,11 @@ val LocalScopedNavController = staticCompositionLocalOf<ScopedNavController?> {
     null
 }
 
-fun ScopedNavController.navigate(router: String, block: NavigateBuilder.() -> Unit) {
-    NavigateBuilder(router).apply(block).apply {
-        navController.build()
-    }
+fun ScopedNavController.navigate(router: String, block: (NavigateBuilder.() -> Unit)? = null) {
+    NavigateBuilder(navController, router)
+        .apply {
+            block?.invoke(this)
+        }.build()
 }
 
 @Composable
