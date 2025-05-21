@@ -23,15 +23,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 
-fun NavGraphBuilder.mainChat(viewModel:MainChatViewModel) {
-    composable("main_chat") {
-        MainChatScreen(viewModel)
-    }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainChatScreen(viewModel:MainChatViewModel) {
+fun MainChatScreen(viewModel:MainChatViewModel=viewModel()) {
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "main_chat")

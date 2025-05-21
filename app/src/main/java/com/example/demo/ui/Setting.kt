@@ -1,5 +1,8 @@
 package com.example.demo.ui
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import io.datou.develop.LocalNavHostController
 
 
 fun NavGraphBuilder.setting() {
@@ -27,13 +29,13 @@ fun NavGraphBuilder.setting() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen() {
-    val navController = LocalNavHostController.current
+   val a = LocalOnBackPressedDispatcherOwner.current
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "Setting")
         }, navigationIcon = {
             IconButton(onClick = {
-                navController?.popBackStack()
+                 a?.onBackPressedDispatcher?.onBackPressed()
             }) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }

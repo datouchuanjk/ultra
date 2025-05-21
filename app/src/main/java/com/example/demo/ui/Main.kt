@@ -1,7 +1,9 @@
 package com.example.demo.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -22,11 +24,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.datou.develop.LocalNavHostController
+import io.datou.develop.findActivity
 import kotlinx.coroutines.launch
 
 
@@ -39,7 +44,7 @@ fun NavGraphBuilder.main() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
-    Log.e("1234","${LocalNavHostController.current}")
+    Log.e("1234", "${LocalNavHostController.current}")
     val icons = listOf(
         Icons.Rounded.Home,
         Icons.Rounded.Call,
@@ -50,9 +55,12 @@ fun MainScreen() {
         "Chat",
         "Mine",
     )
-    var index by remember {
+    var index by rememberSaveable {
         mutableIntStateOf(0)
     }
+    val current: Context = LocalContext.current
+    val navController = LocalNavHostController.current
+
     Scaffold(bottomBar = {
         NavigationBar {
             repeat(3) {
@@ -60,7 +68,7 @@ fun MainScreen() {
                     enabled = true,
                     selected = index == it,
                     onClick = {
-                      index = it
+                        index = it
                     },
                     icon = { Icon(imageVector = icons[it], contentDescription = null) },
                     label = { Text(labels[it]) }
@@ -70,9 +78,9 @@ fun MainScreen() {
     }) {
         AnimatedContent(targetState = index) {
             when (it) {
-                0 -> MainHomeScreen(viewModel())
-                1 -> MainChatScreen(viewModel())
-                2 -> MainMineScreen(viewModel())
+                0 -> MainHomeScreen()
+                1 -> MainChatScreen()
+                2 -> MainMineScreen()
             }
         }
     }

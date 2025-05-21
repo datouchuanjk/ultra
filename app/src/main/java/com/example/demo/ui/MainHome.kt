@@ -28,15 +28,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 
-fun NavGraphBuilder.mainHome(viewModel: MainHomeViewModel) {
-    composable("main_home") {
-        MainHomeScreen(viewModel)
-    }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainHomeScreen(viewModel: MainHomeViewModel) {
+fun MainHomeScreen(viewModel: MainHomeViewModel =viewModel()) {
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "main_home")

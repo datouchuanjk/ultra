@@ -17,20 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.datou.develop.LocalNavHostController
 
 
-fun NavGraphBuilder.mainMine(viewModel:MainMineViewModel) {
-    composable("main_mine") {
-        MainMineScreen(viewModel)
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainMineScreen(viewModel:MainMineViewModel) {
+fun MainMineScreen(viewModel:MainMineViewModel=viewModel()) {
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "main_mine")
