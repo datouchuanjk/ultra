@@ -14,11 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
 
-
-@Composable
- fun findActivity() = LocalContext.current.findActivity()
-
- fun Context.findActivity(): Activity? {
+fun Context.findActivity(): Activity? {
     var context = this
     while (context is ContextWrapper) {
         if (context is Activity) {
@@ -30,9 +26,7 @@ import androidx.core.content.getSystemService
 }
 
 val Context.isMainProcess: Boolean
-    get() {
-        return processName == packageName
-    }
+    get() = processName == packageName
 
 val Context.processName: String?
     get() = getSystemService<ActivityManager>()

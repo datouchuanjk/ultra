@@ -62,5 +62,5 @@ dependencies {
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.navigation.compose)
 }

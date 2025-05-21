@@ -1,5 +1,6 @@
 package io.datou.develop
 
+import android.app.Activity
 import android.graphics.Rect
 import android.view.Gravity
 import android.view.View
@@ -19,7 +20,7 @@ val LifecycleOwner.KeyboardHeightFlow: StateFlow<Int>
     get() {
         val state = MutableStateFlow(0)
         disposableEffect {
-            val listener = KeyboardHeightListener {
+            val listener = KeyboardHeightListener(TopActivityOrNull) {
                 state.value = it
             }
             onDispose {
@@ -30,9 +31,10 @@ val LifecycleOwner.KeyboardHeightFlow: StateFlow<Int>
     }
 
 internal class KeyboardHeightListener(
+    private val activity: Activity?,
     private val onHeightChange: (Int) -> Unit
-) : PopupWindow(TopActivityOrNull), OnGlobalLayoutListener {
-    private val _rootView = View(TopActivityOrNull)
+) : PopupWindow(activity), OnGlobalLayoutListener {
+    private val _rootView = View(activity)
     private var _maxHeight = 0
     private var _keyboardHeight: Int = 0
 
