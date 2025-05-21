@@ -31,7 +31,7 @@ val LifecycleOwner.KeyboardHeightFlow: StateFlow<Int>
     }
 
 internal class KeyboardHeightListener(
-    private val activity: Activity?,
+    activity: Activity?,
     private val onHeightChange: (Int) -> Unit
 ) : PopupWindow(activity), OnGlobalLayoutListener {
     private val _rootView = View(activity)

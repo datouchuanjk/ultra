@@ -1,6 +1,5 @@
 package io.datou.develop
 
-import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
