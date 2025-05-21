@@ -15,11 +15,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
 @Composable
-fun findWindow() = (LocalView.current.parent as? DialogWindowProvider)
+fun findDialogWindow() = (LocalView.current.parent as? DialogWindowProvider)
     ?.window
-    ?: LocalView.current.context.findWindow()
 
-fun Context.findWindow(): Window? = findActivity()?.window
 
 fun Window.updateAttributes(block: WindowManager.LayoutParams.() -> Unit) {
     val attributes = this.attributes
@@ -29,7 +27,7 @@ fun Window.updateAttributes(block: WindowManager.LayoutParams.() -> Unit) {
 
 fun ComponentActivity.enableFullScreen(
     statusBarStyle: SystemBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
-    navigationBarStyle: SystemBarStyle =SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+    navigationBarStyle: SystemBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
 ) {
     enableEdgeToEdge(
         statusBarStyle = statusBarStyle,

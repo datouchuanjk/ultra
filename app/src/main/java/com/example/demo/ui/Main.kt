@@ -1,7 +1,12 @@
 package com.example.demo.ui
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Home
@@ -13,13 +18,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import io.datou.develop.LocalNavHostController
+import kotlinx.coroutines.launch
 
 
 fun NavGraphBuilder.main() {
@@ -28,9 +36,10 @@ fun NavGraphBuilder.main() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
-    val navController: NavHostController = rememberNavController()
+    Log.e("1234","${LocalNavHostController.current}")
     val icons = listOf(
         Icons.Rounded.Home,
         Icons.Rounded.Call,
@@ -41,26 +50,17 @@ fun MainScreen() {
         "Chat",
         "Mine",
     )
-    val routes = listOf(
-        "main_home",
-        "main_chat",
-        "main_mine",
-    )
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    var index by remember {
+        mutableIntStateOf(0)
+    }
     Scaffold(bottomBar = {
         NavigationBar {
             repeat(3) {
                 NavigationBarItem(
                     enabled = true,
-                    selected = currentBackStackEntry?.destination?.route == routes[it],
+                    selected = index == it,
                     onClick = {
-                        navController.navigate(routes[it]){
-                            popUpTo(navController.graph.startDestinationId){
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                      index = it
                     },
                     icon = { Icon(imageVector = icons[it], contentDescription = null) },
                     label = { Text(labels[it]) }
@@ -68,14 +68,12 @@ fun MainScreen() {
             }
         }
     }) {
-        NavHost(
-            navController = navController,
-            startDestination = "main_mine",
-            modifier = Modifier.padding(it)
-        ) {
-            mainHome()
-            mainChat()
-            mainMine()
+        AnimatedContent(targetState = index) {
+            when (it) {
+                0 -> MainHomeScreen(viewModel())
+                1 -> MainChatScreen(viewModel())
+                2 -> MainMineScreen(viewModel())
+            }
         }
     }
 }

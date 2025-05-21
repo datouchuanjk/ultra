@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import io.datou.develop.LocalNavHostController
 
 
 fun NavGraphBuilder.setting() {
@@ -26,13 +27,13 @@ fun NavGraphBuilder.setting() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen() {
-//    val navController = LocalNavHostController.current
+    val navController = LocalNavHostController.current
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "Setting")
         }, navigationIcon = {
             IconButton(onClick = {
-//                navController.popBackStack()
+                navController?.popBackStack()
             }) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }

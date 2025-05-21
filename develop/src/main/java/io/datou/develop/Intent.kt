@@ -8,14 +8,18 @@ import java.io.File
 
 fun Intent.takeIfNotNullActivity() = takeIf { resolveActivity(AppContext.packageManager) != null }
 
+
 inline fun <reified T : Activity> intentOf(
-    block: Intent.() -> Unit = {}
+) = Intent(AppContext, T::class.java)
+
+inline fun <reified T : Activity> intentOf(
+    block: (Intent.() -> Unit)
 ) = Intent(AppContext, T::class.java).apply(block)
 
 fun Context.installApk(
     apkFile: File,
     authority: String = "${AppContext.packageName}.fileProvider"
-)= Intent(Intent.ACTION_VIEW).apply {
+) = Intent(Intent.ACTION_VIEW).apply {
     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     setDataAndType(
         apkFile.toSharedUri(authority),
