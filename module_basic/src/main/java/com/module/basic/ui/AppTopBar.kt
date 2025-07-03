@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import io.composex.nav.NavBackHandler
 
 @Composable
-fun CenterAppBar(
+fun AppTopBar(
     title: String,
     showIcon: Boolean = true
 ) {

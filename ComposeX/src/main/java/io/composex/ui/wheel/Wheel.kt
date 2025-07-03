@@ -12,48 +12,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
-import  androidx.compose.ui.util.lerp
 
 @Composable
 fun RowScope.Wheel(
     modifier: Modifier = Modifier,
     state: LazyListState,
     itemCount: Int,
-    itemHeight: Dp = 47.dp,
-    visibleCount: Int = 5,
+    itemHeight: Dp = WheelDefaults.itemHeight,
+    visibleCount: Int = WheelDefaults.VISIBLE_COUNT,
     flingBehavior: FlingBehavior = rememberSnapFlingBehavior(state),
-    draw: ContentDrawScope.(Rect) -> Unit = {
-        drawLine(
-            color = Color.Black,
-            strokeWidth = 1f,
-            start = Offset(it.left, it.top),
-            end = Offset(it.right, it.top)
-        )
-        drawLine(
-            color = Color.Black,
-            strokeWidth = 1f,
-            start = Offset(it.left, it.bottom),
-            end = Offset(it.right, it.bottom)
-        )
-    },
-    animator: GraphicsLayerScope.(Float) -> Unit = {
-        alpha = 1 - it
-        scaleY = lerp(0.7f, 1.0f, 1 - it)
-    },
+    draw: ContentDrawScope.(Rect) -> Unit = WheelDefaults.draw,
+    animator: GraphicsLayerScope.(Float) -> Unit = WheelDefaults.animator,
     content: @Composable (Int) -> Unit
 ) {
-    if (visibleCount % 2 == 0) {
-        error("visibleCount must be odd number")
-    }
+    require(visibleCount % 2 != 0)
     LazyColumn(
         userScrollEnabled = itemCount > 0,
         contentPadding = PaddingValues(vertical = (itemHeight * (visibleCount - 1)) / 2),
@@ -86,7 +64,7 @@ fun RowScope.Wheel(
                             .find { it.index == index }
                             ?.let {
                                 val offset = it.offset.absoluteValue
-                                val total = (visibleCount / 2 + 1) * size.height
+                                val total = ((visibleCount-1) / 2) * size.height
                                 animator(offset / total)
                             }
                     },

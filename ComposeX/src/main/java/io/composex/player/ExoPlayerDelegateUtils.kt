@@ -2,6 +2,7 @@ package io.composex.player
 
 import android.content.Context
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.annotation.RawRes
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem

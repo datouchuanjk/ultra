@@ -7,6 +7,7 @@ import android.content.ContextWrapper
 import android.os.Build
 import android.os.Process
 import android.util.DisplayMetrics
+import androidx.core.content.getSystemService
 
 fun Context.findActivity(): Activity? {
     var context = this

@@ -12,29 +12,25 @@ import com.module.main.ui.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 import io.composex.nav.NavControllerProvider
 
-
 @AndroidEntryPoint
 class HostActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NavControllerProvider{
-            NavHost(
-                navController = it,
-                startDestination = Routes.Main.static) {
-                composable(
-                    route = Routes.Login.static,
+            NavControllerProvider {
+                NavHost(
+                    navController = it,
+                    startDestination = Routes.Main.static
                 ) {
-                    LoginScreen()
-                }
-                composable(
-                    route = Routes.Main.static
-                ) {
-                    MainScreen()
+                    composable(route = Routes.Login.static) {
+                        LoginScreen()
+                    }
+                    composable(route = Routes.Main.static) {
+                        MainScreen()
+                    }
                 }
             }
-        }
         }
     }
 }

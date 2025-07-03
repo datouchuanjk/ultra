@@ -252,9 +252,9 @@ internal class ExoPlayerDelegateImpl(
                 }
             }
         }
-        this.currentVideoTracks.value = videoTracks
-        this.currentAudioTracks.value = audioTracks
-        this.currentTextTracks.value = textTracks
-        this.currentUnknownTrack.value = unknownTracks
+        currentVideoTracks.value = videoTracks
+        currentAudioTracks.value = audioTracks
+        currentTextTracks.value = textTracks
+        currentUnknownTrack.value = unknownTracks
     }
 }

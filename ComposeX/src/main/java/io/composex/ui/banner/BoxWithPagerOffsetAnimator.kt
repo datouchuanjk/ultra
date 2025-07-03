@@ -13,7 +13,7 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.absoluteValue
 
 @Composable
-fun BoxWithAnimator(
+fun BoxWithPagerOffsetAnimator(
     page: Int,
     state: PagerState,
     animator: GraphicsLayerScope.(Float) -> Unit = {

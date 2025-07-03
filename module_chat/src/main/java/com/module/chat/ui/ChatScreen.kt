@@ -19,10 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
-import com.module.basic.ui.CenterAppBar
-import com.module.basic.ui.PagingPullToRefreshBox
+import com.module.basic.ui.AppTopBar
 import com.module.chat.viewmodel.ChatViewModel
-import com.module.basic.ui.pagingAppendItem
+import io.composex.ui.paging.PullToRefreshBoxWithPaging
+import io.composex.ui.paging.itemWithPaging
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,9 +31,9 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier.background(color = Color(0xfff5f5f5)),
     ) {
-        CenterAppBar("Chat", false)
+        AppTopBar("Chat", false)
         val pagingData by viewModel.paging.flow.collectAsState()
-        PagingPullToRefreshBox(
+        PullToRefreshBoxWithPaging(
             pagingData = pagingData,
         ) {
             LazyColumn(
@@ -55,7 +55,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
                         text = item
                     )
                 }
-                pagingAppendItem(pagingData)
+                itemWithPaging(pagingData)
             }
         }
     }
