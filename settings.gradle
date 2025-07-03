@@ -1,12 +1,6 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -16,13 +10,18 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 rootProject.name = "Devil"
 include ':app'
-include ':develop'
-//include ':banner'
-//include ':paging3'
-//include ':picker'
+include ':module_basic'
+include ':module_home'
+include ':module_mine'
+include ':module_main'
+include ':module_chat'
+include ':module_login'
+include ':ComposeX'
+
 

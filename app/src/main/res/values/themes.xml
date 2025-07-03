@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MyApplication" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Application" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Launcher" parent="Theme.Application">
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
 </resources>
