@@ -1,0 +1,52 @@
+package io.composex.util
+
+import android.Manifest
+import android.content.Context
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+
+@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+fun Context.notify(
+    id: Int,
+    channelId: String,
+    title: String,
+    content: String,
+    smallIcon: Int = applicationInfo.icon,
+    autoCancel: Boolean = true,
+    buildAction: NotificationCompat.Builder.() -> Unit = {}
+) {
+    NotificationManagerCompat.from(this).notify(
+        id, NotificationCompat.Builder(this, channelId)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setSmallIcon(smallIcon)
+            .setAutoCancel(autoCancel)
+            .apply(buildAction)
+            .build()
+    )
+}
+
+fun Context.cancelNotification(
+    id: Int
+) {
+    NotificationManagerCompat.from(this).cancel(id)
+}
+
+fun Context.createNotificationChannel(
+    channelId: String,
+    importance: Int = NotificationManagerCompat.IMPORTANCE_DEFAULT,
+    channelName: String,
+    buildAction: NotificationChannelCompat.Builder.() -> Unit
+) {
+    val manager = NotificationManagerCompat.from(this)
+    if (manager.getNotificationChannel(channelId) == null) {
+        manager.createNotificationChannel(
+            NotificationChannelCompat.Builder(channelId, importance)
+                .setName(channelName)
+                .apply(buildAction)
+                .build()
+        )
+    }
+}
