@@ -165,8 +165,3 @@ fun Calendar.isSomeMonth(calendar: Calendar): Boolean {
 fun Calendar.isSomeYear(calendar: Calendar): Boolean {
     return year == calendar.year
 }
-
-fun Calendar.begin() = apply {
-    year = 1970
-    dayOfYear = minDayInYear
-}
