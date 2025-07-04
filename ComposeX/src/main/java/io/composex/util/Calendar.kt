@@ -32,6 +32,23 @@ var Calendar.dayOfWeek: Int
         set(Calendar.DAY_OF_WEEK, value)
     }
 
+val Calendar.monthString: String
+    get() = when (month) {
+        Calendar.JANUARY -> "一月"
+        Calendar.FEBRUARY -> "二月"
+        Calendar.MARCH -> "三月"
+        Calendar.APRIL -> "四月"
+        Calendar.MAY -> "五月"
+        Calendar.JUNE -> "六月"
+        Calendar.JULY -> "七月"
+        Calendar.AUGUST -> "八月"
+        Calendar.SEPTEMBER -> "九月"
+        Calendar.OCTOBER -> "十月"
+        Calendar.NOVEMBER -> "十一月"
+        Calendar.DECEMBER -> "十二月"
+        else -> error("Invalid month")
+    }
+
 val Calendar.dayOfWeekString: String
     get() = when (dayOfWeek) {
         Calendar.SUNDAY -> "周日"
@@ -41,7 +58,7 @@ val Calendar.dayOfWeekString: String
         Calendar.THURSDAY -> "周四"
         Calendar.FRIDAY -> "周五"
         Calendar.SATURDAY -> "周六"
-        else -> error("Invalid day of week")
+        else -> error("Invalid dayOfWeek")
     }
 
 val Calendar.weekOfMonthByCN: Int
@@ -91,13 +108,32 @@ var Calendar.millisecond: Int
         set(Calendar.MILLISECOND, value)
     }
 
+val Calendar.minDayInMonth
+    get() = getActualMinimum(Calendar.DAY_OF_MONTH)
+
+val Calendar.maxDayInMonth
+    get() = getActualMaximum(Calendar.DAY_OF_MONTH)
+
 val Calendar.dayRangeInMonth
-    get() = getActualMinimum(Calendar.DAY_OF_MONTH)..
-            getActualMaximum(Calendar.DAY_OF_MONTH)
+    get() = minDayInMonth..maxDayInMonth
+
+val Calendar.minMonth
+    get() = getActualMinimum(Calendar.MONTH)
+
+val Calendar.maxMonth
+    get() = getActualMaximum(Calendar.MONTH)
+
+val Calendar.monthRange
+    get() = minMonth..maxMonth
+
+val Calendar.minDayInYear
+    get() = getActualMinimum(Calendar.DAY_OF_YEAR)
+
+val Calendar.maxDayInYear
+    get() = getActualMaximum(Calendar.DAY_OF_YEAR)
 
 val Calendar.dayRangeInYear
-    get() = getActualMinimum(Calendar.DAY_OF_YEAR)..
-            getActualMaximum(Calendar.DAY_OF_YEAR)
+    get() = minDayInYear..maxDayInYear
 
 fun Calendar.isSomeDay(calendar: Calendar): Boolean {
     return year == calendar.year
@@ -126,7 +162,11 @@ fun Calendar.isSomeMonth(calendar: Calendar): Boolean {
             && month == calendar.month
 }
 
-fun Calendar.isSomeYeah(calendar: Calendar): Boolean {
+fun Calendar.isSomeYear(calendar: Calendar): Boolean {
     return year == calendar.year
 }
 
+fun Calendar.begin() = apply {
+    year = 1970
+    dayOfYear = minDayInYear
+}

@@ -3,6 +3,7 @@ package io.composex.ui.banner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,7 +14,7 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.absoluteValue
 
 @Composable
-fun BoxWithPagerOffsetAnimator(
+fun PagerScope.AnimatedPageTransition(
     page: Int,
     state: PagerState,
     animator: GraphicsLayerScope.(Float) -> Unit = {
@@ -24,6 +25,7 @@ fun BoxWithPagerOffsetAnimator(
     },
     content: @Composable BoxScope.() -> Unit
 ) {
+    this.toString() //只是为了保证PageScope被调用而已
     val value = 1 - (state.currentPage - page + state.currentPageOffsetFraction)
         .absoluteValue.coerceIn(0f, 1f)
     Box(

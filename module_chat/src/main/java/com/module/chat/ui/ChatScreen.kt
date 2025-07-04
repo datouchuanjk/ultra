@@ -21,8 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import com.module.basic.ui.AppTopBar
 import com.module.chat.viewmodel.ChatViewModel
-import io.composex.ui.paging.PullToRefreshBoxWithPaging
-import io.composex.ui.paging.itemWithPaging
+import io.composex.ui.paging.PagingRefresh
+import io.composex.ui.paging.pagingItem
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +33,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
     ) {
         AppTopBar("Chat", false)
         val pagingData by viewModel.paging.flow.collectAsState()
-        PullToRefreshBoxWithPaging(
+        PagingRefresh(
             pagingData = pagingData,
         ) {
             LazyColumn(
@@ -55,7 +55,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
                         text = item
                     )
                 }
-                itemWithPaging(pagingData)
+                pagingItem(pagingData)
             }
         }
     }

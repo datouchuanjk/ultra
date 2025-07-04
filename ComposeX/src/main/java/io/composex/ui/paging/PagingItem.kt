@@ -4,7 +4,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import io.composex.paging.LoadState
 import io.composex.paging.PagingData
 
-fun LazyListScope.itemWithPaging(
+fun LazyListScope.pagingItem(
     pagingData: PagingData<*>,
     loadingContent: (() -> Unit)? = null,
     errorContent: ((Throwable) -> Unit)? = null,

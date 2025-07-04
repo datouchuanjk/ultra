@@ -15,7 +15,7 @@ import io.composex.paging.PagingData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PullToRefreshBoxWithPaging(
+fun PagingRefresh(
     pagingData: PagingData<*>,
     state: PullToRefreshState = rememberPullToRefreshState(),
     skeletonContent: (@Composable () -> Unit)? = null,
@@ -29,11 +29,19 @@ fun PullToRefreshBoxWithPaging(
                 when (pagingData.refreshState) {
                     is LoadState.Loading,
                     is LoadState.NotLoading -> {
-                        skeletonContent == null
+                        if(skeletonContent == null){
+                            pagingData.refreshState is LoadState.Loading
+                        }else{
+                            false
+                        }
                     }
 
                     is LoadState.Error -> {
-                        errorContent == null
+                        if(errorContent == null){
+                            pagingData.refreshState is LoadState.Loading
+                        }else{
+                            false
+                        }
                     }
                 }
             } else {
@@ -42,6 +50,7 @@ fun PullToRefreshBoxWithPaging(
         }
     }
     Log.e("1234", "isRefreshing=$isRefreshing")
+    Log.e("1234", "isRefreshing=${pagingData.refreshState is LoadState.Loading}")
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         state = state,

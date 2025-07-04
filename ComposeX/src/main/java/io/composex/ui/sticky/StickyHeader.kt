@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.math.absoluteValue
 
 @Composable
-fun BoxWithStickyHeader(
+fun StickyHeader(
     modifier: Modifier = Modifier,
     stickyHeight: Density.()-> Float,
     top: @Composable Density.(Float) -> Unit,
