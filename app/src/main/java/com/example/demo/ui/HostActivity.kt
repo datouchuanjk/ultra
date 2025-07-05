@@ -10,7 +10,7 @@ import com.module.basic.route.Routes
 import com.module.login.ui.LoginScreen
 import com.module.main.ui.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
-import io.composex.nav.NavControllerProvider
+import io.composex.nav.NavControllerLocalProvider
 
 @AndroidEntryPoint
 class HostActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class HostActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NavControllerProvider {
+            NavControllerLocalProvider {
                 NavHost(
                     navController = it,
                     startDestination = Routes.Main.static

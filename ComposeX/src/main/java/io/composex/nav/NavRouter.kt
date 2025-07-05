@@ -8,9 +8,9 @@ class NavRouter private constructor(
     internal val route: String,
     val arguments: List<NamedNavArgument>
 ) {
-    val static =  arguments.joinToParams(route)
+    val static = arguments.joinToParams(route)
 
-    fun dynamic(vararg pair: Pair<String, Any?>) = arguments.joinToParams(route,*pair)
+    fun dynamic(vararg pair: Pair<String, Any?>) = arguments.joinToParams(route, *pair)
 
     class Builder(private val route: String) {
         private val _arguments = mutableListOf<NamedNavArgument>()
@@ -28,7 +28,10 @@ class NavRouter private constructor(
     }
 }
 
-internal fun List<NamedNavArgument>.joinToParams(route: String,vararg pair: Pair<String, Any?>): String {
+internal fun List<NamedNavArgument>.joinToParams(
+    route: String,
+    vararg pair: Pair<String, Any?>
+): String {
     return pair.toList().ifEmpty {
         map {
             it.name to "{${it.name}}"
@@ -36,9 +39,9 @@ internal fun List<NamedNavArgument>.joinToParams(route: String,vararg pair: Pair
     }.joinToString("&") {
         "${it.first} = ${it.second}"
     }.let {
-        if(it.isEmpty()){
+        if (it.isEmpty()) {
             route
-        }else{
+        } else {
             "${route}?"
         }
     }

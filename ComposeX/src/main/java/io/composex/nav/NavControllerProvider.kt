@@ -11,7 +11,7 @@ val LocalNavController = staticCompositionLocalOf<NavHostController> {
 }
 
 @Composable
-fun NavControllerProvider(
+fun NavControllerLocalProvider(
     navController: NavHostController = rememberNavController(),
     content: @Composable (NavHostController) -> Unit
 ) {

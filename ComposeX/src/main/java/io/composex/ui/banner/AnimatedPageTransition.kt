@@ -25,7 +25,6 @@ fun PagerScope.AnimatedPageTransition(
     },
     content: @Composable BoxScope.() -> Unit
 ) {
-    this.toString() //只是为了保证PageScope被调用而已
     val value = 1 - (state.currentPage - page + state.currentPageOffsetFraction)
         .absoluteValue.coerceIn(0f, 1f)
     Box(

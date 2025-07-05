@@ -83,6 +83,9 @@ internal class PagingImpl<Key, Value>(
         if (flow.value.refreshState is LoadState.Loading) {
             return
         }
+        if (_refreshJob?.isActive ==true) {
+            return
+        }
         if (flow.value.appendState is LoadState.Loading) {
             return
         }
