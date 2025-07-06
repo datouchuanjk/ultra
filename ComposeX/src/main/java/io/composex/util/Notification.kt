@@ -28,9 +28,7 @@ fun Context.notify(
     )
 }
 
-fun Context.cancelNotification(
-    id: Int
-) {
+fun Context.cancelNotification(id: Int) {
     NotificationManagerCompat.from(this).cancel(id)
 }
 
@@ -48,5 +46,12 @@ fun Context.createNotificationChannel(
                 .apply(buildAction)
                 .build()
         )
+    }
+}
+
+fun Context.createNotificationChannel(channelId: String) {
+    val manager = NotificationManagerCompat.from(this)
+    if (manager.getNotificationChannel(channelId) != null) {
+        manager.deleteNotificationChannel(channelId)
     }
 }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.flowOn
 import java.io.InputStream
 import java.io.OutputStream
 
-fun InputStream.copyToAsFlow(outputStream: OutputStream) = flow {
+fun InputStream.copyAsFlow(outputStream: OutputStream) = flow {
     var bytesCopied: Long = 0
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
     var bytes = read(buffer)
