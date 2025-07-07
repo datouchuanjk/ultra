@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.IntRange
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 fun Bitmap.toByteArray(

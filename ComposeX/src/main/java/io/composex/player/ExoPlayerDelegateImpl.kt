@@ -207,13 +207,13 @@ internal class ExoPlayerDelegateImpl(
         updateTracks()
     }
 
-    @OptIn(UnstableApi::class)
+    @androidx.annotation.OptIn(UnstableApi::class)
     override fun onTracksChanged(tracks: Tracks) {
         super.onTracksChanged(tracks)
         updateTracks(tracks)
     }
 
-    @OptIn(UnstableApi::class)
+    @androidx.annotation.OptIn(UnstableApi::class)
     private fun updateTracks(tracks: Tracks = player.currentTracks) {
         val videoTracks = mutableListOf<ExoPlayerTrack>()
         val audioTracks = mutableListOf<ExoPlayerTrack>()
