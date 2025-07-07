@@ -20,13 +20,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal class ExoPlayerDelegateImpl(
-    val context: Context,
+    override val player: ExoPlayer,
     private val scope: CoroutineScope
 ) : ExoPlayerDelegate, Player.Listener,
     CoroutineScope by scope {
-    override val player: ExoPlayer = ExoPlayer
-        .Builder(context)
-        .build()
     override val duration = MutableStateFlow(0L)
     override val isBuffering = MutableStateFlow(false)
     override val isPlaying = MutableStateFlow(false)
@@ -107,9 +104,9 @@ internal class ExoPlayerDelegateImpl(
         }
     }
 
-    @OptIn(UnstableApi::class)
-    override fun prepare(block: (Context) -> MediaSource) {
-        player.setMediaSource(block(context))
+    @androidx.annotation.OptIn(UnstableApi::class)
+    override fun prepare(source: MediaSource) {
+        player.setMediaSource(source)
         player.playWhenReady = false
         player.prepare()
     }

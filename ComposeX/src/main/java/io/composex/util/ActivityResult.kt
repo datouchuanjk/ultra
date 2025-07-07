@@ -77,7 +77,7 @@ object CustomActivityResultContracts {
                     false
                 )
             ) {
-                sp.edit {  putBoolean(IS_REQUEST, true) }
+                sp.edit { putBoolean(IS_REQUEST, true) }
                 _requestPermission.createIntent(context, Manifest.permission.POST_NOTIFICATIONS)
             } else {
                 createNotificationSettingsIntent()

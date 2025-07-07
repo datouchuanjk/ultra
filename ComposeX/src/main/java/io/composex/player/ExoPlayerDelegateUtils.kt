@@ -31,32 +31,27 @@ private fun Uri.toMediaSource(context: Context): MediaSource {
     }
 }
 
-fun ExoPlayerDelegate.prepare(url: String) {
-    prepare { context ->
-        url.toUri().toMediaSource(context)
-    }
+fun ExoPlayerDelegate.prepare(context: Context, url: String) {
+    prepare(url.toUri().toMediaSource(context))
 }
 
-fun ExoPlayerDelegate.prepare(file: File) {
-    prepare { context ->
-        file.toUri().toMediaSource(context)
-    }
+fun ExoPlayerDelegate.prepare(context: Context, file: File) {
+    prepare(file.toUri().toMediaSource(context))
 }
 
 @OptIn(UnstableApi::class)
-fun ExoPlayerDelegate.prepare(@RawRes id: Int) {
-    prepare { context ->
-        val uri = Uri.Builder()
-            .scheme("android.resource")
-            .authority(context.packageName)
-            .appendPath("raw")
-            .appendPath(context.resources.getResourceEntryName(id))
-            .build()
-        val dataSource = RawResourceDataSource(context)
-        dataSource.open(DataSpec(uri))
-        ProgressiveMediaSource.Factory { dataSource }
-            .createMediaSource(MediaItem.fromUri(uri))
-    }
+fun ExoPlayerDelegate.prepare(context: Context, @RawRes id: Int) {
+    val uri = Uri.Builder()
+        .scheme("android.resource")
+        .authority(context.packageName)
+        .appendPath("raw")
+        .appendPath(context.resources.getResourceEntryName(id))
+        .build()
+    val dataSource = RawResourceDataSource(context)
+    dataSource.open(DataSpec(uri))
+    val source = ProgressiveMediaSource.Factory { dataSource }
+        .createMediaSource(MediaItem.fromUri(uri))
+    prepare(source)
 }
 
 fun ExoPlayerDelegate.seekBy(position: Long) {

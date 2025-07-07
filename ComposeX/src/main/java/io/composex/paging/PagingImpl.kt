@@ -10,12 +10,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 internal class PagingImpl<Key, Value>(
     private val initialKey: Key? = null,
     private val config: PagingConfig = PagingConfig(),
     private val load: suspend (LoadParams<Key>) -> LoadResult<Key, Value>,
     private val scope: CoroutineScope,
+    private val context: CoroutineContext
 ) : Paging<Value>, CoroutineScope by scope, Callback<Value> {
 
     override val flow = MutableStateFlow(
@@ -53,7 +55,7 @@ internal class PagingImpl<Key, Value>(
                             appendState = LoadState.NotLoading(false)
                         )
                     }
-                    val result = withContext(Dispatchers.IO) {
+                    val result = withContext(context) {
                         load(
                             LoadParams(
                                 key = initialKey,

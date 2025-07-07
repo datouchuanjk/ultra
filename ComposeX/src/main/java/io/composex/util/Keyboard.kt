@@ -32,7 +32,6 @@ val ComponentActivity.KeyboardHeightFlow: StateFlow<Int>
         lifecycleScope.launch {
             lifecycle.currentStateFlow
                 .filter { it == Lifecycle.State.DESTROYED }
-                .take(1)
                 .collect {
                     listener.onDispose()
                 }

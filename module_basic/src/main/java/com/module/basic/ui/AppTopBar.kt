@@ -1,5 +1,6 @@
 package com.module.basic.ui
 
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,10 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.composex.nav.NavBackHandler
 
+/**
+ * 通用头部
+ */
 @Composable
 fun AppTopBar(
     title: String,
-    showIcon: Boolean = true
+    showIcon: Boolean = true,
+    onBack:(OnBackPressedDispatcherOwner?)-> Unit = {
+        it?.onBackPressedDispatcher?.onBackPressed()
+    }
 ) {
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     NavBackHandler()
@@ -43,7 +50,7 @@ fun AppTopBar(
                     .clip(CircleShape)
                     .align(alignment = Alignment.CenterStart)
                     .clickable {
-                        onBackPressedDispatcherOwner?.onBackPressedDispatcher?.onBackPressed()
+                        onBack(onBackPressedDispatcherOwner)
                     })
         }
         Text(

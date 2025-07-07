@@ -33,7 +33,7 @@ fun Bitmap.saveToGallery(
     contentUri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
     onComplete: (Throwable?) -> Unit
 ) {
-    ByteArrayInputStream(toByteArray()).saveToMediaStore(
+    toByteArray().inputStream().saveToMediaStore(
         context = context,
         fileName = fileName,
         mimeType = mimeType,

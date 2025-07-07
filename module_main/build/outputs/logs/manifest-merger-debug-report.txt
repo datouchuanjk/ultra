@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml:2:13-83
-INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml:2:13-83
+ADDED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml:2:13-83
+INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml:2:13-83
 	package
-		INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml
+		INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml
 	xmlns:android
-		ADDED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml:2:23-81
+		ADDED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml:2:23-81
 uses-sdk
-INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml reason: use-sdk injection requested
-INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml
-INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml
+INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml reason: use-sdk injection requested
+INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml
+INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml
 	android:targetSdkVersion
-		INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml
+		INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml
 	android:minSdkVersion
-		INJECTED from F:\Android\Projects\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1272060097641366713.xml
+		INJECTED from E:\Android\Project\Devil\module_main\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest15498018047360438704.xml

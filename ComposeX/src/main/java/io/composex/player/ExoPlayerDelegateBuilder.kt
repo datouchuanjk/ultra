@@ -3,10 +3,13 @@ package io.composex.player
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.exoplayer.ExoPlayer
 
-fun ViewModel.buildExoPlayerDelegate(context: Context): ExoPlayerDelegate {
+fun ViewModel.buildExoPlayerDelegate(
+    player: ExoPlayer
+): ExoPlayerDelegate {
     return ExoPlayerDelegateImpl(
-        context = context,
+        player =player,
         scope = viewModelScope
     )
 }

@@ -1,16 +1,20 @@
 -- Merging decision tree log ---
 manifest
-ADDED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml:2:13-83
-INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml:2:13-83
+ADDED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml:2:1-4:12
+INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml:2:1-4:12
 	package
-		INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml
+		INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml:2:23-81
+		ADDED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml:3:5-77
+	android:name
+		ADDED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml:3:22-74
 uses-sdk
-INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml reason: use-sdk injection requested
-INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml
-INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml
+INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml
+INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml
+		INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from F:\Android\Projects\Devil\module_home\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6643814939092768159.xml
+		INJECTED from E:\Android\Project\Devil\module_home\src\main\AndroidManifest.xml

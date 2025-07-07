@@ -29,7 +29,7 @@ interface ExoPlayerDelegate  {
     val currentSelectedVideoTrack: StateFlow<ExoPlayerTrack?>
     val currentSelectedAudioExoPlayerTrack: StateFlow<ExoPlayerTrack?>
     val currentSelectedTextTrack: StateFlow<ExoPlayerTrack?>
-    fun prepare(block: (Context) -> MediaSource)
+    fun prepare(source: MediaSource)
     fun play()
     fun pause()
     fun seekTo(position: Long)

@@ -16,7 +16,7 @@ internal object RetrofitModule {
     @Singleton
     fun provide(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
+            .baseUrl("")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

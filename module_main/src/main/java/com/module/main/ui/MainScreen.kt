@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,11 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.Navigation
 import com.module.chat.ui.ChatScreen
 import com.module.home.ui.HomeScreen
 import com.module.main.viewmodel.MainViewModel
@@ -40,7 +35,6 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     )
     val selectedIndex by viewModel.index.collectAsState()
     Scaffold(
-
         bottomBar = {
             NavigationBar {
                 items.forEachIndexed { index, item ->
