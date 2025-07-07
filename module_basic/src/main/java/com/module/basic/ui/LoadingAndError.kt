@@ -19,7 +19,7 @@ import androidx.compose.ui.window.Dialog
 import com.module.basic.viewmodel.BaseViewModel
 
 /**
- * 处理viewmodel的信息
+ * 处理viewmodel的信息 比如说菊花 比如说错误信息
  */
 @Composable
 fun <T : BaseViewModel> T.withLoadingAndError(): T = apply {

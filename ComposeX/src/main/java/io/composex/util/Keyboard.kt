@@ -10,8 +10,11 @@ import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.activity.ComponentActivity
 import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleDestroyedException
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,18 +27,17 @@ val ComponentActivity.KeyboardHeightFlow: StateFlow<Int>
     get() {
         val state = MutableStateFlow(0)
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.DESTROYED)) {
-             throw LifecycleDestroyedException()
+            throw LifecycleDestroyedException()
         }
         val listener = KeyboardStateListener(this) {
             state.value = it
         }
-        lifecycleScope.launch {
-            lifecycle.currentStateFlow
-                .filter { it == Lifecycle.State.DESTROYED }
-                .collect {
-                    listener.onDispose()
-                }
-        }
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
+                listener.onDispose()
+            }
+        })
         return state.asStateFlow()
     }
 

@@ -26,7 +26,7 @@ import kotlin.math.absoluteValue
 fun StickyHeader(
     modifier: Modifier = Modifier,
     stickyHeight: Density.()-> Float,
-    top: @Composable Density.(Float) -> Unit,
+    topContent: @Composable Density.(Float) -> Unit,
     content: @Composable Density.(Float) -> Unit
 ) {
     val density = LocalDensity.current
@@ -80,7 +80,7 @@ fun StickyHeader(
                     IntOffset(0, offset.toInt())
                 }
         ) {
-            density.top(offset)
+            density.topContent(offset)
         }
         Box(
             modifier = Modifier
