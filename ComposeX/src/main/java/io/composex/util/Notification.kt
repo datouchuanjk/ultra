@@ -20,8 +20,9 @@ fun Context.notify(
     activityIntent: Intent? = null,
     buildAction: NotificationCompat.Builder.() -> Unit = {}
 ) {
-    NotificationManagerCompat.from(this).notify(
-        id, NotificationCompat.Builder(this, channelId)
+    NotificationManagerCompat.from(this)
+        .notify(
+            id, NotificationCompat.Builder(this, channelId)
             .setContentTitle(title)
             .setContentText(content)
             .setSmallIcon(smallIcon)
@@ -40,7 +41,7 @@ fun Context.notify(
             }
             .apply(buildAction)
             .build()
-    )
+        )
 }
 
 fun Context.cancelNotification(id: Int) {

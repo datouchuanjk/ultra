@@ -19,7 +19,7 @@ fun Context.installApk(
         )
     }.takeUnless {
         it.isNullActivity(this)
-    }.also {
+    }?.also {
         startActivity(it)
     }
 }
@@ -28,7 +28,7 @@ fun Context.jumpBrowser(url: String) {
     Intent(Intent.ACTION_VIEW, url.toUri())
         .takeUnless {
             it.isNullActivity(this)
-        }.also {
+        }?.also {
             startActivity(it)
         }
 }

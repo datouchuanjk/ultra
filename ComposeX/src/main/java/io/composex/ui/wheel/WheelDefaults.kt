@@ -9,8 +9,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 
 object WheelDefaults {
+
     val itemHeight = 47.dp
+
     const val VISIBLE_COUNT = 5
+
     val draw: ContentDrawScope.(Rect) -> Unit = {
         drawLine(
             color = Color.Black,

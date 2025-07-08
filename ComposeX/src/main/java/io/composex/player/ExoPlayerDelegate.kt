@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface ExoPlayerDelegate  {
-    val player: ExoPlayer
     val duration: StateFlow<Long>
     val isBuffering: StateFlow<Boolean>
     val isPlaying: StateFlow<Boolean>

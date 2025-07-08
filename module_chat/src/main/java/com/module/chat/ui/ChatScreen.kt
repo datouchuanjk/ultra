@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -29,6 +30,7 @@ fun ChatScreen(viewModel: ChatViewModel = hiltViewModel()) {
         AppTopBar("Chat", false)
         val pagingData by viewModel.paging.flow.collectAsState()
             LazyColumn(
+                state = rememberLazyListState(),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(15.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)

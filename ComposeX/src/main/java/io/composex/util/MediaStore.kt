@@ -69,7 +69,7 @@ private fun InputStream.saveToMediaStoreBelowQ(
         target = File(
             Environment.getExternalStoragePublicDirectory(directory),
             fileName
-        ).ensureUniqueName()
+        ).ensureUnique()
         if (!target.ensureExists()) throw FileNotFoundException()
         target.outputStream().use { output ->
             this.use { input->

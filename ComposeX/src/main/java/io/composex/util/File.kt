@@ -11,7 +11,7 @@ import java.security.MessageDigest
 
 val File.mimeType get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 
-fun File.ensureUniqueName(): File {
+fun File.ensureUnique(): File {
     if (!exists()) return this
     val extension = if (extension.isBlank()) "" else ".$extension"
     var counter = 1

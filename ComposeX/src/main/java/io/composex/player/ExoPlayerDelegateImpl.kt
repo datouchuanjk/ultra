@@ -1,6 +1,5 @@
 package io.composex.player
 
-import android.content.Context
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
@@ -16,11 +15,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal class ExoPlayerDelegateImpl(
-    override val player: ExoPlayer,
+    val player: ExoPlayer,
     private val scope: CoroutineScope
 ) : ExoPlayerDelegate, Player.Listener,
     CoroutineScope by scope {
@@ -59,8 +60,12 @@ internal class ExoPlayerDelegateImpl(
 
     init {
         launch {
-            isLoading
-                .collect {
+            bufferedPercentage
+                .combine(duration) { offset, all ->
+                    offset < all
+                }.filter {
+                    it
+                }.collect {
                     _bufferedPollingJob?.cancel()
                     _bufferedPollingJob = launch {
                         while (isActive) {
