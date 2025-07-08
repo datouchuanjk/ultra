@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 val ComponentActivity.KeyboardHeightFlow: StateFlow<Int>
     get() {
+        lifecycle.currentStateFlow
         val state = MutableStateFlow(0)
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.DESTROYED)) {
             throw LifecycleDestroyedException()

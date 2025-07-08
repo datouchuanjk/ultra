@@ -72,10 +72,8 @@ object CustomActivityResultContracts {
 
         override fun createIntent(context: Context, input: String?): Intent {
             val sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE)
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !sp.getBoolean(
-                    IS_REQUEST,
-                    false
-                )
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !sp.getBoolean(IS_REQUEST, false)
             ) {
                 sp.edit { putBoolean(IS_REQUEST, true) }
                 _requestPermission.createIntent(context, Manifest.permission.POST_NOTIFICATIONS)

@@ -64,7 +64,7 @@ fun Context.createNotificationChannel(
     }
 }
 
-fun Context.createNotificationChannel(channelId: String) {
+fun Context.deleteNotificationChannel(channelId: String) {
     val manager = NotificationManagerCompat.from(this)
     if (manager.getNotificationChannel(channelId) != null) {
         manager.deleteNotificationChannel(channelId)

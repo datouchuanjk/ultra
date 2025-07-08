@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +23,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun RowScope.Wheel(
     modifier: Modifier = Modifier,
-    state: LazyListState,
+    state: LazyListState = rememberLazyListState(),
     itemCount: Int,
     itemHeight: Dp = WheelDefaults.itemHeight,
     visibleCount: Int = WheelDefaults.VISIBLE_COUNT,

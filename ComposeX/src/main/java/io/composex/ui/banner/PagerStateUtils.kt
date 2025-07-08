@@ -10,7 +10,7 @@ import androidx.compose.runtime.getValue
 import kotlinx.coroutines.delay
 
 @Composable
-fun PagerState.withAutoPlay(
+fun PagerState.withAutoScroll(
     interval: Long = 3000,
     animationSpec: AnimationSpec<Float> = tween(500)
 ) = apply {
