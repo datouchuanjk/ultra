@@ -25,9 +25,6 @@ class HostActivity : ComponentActivity() {
     private var _navController: NavHostController? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val a = "aaa.apk"
-        Log.d("HostActivity","a=${a.mimeType}")
-        installApk()
         handleIntent(intent)
         enableEdgeToEdge()
         setContent {

@@ -38,7 +38,7 @@ val Context.versionCode: Long
 val Context.versionName: String
     get() = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
 
-fun Context.createConfigurationContext(value: Float): Context {
+fun Context.createDensityContext(value: Float): Context {
     val newDensityDpi = resources.displayMetrics.widthPixels
         .div(value)
         .times(DisplayMetrics.DENSITY_DEFAULT)
