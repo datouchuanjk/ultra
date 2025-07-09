@@ -42,7 +42,7 @@ private fun InputStream.saveToMediaStoreAboveQ(
             put(MediaStore.MediaColumns.IS_PENDING, 1)
         } ?: throw NullPointerException()
         uri.openOutputStream(context)?.use { output ->
-            this.use { input->
+            use { input->
                 input.copyTo(output)
             }
         }
@@ -72,7 +72,7 @@ private fun InputStream.saveToMediaStoreBelowQ(
         ).ensureUnique()
         if (!target.ensureExists()) throw FileNotFoundException()
         target.outputStream().use { output ->
-            this.use { input->
+            use { input->
                 input.copyTo(output)
             }
         }

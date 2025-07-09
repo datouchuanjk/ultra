@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
 @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-fun Context.notify(
+fun Context.notifyNotification(
     id: Int = System.currentTimeMillis().toInt(),
     channelId: String,
     title: String,
@@ -35,7 +35,7 @@ fun Context.notify(
 }
 
 fun Context.cancelNotification(id: Int) {
-    NotificationManagerCompat.from(this).cancel(id)
+    NotificationManagerCompat.from(applicationContext).cancel(id)
 }
 
 fun Context.createNotificationChannel(
@@ -44,7 +44,7 @@ fun Context.createNotificationChannel(
     channelName: String = channelId,
     buildAction: NotificationChannelCompat.Builder.() -> Unit = {}
 ) {
-    val manager = NotificationManagerCompat.from(this)
+    val manager = NotificationManagerCompat.from(applicationContext)
     if (manager.getNotificationChannel(channelId) == null) {
         manager.createNotificationChannel(
             NotificationChannelCompat.Builder(channelId, importance)
@@ -56,7 +56,7 @@ fun Context.createNotificationChannel(
 }
 
 fun Context.deleteNotificationChannel(channelId: String) {
-    val manager = NotificationManagerCompat.from(this)
+    val manager = NotificationManagerCompat.from(applicationContext)
     if (manager.getNotificationChannel(channelId) != null) {
         manager.deleteNotificationChannel(channelId)
     }
@@ -67,7 +67,7 @@ private fun NotificationCompat.Builder.setContentActivityIntent(context: Context
         intent?.let {
             setContentIntent(
                 PendingIntent.getActivity(
-                    context,
+                    context.applicationContext,
                     0,
                     it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

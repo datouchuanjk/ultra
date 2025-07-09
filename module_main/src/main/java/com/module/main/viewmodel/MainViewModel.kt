@@ -11,3 +11,4 @@ class MainViewModel  : BaseViewModel() {
         _index.value = index
     }
 }
+

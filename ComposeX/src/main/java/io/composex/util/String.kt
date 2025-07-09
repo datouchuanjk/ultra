@@ -1,6 +1,8 @@
 package io.composex.util
 
+import android.net.Uri
 import android.webkit.MimeTypeMap
+import androidx.core.net.toUri
 
 val String.extension: String? get() = MimeTypeMap.getFileExtensionFromUrl(this)
 

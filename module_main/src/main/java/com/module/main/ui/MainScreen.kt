@@ -25,6 +25,7 @@ import com.module.chat.ui.ChatScreen
 import com.module.home.ui.HomeScreen
 import com.module.main.viewmodel.MainViewModel
 import com.module.mine.ui.MineScreen
+import org.koin.androidx.compose.get
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

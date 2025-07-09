@@ -105,7 +105,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: String?
         ): SynchronousResult<Boolean>? {
-            _context = context
+            _context = context.applicationContext
             _input = input
             return SynchronousResult(true).takeIf { areNotificationsEnabled() }
         }
@@ -137,7 +137,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: Unit
         ): SynchronousResult<Boolean>? {
-            _context = context
+            _context = context.applicationContext
             return SynchronousResult(true).takeIf { canRequestPackageInstalls() }
         }
 
@@ -161,7 +161,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: Unit
         ): SynchronousResult<Boolean>? {
-            _context = context
+            _context = context.applicationContext
             return SynchronousResult(true).takeIf { canDrawOverlays() }
         }
 
@@ -217,7 +217,7 @@ object CustomActivityResultContracts {
             context: Context,
             input: Unit
         ): SynchronousResult<Boolean>? {
-            _context = context
+            _context = context.applicationContext
             return SynchronousResult(true).takeIf { isExternalStorageManager() }
         }
 
