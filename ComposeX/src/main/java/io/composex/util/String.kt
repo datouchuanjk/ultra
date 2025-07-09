@@ -7,11 +7,11 @@ val String.extension: String? get() = MimeTypeMap.getFileExtensionFromUrl(this)
 val String.mimeType: String? get() = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 
 fun String.filterChinese(): String {
-    return filter { it in '\u4e00'..'\u9fa5' }
+    return filter { it.isChinese }
 }
 
 fun String.filterEnglish(): String {
-    return filter { it in 'a'..'z' || it in 'A'..'Z' }
+    return filter { it.isEnglish }
 }
 
 fun String.filterDigit(): String {

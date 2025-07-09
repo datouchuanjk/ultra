@@ -2,7 +2,6 @@ package com.example.demo.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,15 +11,11 @@ import androidx.navigation.compose.composable
 import com.module.basic.route.AppRoutes
 import com.module.login.ui.LoginScreen
 import com.module.main.ui.MainScreen
-import dagger.hilt.android.AndroidEntryPoint
 import io.composex.nav.NavControllerLocalProvider
-import io.composex.util.installApk
-import io.composex.util.mimeType
 
 /**
  * 全局唯一Activity  单Activity模式
  */
-@AndroidEntryPoint
 class HostActivity : ComponentActivity() {
     private var _navController: NavHostController? = null
     override fun onCreate(savedInstanceState: Bundle?) {

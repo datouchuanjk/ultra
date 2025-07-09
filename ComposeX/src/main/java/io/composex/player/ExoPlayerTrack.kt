@@ -10,42 +10,35 @@ import java.math.RoundingMode
 data class ExoPlayerTrack(
     internal val index: Int,
     internal val trackGroup: TrackGroup,
-) {
-    val format
-        @OptIn(UnstableApi::class)
-        get() = trackGroup.getFormat(index)
-    val width get() = format.width
-    val height get() = format.height
-    val id get() = format.id
-    val label get() = format.label
-    val bitrate
-        @OptIn(UnstableApi::class)
-        get() = format.bitrate
-    val language get() = format.language
-    val mimeType get() = format.sampleMimeType
-    val resolution: String
-        get() = if (width != Format.NO_VALUE && height != Format.NO_VALUE) {
-            "${height}p"
-        } else {
-            "unit"
-        }
-    val bitrateText: String
-        get() = if (bitrate != Format.NO_VALUE) {
-            val bd = BigDecimal(bitrate.toDouble() / 1000000)
-                .setScale(2, RoundingMode.HALF_UP)
-            "$bd Mbps"
-        } else {
-            "unit"
-        }
-    val codec: String?
-        get() = when {
-            mimeType == null -> null
-            mimeType!!.contains("avc") -> "H.264"
-            mimeType!!.contains("hev") -> "H.265"
-            mimeType!!.contains("av01") -> "AV1"
-            mimeType!!.contains("vp9") -> "VP9"
-            mimeType!!.contains("mp4a") -> "AAC"
-            mimeType!!.contains("opus") -> "Opus"
-            else -> mimeType
-        }
-}
+    val format: Format,
+)
+
+val ExoPlayerTrack.width get() = format.width
+val ExoPlayerTrack.height get() = format.height
+val ExoPlayerTrack.id get() = format.id
+val ExoPlayerTrack.label get() = format.label
+val ExoPlayerTrack.bitrate
+    @OptIn(UnstableApi::class)
+    get() = format.bitrate
+val ExoPlayerTrack.language get() = format.language
+val ExoPlayerTrack.mimeType get() = format.sampleMimeType
+val ExoPlayerTrack.resolution
+    get() = takeIf { width != Format.NO_VALUE && height != Format.NO_VALUE }?.let { "${height}p" }
+
+val ExoPlayerTrack.bitrateText
+    get() = takeIf { bitrate != Format.NO_VALUE }.let {
+        val bd = BigDecimal(bitrate.toDouble() / 1000000)
+            .setScale(2, RoundingMode.HALF_UP)
+        "${bd}Mbps"
+    }
+val ExoPlayerTrack.codec: String?
+    get() = when {
+        mimeType == null -> null
+        mimeType!!.contains("avc") -> "H.264"
+        mimeType!!.contains("hev") -> "H.265"
+        mimeType!!.contains("av01") -> "AV1"
+        mimeType!!.contains("vp9") -> "VP9"
+        mimeType!!.contains("mp4a") -> "AAC"
+        mimeType!!.contains("opus") -> "Opus"
+        else -> mimeType
+    }

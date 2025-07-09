@@ -16,23 +16,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.module.basic.constant.NotificationConstant
 import com.module.home.viewmodel.HomeViewModel
 import io.composex.util.CustomActivityResultContracts
-import io.composex.util.notify
 import com.module.basic.util.HostIntent
+import io.composex.util.notify
 
 @SuppressLint("MissingPermission")
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
-    val currentContext: Context = LocalContext.current
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+    val context: Context = LocalContext.current
     Column(modifier = Modifier.fillMaxSize()) {
         val launcher = rememberLauncherForActivityResult(
             CustomActivityResultContracts.RequestNotificationPermission()
         ) {
             if (it) {
-                currentContext.notify(
+                context .notify(
                     channelId = NotificationConstant.CHANNEL_ID,
                     title = "标题",
                     content = "内容",

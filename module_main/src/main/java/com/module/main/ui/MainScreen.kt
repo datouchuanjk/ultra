@@ -1,5 +1,8 @@
 package com.module.main.ui
 
+import android.content.Context
+import android.net.Uri
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,14 +20,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
 import com.module.chat.ui.ChatScreen
 import com.module.home.ui.HomeScreen
 import com.module.main.viewmodel.MainViewModel
 import com.module.mine.ui.MineScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(viewModel: MainViewModel  = koinViewModel()) {
     val items = listOf(
         "home" to Icons.Default.Home,
         "chat" to Icons.Default.Call,

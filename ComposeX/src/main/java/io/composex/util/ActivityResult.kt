@@ -75,7 +75,7 @@ object CustomActivityResultContracts {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 !sp.getBoolean(IS_REQUEST, false)
             ) {
-                sp.edit { putBoolean(IS_REQUEST, true) }
+                sp.edit(true) { putBoolean(IS_REQUEST, true) }
                 _requestPermission.createIntent(context, Manifest.permission.POST_NOTIFICATIONS)
             } else {
                 createNotificationSettingsIntent()

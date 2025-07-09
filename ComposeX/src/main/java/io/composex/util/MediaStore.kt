@@ -35,7 +35,7 @@ private fun InputStream.saveToMediaStoreAboveQ(
 ) {
     var uri: Uri? = null
     try {
-        uri = contentUri?.insertTo(context) {
+        uri = contentUri?.insert(context) {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
             put(MediaStore.MediaColumns.RELATIVE_PATH, directory)

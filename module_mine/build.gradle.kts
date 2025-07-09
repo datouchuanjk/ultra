@@ -26,8 +26,4 @@ android {
 
 dependencies {
     implementation(project(":module_basic"))
-    // ⬇️  Hilt 依赖
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
 }

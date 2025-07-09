@@ -1,13 +1,10 @@
 package com.module.chat.viewmodel
 
 import com.module.basic.viewmodel.BaseViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.composex.paging.buildOffsetPaging
 import kotlinx.coroutines.delay
-import javax.inject.Inject
 
-@HiltViewModel
-class ChatViewModel @Inject constructor() : BaseViewModel() {
+class ChatViewModel :BaseViewModel() {
     val paging = buildOffsetPaging {
         if (it.key == 1) {
             delay(3000)

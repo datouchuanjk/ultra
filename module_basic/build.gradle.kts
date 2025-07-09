@@ -31,10 +31,10 @@ dependencies {
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.ui.graphics)
-    api(libs.androidx.compose.ui.tooling.preview)
-    api(libs.androidx.compose.material3)
-    api(libs.androidx.lifecycle.viewmodel.compose)
     api(libs.androidx.navigation.compose)
+    api(libs.androidx.compose.material3)
+    api(libs.androidx.compose.ui.tooling.preview)
+    api(libs.androidx.lifecycle.viewmodel.compose)
     api(libs.coil.compose)
     api(libs.androidx.constraintlayout.compose)
 //    retrofit
@@ -42,10 +42,10 @@ dependencies {
     api(libs.okhttp)
     api(libs.logging.interceptor)
     api(libs.converter.gson)
-    // hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
     //X
     api(project(":ComposeX"))
+    //koin
+    api(libs.koin.core)
+    api (libs.koin.android)
+    api (libs.koin.androidx.compose)
 }

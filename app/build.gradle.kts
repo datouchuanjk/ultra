@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
-    id("dagger.hilt.android.plugin")
 }
 val defaultSigningConfig = SigningConfigs.Default()
 android {
@@ -50,10 +49,9 @@ android {
 dependencies {
     implementation(project(":module_basic"))
     implementation(project(":module_main"))
+    implementation(project(":module_home"))
+    implementation(project(":module_mine"))
+    implementation(project(":module_chat"))
     implementation(project(":module_login"))
-    // ⬇️  Hilt 依赖
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
 }
 

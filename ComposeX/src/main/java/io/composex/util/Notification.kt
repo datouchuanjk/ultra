@@ -20,28 +20,18 @@ fun Context.notify(
     activityIntent: Intent? = null,
     buildAction: NotificationCompat.Builder.() -> Unit = {}
 ) {
-    NotificationManagerCompat.from(this)
-        .notify(
-            id, NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setSmallIcon(smallIcon)
-            .setAutoCancel(autoCancel)
-            .apply {
-                activityIntent?.let {
-                    setContentIntent(
-                        PendingIntent.getActivity(
-                            this@notify,
-                            0,
-                            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                        )
-                    )
-                }
-            }
-            .apply(buildAction)
-            .build()
-        )
+    NotificationCompat.Builder(this, channelId)
+        .setContentTitle(title)
+        .setContentText(content)
+        .setSmallIcon(smallIcon)
+        .setAutoCancel(autoCancel)
+        .setContentActivityIntent(this, activityIntent)
+        .apply(buildAction)
+        .build()
+        .let {
+            NotificationManagerCompat.from(this).notify(id, it)
+        }
+
 }
 
 fun Context.cancelNotification(id: Int) {
@@ -51,7 +41,7 @@ fun Context.cancelNotification(id: Int) {
 fun Context.createNotificationChannel(
     channelId: String,
     importance: Int = NotificationManagerCompat.IMPORTANCE_DEFAULT,
-    channelName: String,
+    channelName: String = channelId,
     buildAction: NotificationChannelCompat.Builder.() -> Unit = {}
 ) {
     val manager = NotificationManagerCompat.from(this)
@@ -71,3 +61,17 @@ fun Context.deleteNotificationChannel(channelId: String) {
         manager.deleteNotificationChannel(channelId)
     }
 }
+
+private fun NotificationCompat.Builder.setContentActivityIntent(context: Context, intent: Intent?) =
+    apply {
+        intent?.let {
+            setContentIntent(
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        }
+    }

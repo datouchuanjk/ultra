@@ -29,8 +29,4 @@ dependencies {
     implementation(project(":module_home"))
     implementation(project(":module_mine"))
     implementation(project(":module_chat"))
-    // ⬇️  Hilt 依赖
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
 }

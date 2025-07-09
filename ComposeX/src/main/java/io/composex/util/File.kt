@@ -69,6 +69,7 @@ val File.md5: String
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
+
 fun File.toProviderUri(
     context: Context,
     authority: String = "${context.packageName}.fileProvider"
