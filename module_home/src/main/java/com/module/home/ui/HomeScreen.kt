@@ -22,7 +22,6 @@ import io.composex.util.notifyNotification
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val context: Context = LocalContext.current
-    (context  as Activity).getPreferences(1)
     Column(modifier = Modifier.fillMaxSize()) {
         val launcher = rememberLauncherForActivityResult(
             CustomActivityResultContracts.RequestNotificationPermission()
