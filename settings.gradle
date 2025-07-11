@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Watermelon"
+rootProject.name = "develop"
 include ':app'
 include ':banner'
 include ':nav'
