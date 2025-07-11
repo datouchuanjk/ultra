@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
 }
-val defaultSigningConfig = SigningConfigs.Default()
 android {
     namespace = NAMESPACE
     compileSdk = COMPILE_SDK
@@ -16,26 +15,15 @@ android {
         versionName = VERSION_NAME
     }
 
-    signingConfigs {
-        create(defaultSigningConfig.name) {
-            storeFile = file(defaultSigningConfig.storeFile)
-            storePassword = defaultSigningConfig.storePassword
-            keyAlias = defaultSigningConfig.keyAlias
-            keyPassword = defaultSigningConfig.keyPassword
-        }
-    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName(defaultSigningConfig.name)
-        }
-        debug {
-            signingConfig = signingConfigs.getByName(defaultSigningConfig.name)
         }
     }
     compileOptions {
-        sourceCompatibility = SOURCE_COMPATIBILITY
-        targetCompatibility = TARGET_COMPATIBILITY
+        sourceCompatibility =  JavaVersion.VERSION_11
+        targetCompatibility =  JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = JVM_TARGET
@@ -47,11 +35,20 @@ android {
 }
 
 dependencies {
-    implementation(project(":module_basic"))
-    implementation(project(":module_main"))
-    implementation(project(":module_home"))
-    implementation(project(":module_mine"))
-    implementation(project(":module_chat"))
-    implementation(project(":module_login"))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(project(":paging"))
+    implementation(project(":wheel"))
+    implementation(project(":sticky"))
+    implementation(project(":player"))
+    implementation(project(":nav"))
+    implementation(project(":banner"))
 }
 

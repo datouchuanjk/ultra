@@ -14,14 +14,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Devil"
+rootProject.name = "Watermelon"
 include ':app'
-include ':module_basic'
-include ':module_home'
-include ':module_mine'
-include ':module_main'
-include ':module_chat'
-include ':module_login'
-include ':ComposeX'
-
+include ':banner'
+include ':nav'
+include ':player'
+include ':wheel'
+include ':sticky'
+include ':paging'
+include ':util'
 
