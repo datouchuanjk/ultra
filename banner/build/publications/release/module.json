@@ -1,0 +1,113 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.datouchuanjk",
+    "module": "banner",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.10.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "banner-1.0.0.aar",
+          "url": "banner-1.0.0.aar",
+          "size": 16915,
+          "sha512": "5549698d7ac8d368572bfb2ca0cfd1a4f1d90de2d32c1d3a6f056f280df93082b139d8cea8ac56f4cbec3ee88416c2c7a44a50a3d09149e1f0d872b8788e6417",
+          "sha256": "ebc07d011321996ec4e5dabbaafcc2bccb8a1847fa69c5666205034a0f5b4788",
+          "sha1": "c68dace2e1cd79a0f70d89dfe3cab9af3f3d6e56",
+          "md5": "528901f0742f30cdf549a13d04d655d0"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose",
+          "module": "compose-bom",
+          "version": {
+            "requires": "2025.06.01"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          }
+        },
+        {
+          "group": "androidx.compose.material3",
+          "module": "material3"
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "banner-1.0.0.aar",
+          "url": "banner-1.0.0.aar",
+          "size": 16915,
+          "sha512": "5549698d7ac8d368572bfb2ca0cfd1a4f1d90de2d32c1d3a6f056f280df93082b139d8cea8ac56f4cbec3ee88416c2c7a44a50a3d09149e1f0d872b8788e6417",
+          "sha256": "ebc07d011321996ec4e5dabbaafcc2bccb8a1847fa69c5666205034a0f5b4788",
+          "sha1": "c68dace2e1cd79a0f70d89dfe3cab9af3f3d6e56",
+          "md5": "528901f0742f30cdf549a13d04d655d0"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "files": [
+        {
+          "name": "banner-1.0.0-sources.jar",
+          "url": "banner-1.0.0-sources.jar",
+          "size": 5569,
+          "sha512": "90e3c42fcbcfc9388d68e4e0a9833dada456cef92f8df802ee29c1ea6ce1f244906cf1cddea5d09e2ca56cc34e46dd2318baf467de4ad6ca06778a8bf491588c",
+          "sha256": "aff457f795814c05d26cae93165f4de16a384e53e2342ad818774a9933c00fef",
+          "sha1": "378e2faaf6033e5f710defadd1914605108b4a75",
+          "md5": "4b155afdac9d3e70f8910b19aabd1604"
+        }
+      ]
+    }
+  ]
+}
