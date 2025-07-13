@@ -2,15 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
 }
 android {
-    namespace = NAMESPACE
+    namespace = "com.datouchuanjk.ultra"
     compileSdk = COMPILE_SDK
     defaultConfig {
         targetSdk = TARGET_SDK
         minSdk = MIN_SDK
-        applicationId = APPLICATION_ID
+        applicationId = "com.datouchuanjk.ultra"
         versionCode = VERSION_CODE
         versionName = VERSION_NAME
     }
@@ -22,15 +21,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility =  JavaVersion.VERSION_11
-        targetCompatibility =  JavaVersion.VERSION_11
+        sourceCompatibility = SOURCE_COMPATIBILITY
+        targetCompatibility =  TARGET_COMPATIBILITY
     }
     kotlinOptions {
         jvmTarget = JVM_TARGET
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
@@ -44,11 +42,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(project(":paging"))
-    implementation(project(":wheel"))
-    implementation(project(":sticky"))
-    implementation(project(":player"))
-    implementation(project(":nav"))
-    implementation(project(":banner"))
+    implementation(project(":paging-helper"))
+    implementation(project(":wheel-compose"))
+    implementation(project(":sticky-compose"))
+    implementation(project(":player-helper"))
+    implementation(project(":navigation-compose"))
+    implementation(project(":banner-compose"))
 }
 

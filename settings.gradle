@@ -14,13 +14,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "develop"
-include ':app'
-include ':banner'
-include ':nav'
-include ':player'
-include ':wheel'
-include ':sticky'
-include ':paging'
-include ':util'
+    rootProject.name = "ultra"
+    include ':app'
+    include ':banner-compose'
+    include ':navigation-compose'
+    include ':player-helper'
+    include ':wheel-compose'
+    include ':sticky-compose'
+    include ':paging-helper'
+    include ':core-helper'
 

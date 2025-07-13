@@ -22,14 +22,14 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/banner" />
+            <option value="$PROJECT_DIR$/banner-compose" />
             <option value="$PROJECT_DIR$/buildSrc" />
-            <option value="$PROJECT_DIR$/nav" />
-            <option value="$PROJECT_DIR$/paging" />
-            <option value="$PROJECT_DIR$/player" />
-            <option value="$PROJECT_DIR$/sticky" />
-            <option value="$PROJECT_DIR$/util" />
-            <option value="$PROJECT_DIR$/wheel" />
+            <option value="$PROJECT_DIR$/core-helper" />
+            <option value="$PROJECT_DIR$/navigation-compose" />
+            <option value="$PROJECT_DIR$/paging-helper" />
+            <option value="$PROJECT_DIR$/player-helper" />
+            <option value="$PROJECT_DIR$/sticky-compose" />
+            <option value="$PROJECT_DIR$/wheel-compose" />
           </set>
         </option>
       </GradleProjectSettings>
