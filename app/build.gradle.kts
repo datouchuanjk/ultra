@@ -42,11 +42,15 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(project(":paging-helper"))
-    implementation(project(":wheel-compose"))
-    implementation(project(":sticky-compose"))
-    implementation(project(":player-helper"))
-    implementation(project(":navigation-compose"))
-    implementation(project(":banner-compose"))
+//    implementation(project(":paging"))
+//    implementation(project(":paging-compose"))
+//    implementation(project(":wheel-compose"))
+//    implementation(project(":sticky-compose"))
+//    implementation(project(":player-helper"))
+//    implementation(project(":navigation-compose"))
+//    implementation(project(":banner-compose"))
+    implementation("androidx.paging:paging-compose:3.3.6")
+// 使用最新版本
+    implementation("androidx.paging:paging-runtime-ktx:3.3.6")
 }
 

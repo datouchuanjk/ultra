@@ -12,7 +12,7 @@ internal data class PagingDataImpl<Value>(
     interface Callback<Value> {
         fun onRefresh()
         fun onRetry()
-        fun onLoad(index: Int, count: Int)
+        fun onCalculate(index: Int, count: Int)
         fun onUpdate(list: List<Value>)
     }
 
@@ -20,19 +20,13 @@ internal data class PagingDataImpl<Value>(
 
     override operator fun get(index: Int): Value {
         if (count > 0) {
-            callback.onLoad(index, count)
+            callback.onCalculate(index, count)
         }
         return peek(index)
     }
 
     override fun peek(index: Int): Value {
         return data[index]
-    }
-
-    override fun itemKey(key: (Value) -> Any): (Int) -> Any {
-        return { index ->
-            key(data[index])
-        }
     }
 
     override fun update(block: (MutableList<Value>) -> Unit) {

@@ -21,6 +21,7 @@ dependencyResolutionManagement {
     include ':player-helper'
     include ':wheel-compose'
     include ':sticky-compose'
-    include ':paging-helper'
+    include ':paging'
+    include ':paging-compose'
     include ':core-helper'
 

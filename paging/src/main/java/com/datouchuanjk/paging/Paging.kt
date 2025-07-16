@@ -2,6 +2,6 @@ package com.datouchuanjk.paging
 
 import kotlinx.coroutines.flow.StateFlow
 
-interface PagingHelper<Value>  {
+interface Paging<Value>  {
     val flow: StateFlow<PagingData<Value>>
 }

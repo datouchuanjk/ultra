@@ -11,13 +11,13 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class PagingHelperImpl<Key, Value>(
+internal class PagingImpl<Key, Value>(
+    private val scope: CoroutineScope,
+    private val context: CoroutineContext,
     private val initialKey: Key? = null,
     private val config: PagingConfig = PagingConfig(),
-    private val load: suspend (LoadParams<Key>) -> LoadResult<Key, Value>,
-    private val scope: CoroutineScope,
-    private val context: CoroutineContext
-) : PagingHelper<Value>, CoroutineScope by scope, PagingDataImpl.Callback<Value> {
+    private val load: suspend (LoadParams<Key>) -> LoadResult<Key, Value>
+) : Paging<Value>, CoroutineScope by scope, PagingDataImpl.Callback<Value> {
 
     override val flow = MutableStateFlow(
         PagingDataImpl(
@@ -39,9 +39,7 @@ internal class PagingHelperImpl<Key, Value>(
     }
 
     private fun refresh() {
-        if (flow.value.refreshState is LoadState.Loading) {
-            return
-        }
+        if (flow.value.refreshState is LoadState.Loading) return
         if (_refreshJob?.isActive == true) return
         if (_refreshMutex.isLocked) return
         _appendJob?.cancel()
@@ -81,21 +79,12 @@ internal class PagingHelperImpl<Key, Value>(
     }
 
     private fun load() {
-        if (flow.value.refreshState is LoadState.Loading) {
-            return
-        }
-        if (_refreshJob?.isActive == true) {
-            return
-        }
-        if (flow.value.appendState is LoadState.Loading) {
-            return
-        }
-        if (flow.value.appendState == LoadState.NotLoading(true)) {
-            return
-        }
-        if (flow.value.appendState is LoadState.Error) {
-            return
-        }
+        if (flow.value.refreshState is LoadState.Loading) return
+        if (_refreshJob?.isActive == true) return
+        if (_refreshMutex.isLocked) return
+        if (flow.value.appendState is LoadState.Loading)  return
+        if (flow.value.appendState == LoadState.NotLoading(true)) return
+        if (flow.value.appendState is LoadState.Error) return
         if (_appendJob?.isActive == true) return
         if (_appendMutex.isLocked) return
         _appendJob = launch {
@@ -149,7 +138,7 @@ internal class PagingHelperImpl<Key, Value>(
         }
     }
 
-    override fun onLoad(index: Int, count: Int) {
+    override fun onCalculate(index: Int, count: Int) {
         if (index + config.prefetchDistance >= count) {
             load()
         }

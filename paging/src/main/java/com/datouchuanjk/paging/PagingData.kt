@@ -9,6 +9,5 @@ interface PagingData<Value> {
     fun retry()
     operator fun get(index: Int): Value
     fun peek(index: Int): Value
-    fun itemKey(key: (Value) -> Any): (index: Int) -> Any
     fun update(block: (MutableList<Value>) -> Unit)
 }

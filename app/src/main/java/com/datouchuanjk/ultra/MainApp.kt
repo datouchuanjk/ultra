@@ -1,4 +1,4 @@
-package com.datouchuanjk.ultraman
+package com.datouchuanjk.ultra
 
 import android.app.Application
 

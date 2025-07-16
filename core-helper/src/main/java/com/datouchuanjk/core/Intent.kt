@@ -15,7 +15,7 @@ fun Context.installApk(
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         setDataAndType(
             apkFile.toProviderUri(this@installApk, authority),
-            "application/vnd.android.package-archive"
+            apkFile.mimeType
         )
     }.takeUnless {
         it.isNullActivity(this)

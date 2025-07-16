@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 internal class ExoPlayerHelperImpl(
@@ -47,7 +48,6 @@ internal class ExoPlayerHelperImpl(
     override val currentSelectedTextTrack = MutableStateFlow<ExoPlayerTrack?>(null)
     private var _currentPollingJob: Job? = null
     private var _bufferedPollingJob: Job? = null
-    private var _bufferedPollingNoChangeCount = 0
 
     init {
         player.addListener(this)
@@ -69,14 +69,6 @@ internal class ExoPlayerHelperImpl(
                     _bufferedPollingJob?.cancel()
                     _bufferedPollingJob = launch {
                         while (isActive) {
-                            if (bufferedPercentage.value == player.bufferedPercentage) {
-                                if (_bufferedPollingNoChangeCount++ > 10) {
-                                    _bufferedPollingJob?.cancel()
-                                    _bufferedPollingJob = null
-                                }
-                            } else {
-                                _bufferedPollingNoChangeCount = 0
-                            }
                             bufferedPosition.value = player.bufferedPosition
                             bufferedPercentage.value = player.bufferedPercentage
                             delay(100)
@@ -88,8 +80,7 @@ internal class ExoPlayerHelperImpl(
 
     init {
         launch {
-            isPlaying
-                .collect {
+            isPlaying.collect {
                     if (it) {
                         _currentPollingJob?.cancel()
                         _currentPollingJob = launch {

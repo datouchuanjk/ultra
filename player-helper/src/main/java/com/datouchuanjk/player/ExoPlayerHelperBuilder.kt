@@ -5,7 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 fun buildExoPlayerHelper(
-    scope: CoroutineScope = CoroutineScope(SupervisorJob()),
+    scope: CoroutineScope,
     player: ExoPlayer
 ): ExoPlayerHelper {
     return ExoPlayerHelperImpl(

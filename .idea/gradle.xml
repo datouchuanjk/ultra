@@ -26,7 +26,8 @@
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core-helper" />
             <option value="$PROJECT_DIR$/navigation-compose" />
-            <option value="$PROJECT_DIR$/paging-helper" />
+            <option value="$PROJECT_DIR$/paging" />
+            <option value="$PROJECT_DIR$/paging-compose" />
             <option value="$PROJECT_DIR$/player-helper" />
             <option value="$PROJECT_DIR$/sticky-compose" />
             <option value="$PROJECT_DIR$/wheel-compose" />
